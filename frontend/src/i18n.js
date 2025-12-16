@@ -321,6 +321,27 @@ export const translations = {
     paymentMethods: 'طرق الدفع',
     copyright: '© 2025 OceanSouq. جميع الحقوق محفوظة.',
     
+    // New Features
+    darkMode: 'وضع ليلي',
+    lightMode: 'وضع نهاري',
+    dailyDeals: 'عروض اليوم',
+    trendingProducts: 'المنتجات الرائجة',
+    bestSellers: 'الأكثر مبيعاً',
+    recommendedForYou: 'موصى بها لك',
+    similarProducts: 'منتجات مشابهة',
+    youMayAlsoLike: 'قد يعجبك أيضاً',
+    buyNow: 'اشتر الآن',
+    viewCart: 'عرض السلة',
+    loyaltyPoints: 'نقاط الولاء',
+    yourPoints: 'نقاطك',
+    searchSuggestions: 'اقتراحات البحث',
+    addedToCartAnimation: 'تمت الإضافة!',
+    discount: 'خصم',
+    saveAmount: 'وفر',
+    originalPrice: 'السعر الأصلي',
+    dealEnds: 'ينتهي العرض',
+    limitedOffer: 'عرض محدود',
+    
     // Messages
     addedToCart: 'تمت الإضافة إلى السلة بنجاح',
     addedToWishlist: 'تمت الإضافة للمفضلة',
