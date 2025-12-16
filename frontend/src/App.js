@@ -1096,7 +1096,11 @@ const HomePage = () => {
               ))}
             </Slider>
           ) : (
-            <p className="text-center text-gray-600">Loading products...</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {[...Array(4)].map((_, idx) => (
+                <ProductSkeleton key={idx} />
+              ))}
+            </div>
           )}
         </div>
       </section>
