@@ -392,15 +392,8 @@ const Header = () => {
     <header className="bg-white shadow-md sticky top-0 z-40">
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between gap-6">
-          {/* Logo */}
-          <Link to="/" className="flex items-center space-x-2 min-w-fit" data-testid="logo">
-            <div className="w-12 h-12 bg-gradient-to-br from-ocean-500 to-ocean-700 rounded-full flex items-center justify-center">
-              <span className="text-2xl text-white">🌊</span>
-            </div>
-            <div className="hidden lg:block">
-              <h1 className="text-3xl font-bold text-ocean-700">Ocean</h1>
-            </div>
-          </Link>
+          {/* Animated Logo */}
+          <AnimatedLogo />
 
           {/* Search Bar */}
           <form onSubmit={handleSearch} className="flex-1 max-w-2xl relative">
