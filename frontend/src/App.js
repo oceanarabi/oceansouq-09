@@ -432,10 +432,10 @@ const Footer = () => {
           <div>
             <h3 className="font-bold text-lg mb-4">{t('category')}</h3>
             <ul className="space-y-2">
-              <li><Link to="/products?category=قوارب" className="text-gray-400 hover:text-white">{t('boats')}</Link></li>
-              <li><Link to="/products?category=غوص" className="text-gray-400 hover:text-white">{t('diving')}</Link></li>
-              <li><Link to="/products?category=معدات صيد" className="text-gray-400 hover:text-white">{t('fishing')}</Link></li>
-              <li><Link to="/products?category=إكسسوارات" className="text-gray-400 hover:text-white">{t('accessories')}</Link></li>
+              <li><Link to="/products?category=Electronics" className="text-gray-400 hover:text-white">{t('electronics')}</Link></li>
+              <li><Link to="/products?category=Fashion" className="text-gray-400 hover:text-white">{t('mensFashion')}</Link></li>
+              <li><Link to="/products?category=Beauty" className="text-gray-400 hover:text-white">{t('beautyPersonalCare')}</Link></li>
+              <li><Link to="/products?category=Home" className="text-gray-400 hover:text-white">{t('homeKitchen')}</Link></li>
             </ul>
           </div>
 
