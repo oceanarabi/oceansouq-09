@@ -1205,66 +1205,121 @@ const ProductsPage = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-4xl font-bold mb-8">{t('allProducts')}</h1>
-      
-      {/* Filters */}
-      <div className="mb-8 flex flex-col md:flex-row gap-4">
-        <input
-          type="text"
-          placeholder={t('searchProduct')}
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="flex-1 px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-ocean-500 focus:outline-none"
-          data-testid="search-filter"
-        />
-        <select
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
-          className="px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-ocean-500 focus:outline-none"
-          data-testid="category-filter"
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-4xl font-bold dark:text-white">{t('allProducts')}</h1>
+        <button 
+          onClick={() => setShowFilters(!showFilters)}
+          className="md:hidden bg-ocean-600 text-white px-4 py-2 rounded-lg"
         >
-          <option value="">{t('allCategories')}</option>
-          <option value="Electronics">{t('electronics')}</option>
-          <option value="MensFashion">{t('mensFashion')}</option>
-          <option value="WomensFashion">{t('womensFashion')}</option>
-          <option value="KidsBaby">{t('kidsBaby')}</option>
-          <option value="SportsFitness">{t('sportsFitness')}</option>
-          <option value="HomeKitchen">{t('homeKitchen')}</option>
-          <option value="Beauty">{t('beautyPersonalCare')}</option>
-          <option value="Shoes">{t('shoes')}</option>
-          <option value="Bags">{t('bagsLuggage')}</option>
-          <option value="Jewelry">{t('jewelryWatches')}</option>
-          <option value="Books">{t('books')}</option>
-          <option value="Toys">{t('toysGames')}</option>
-          <option value="Automotive">{t('automotive')}</option>
-          <option value="Phones">{t('phonesTablets')}</option>
-          <option value="Computers">{t('computers')}</option>
-          <option value="Cameras">{t('cameras')}</option>
-          <option value="Furniture">{t('furniture')}</option>
-          <option value="HomeDecor">{t('homeDecor')}</option>
-          <option value="Garden">{t('gardenOutdoor')}</option>
-          <option value="Health">{t('healthWellness')}</option>
-          <option value="Grocery">{t('groceryFood')}</option>
-          <option value="Pets">{t('petSupplies')}</option>
-          <option value="Office">{t('officeSupplies')}</option>
-          <option value="Tools">{t('toolsHardware')}</option>
-          <option value="Music">{t('musicalInstruments')}</option>
-          <option value="Art">{t('artCrafts')}</option>
-          <option value="Party">{t('partySupplies')}</option>
-          <option value="BabyCare">{t('babyCare')}</option>
-        </select>
+          {t('filters')} ☰
+        </button>
       </div>
+      
+      <div className="flex gap-8">
+        {/* Sidebar Filters */}
+        <div className={`${showFilters ? 'block' : 'hidden'} md:block w-full md:w-64 space-y-6`}>
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
+            <h3 className="font-bold text-lg mb-4 dark:text-white">{t('filters')}</h3>
+            
+            {/* Sort By */}
+            <div className="mb-6">
+              <label className="block text-sm font-semibold mb-2 dark:text-white">{t('sortBy')}</label>
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                className="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:text-white dark:border-gray-600"
+              >
+                <option value="newest">{t('newest')}</option>
+                <option value="priceLow">{t('priceLowToHigh')}</option>
+                <option value="priceHigh">{t('priceHighToLow')}</option>
+                <option value="popular">{t('mostPopular')}</option>
+              </select>
+            </div>
+            
+            {/* Price Range */}
+            <div className="mb-6">
+              <label className="block text-sm font-semibold mb-2 dark:text-white">{t('priceRange')}</label>
+              <div className="flex items-center gap-2">
+                <input
+                  type="number"
+                  value={priceRange[0]}
+                  onChange={(e) => setPriceRange([parseInt(e.target.value), priceRange[1]])}
+                  className="w-20 px-2 py-1 border rounded dark:bg-gray-700 dark:text-white dark:border-gray-600"
+                  placeholder="Min"
+                />
+                <span className="dark:text-white">-</span>
+                <input
+                  type="number"
+                  value={priceRange[1]}
+                  onChange={(e) => setPriceRange([priceRange[0], parseInt(e.target.value)])}
+                  className="w-20 px-2 py-1 border rounded dark:bg-gray-700 dark:text-white dark:border-gray-600"
+                  placeholder="Max"
+                />
+              </div>
+            </div>
+            
+            {/* Brand Filter */}
+            <div className="mb-6">
+              <label className="block text-sm font-semibold mb-2 dark:text-white">{t('brand')}</label>
+              <select
+                value={selectedBrand}
+                onChange={(e) => setSelectedBrand(e.target.value)}
+                className="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:text-white dark:border-gray-600"
+              >
+                <option value="">All Brands</option>
+                <option value="Nike">Nike</option>
+                <option value="Adidas">Adidas</option>
+                <option value="Apple">Apple</option>
+                <option value="Samsung">Samsung</option>
+              </select>
+            </div>
+            
+            <button 
+              onClick={() => {
+                setSortBy('newest');
+                setPriceRange([0, 10000]);
+                setSelectedBrand('');
+              }}
+              className="w-full bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white py-2 rounded-lg"
+            >
+              {t('clearFilters')}
+            </button>
+          </div>
+        </div>
 
-      {/* Products Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        {products.map(product => (
-          <ProductCard key={product.id} product={product} />
-        ))}
+        {/* Products Grid */}
+        <div className="flex-1">
+          <div className="mb-4 text-sm text-gray-600 dark:text-gray-400">
+            {t('showing')} {displayedProducts.length} {t('results')}
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {displayedProducts.map(product => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </div>
+
+          {displayedProducts.length === 0 && (
+            <p className="text-center text-gray-600 dark:text-gray-400 py-12">No products found</p>
+          )}
+          
+          {/* Load More Button */}
+          {hasMore && displayedProducts.length > 0 && (
+            <div className="text-center mt-8">
+              <button
+                onClick={loadMore}
+                className="bg-ocean-600 hover:bg-ocean-700 text-white px-8 py-3 rounded-lg font-semibold"
+              >
+                {t('loadMore')}
+              </button>
+            </div>
+          )}
+          
+          {!hasMore && displayedProducts.length > 0 && (
+            <p className="text-center text-gray-500 dark:text-gray-400 py-8">{t('noMoreProducts')}</p>
+          )}
+        </div>
       </div>
-
-      {products.length === 0 && (
-        <p className="text-center text-gray-600 py-12">No products found</p>
-      )}
     </div>
   );
 };
