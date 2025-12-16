@@ -944,45 +944,54 @@ const HomePage = () => {
           <h2 className="text-4xl font-bold text-center mb-12">{t('shopByCategory')}</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
             {[
-              { name: t('electronics'), icon: '📱', category: 'Electronics', color: 'from-blue-500 to-blue-700' },
-              { name: t('mensFashion'), icon: '👔', category: 'MensFashion', color: 'from-gray-700 to-gray-900' },
-              { name: t('womensFashion'), icon: '👗', category: 'WomensFashion', color: 'from-pink-500 to-pink-700' },
-              { name: t('kidsBaby'), icon: '👶', category: 'KidsBaby', color: 'from-yellow-400 to-yellow-600' },
-              { name: t('sportsFitness'), icon: '⚽', category: 'SportsFitness', color: 'from-green-500 to-green-700' },
-              { name: t('homeKitchen'), icon: '🏠', category: 'HomeKitchen', color: 'from-orange-500 to-orange-700' },
-              { name: t('beautyPersonalCare'), icon: '💄', category: 'Beauty', color: 'from-purple-500 to-purple-700' },
-              { name: t('shoes'), icon: '👟', category: 'Shoes', color: 'from-red-500 to-red-700' },
-              { name: t('bagsLuggage'), icon: '👜', category: 'Bags', color: 'from-indigo-500 to-indigo-700' },
-              { name: t('jewelryWatches'), icon: '⌚', category: 'Jewelry', color: 'from-yellow-600 to-yellow-800' },
-              { name: t('books'), icon: '📚', category: 'Books', color: 'from-teal-500 to-teal-700' },
-              { name: t('toysGames'), icon: '🎮', category: 'Toys', color: 'from-cyan-500 to-cyan-700' },
-              { name: t('automotive'), icon: '🚗', category: 'Automotive', color: 'from-gray-600 to-gray-800' },
-              { name: t('phonesTablets'), icon: '📱', category: 'Phones', color: 'from-blue-600 to-blue-800' },
-              { name: t('computers'), icon: '💻', category: 'Computers', color: 'from-slate-600 to-slate-800' },
-              { name: t('cameras'), icon: '📷', category: 'Cameras', color: 'from-rose-500 to-rose-700' },
-              { name: t('furniture'), icon: '🛋️', category: 'Furniture', color: 'from-amber-600 to-amber-800' },
-              { name: t('homeDecor'), icon: '🖼️', category: 'HomeDecor', color: 'from-lime-500 to-lime-700' },
-              { name: t('gardenOutdoor'), icon: '🌳', category: 'Garden', color: 'from-emerald-500 to-emerald-700' },
-              { name: t('healthWellness'), icon: '💊', category: 'Health', color: 'from-red-400 to-red-600' },
-              { name: t('groceryFood'), icon: '🛒', category: 'Grocery', color: 'from-green-600 to-green-800' },
-              { name: t('petSupplies'), icon: '🐾', category: 'Pets', color: 'from-orange-400 to-orange-600' },
-              { name: t('officeSupplies'), icon: '📎', category: 'Office', color: 'from-blue-500 to-blue-700' },
-              { name: t('toolsHardware'), icon: '🔧', category: 'Tools', color: 'from-gray-500 to-gray-700' },
-              { name: t('musicalInstruments'), icon: '🎸', category: 'Music', color: 'from-violet-500 to-violet-700' },
-              { name: t('artCrafts'), icon: '🎨', category: 'Art', color: 'from-fuchsia-500 to-fuchsia-700' },
-              { name: t('partySupplies'), icon: '🎉', category: 'Party', color: 'from-pink-400 to-pink-600' },
-              { name: t('babyCare'), icon: '🍼', category: 'BabyCare', color: 'from-sky-400 to-sky-600' },
+              { name: t('electronics'), icon: '📱', category: 'Electronics', img: 'https://images.pexels.com/photos/356056/pexels-photo-356056.jpeg?w=400&h=300' },
+              { name: t('mensFashion'), icon: '👔', category: 'MensFashion', img: 'https://images.pexels.com/photos/1536619/pexels-photo-1536619.jpeg?w=400&h=300' },
+              { name: t('womensFashion'), icon: '👗', category: 'WomensFashion', img: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=400&h=300' },
+              { name: t('kidsBaby'), icon: '👶', category: 'KidsBaby', img: 'https://images.pexels.com/photos/255514/pexels-photo-255514.jpeg?w=400&h=300' },
+              { name: t('sportsFitness'), icon: '⚽', category: 'SportsFitness', img: 'https://images.pexels.com/photos/46798/the-ball-stadion-football-the-pitch-46798.jpeg?w=400&h=300' },
+              { name: t('homeKitchen'), icon: '🏠', category: 'HomeKitchen', img: 'https://images.pexels.com/photos/1080721/pexels-photo-1080721.jpeg?w=400&h=300' },
+              { name: t('beautyPersonalCare'), icon: '💄', category: 'Beauty', img: 'https://images.pexels.com/photos/286951/pexels-photo-286951.jpeg?w=400&h=300' },
+              { name: t('shoes'), icon: '👟', category: 'Shoes', img: 'https://images.pexels.com/photos/2562992/pexels-photo-2562992.png?w=400&h=300' },
+              { name: t('bagsLuggage'), icon: '👜', category: 'Bags', img: 'https://images.unsplash.com/photo-1483985988355-763728e1935b?w=400&h=300' },
+              { name: t('jewelryWatches'), icon: '⌚', category: 'Jewelry', img: 'https://images.pexels.com/photos/6662322/pexels-photo-6662322.jpeg?w=400&h=300' },
+              { name: t('books'), icon: '📚', category: 'Books', img: 'https://images.pexels.com/photos/863988/pexels-photo-863988.jpeg?w=400&h=300' },
+              { name: t('toysGames'), icon: '🎮', category: 'Toys', img: 'https://images.pexels.com/photos/168866/pexels-photo-168866.jpeg?w=400&h=300' },
+              { name: t('automotive'), icon: '🚗', category: 'Automotive', img: 'https://images.pexels.com/photos/682933/pexels-photo-682933.jpeg?w=400&h=300' },
+              { name: t('phonesTablets'), icon: '📱', category: 'Phones', img: 'https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=400&h=300' },
+              { name: t('computers'), icon: '💻', category: 'Computers', img: 'https://images.pexels.com/photos/62689/pexels-photo-62689.jpeg?w=400&h=300' },
+              { name: t('cameras'), icon: '📷', category: 'Cameras', img: 'https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg?w=400&h=300' },
+              { name: t('furniture'), icon: '🛋️', category: 'Furniture', img: 'https://images.pexels.com/photos/1350789/pexels-photo-1350789.jpeg?w=400&h=300' },
+              { name: t('homeDecor'), icon: '🖼️', category: 'HomeDecor', img: 'https://images.pexels.com/photos/298842/pexels-photo-298842.jpeg?w=400&h=300' },
+              { name: t('gardenOutdoor'), icon: '🌳', category: 'Garden', img: 'https://images.pexels.com/photos/2062426/pexels-photo-2062426.jpeg?w=400&h=300' },
+              { name: t('healthWellness'), icon: '💊', category: 'Health', img: 'https://images.pexels.com/photos/2827392/pexels-photo-2827392.jpeg?w=400&h=300' },
+              { name: t('groceryFood'), icon: '🛒', category: 'Grocery', img: 'https://images.pexels.com/photos/2062426/pexels-photo-2062426.jpeg?w=400&h=300' },
+              { name: t('petSupplies'), icon: '🐾', category: 'Pets', img: 'https://images.pexels.com/photos/841130/pexels-photo-841130.jpeg?w=400&h=300' },
+              { name: t('officeSupplies'), icon: '📎', category: 'Office', img: 'https://images.pexels.com/photos/245208/pexels-photo-245208.jpeg?w=400&h=300' },
+              { name: t('toolsHardware'), icon: '🔧', category: 'Tools', img: 'https://images.pexels.com/photos/682933/pexels-photo-682933.jpeg?w=400&h=300' },
+              { name: t('musicalInstruments'), icon: '🎸', category: 'Music', img: 'https://images.pexels.com/photos/6153367/pexels-photo-6153367.jpeg?w=400&h=300' },
+              { name: t('artCrafts'), icon: '🎨', category: 'Art', img: 'https://images.pexels.com/photos/1377034/pexels-photo-1377034.jpeg?w=400&h=300' },
+              { name: t('partySupplies'), icon: '🎉', category: 'Party', img: 'https://images.pexels.com/photos/794064/pexels-photo-794064.jpeg?w=400&h=300' },
+              { name: t('babyCare'), icon: '🍼', category: 'BabyCare', img: 'https://images.pexels.com/photos/255514/pexels-photo-255514.jpeg?w=400&h=300' },
             ].map((cat, idx) => (
               <Link
                 key={idx}
                 to={`/products?category=${cat.category}`}
-                className={`group relative h-32 rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition bg-gradient-to-br ${cat.color}`}
+                className="group relative h-40 rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition transform hover:scale-105"
                 data-testid={`category-${cat.category}`}
               >
-                <div className="absolute inset-0 bg-black bg-opacity-20 group-hover:bg-opacity-40 transition"></div>
+                {/* Background Image */}
+                <div 
+                  className="absolute inset-0 bg-cover bg-center"
+                  style={{ backgroundImage: `url(${cat.img})` }}
+                ></div>
+                
+                {/* Overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent opacity-70 group-hover:opacity-90 transition"></div>
+                
+                {/* Content */}
                 <div className="relative h-full flex flex-col items-center justify-center text-white p-4">
-                  <span className="text-4xl mb-2">{cat.icon}</span>
-                  <h3 className="text-sm font-bold text-center">{cat.name}</h3>
+                  <span className="text-5xl mb-2 drop-shadow-lg">{cat.icon}</span>
+                  <h3 className="text-sm font-bold text-center drop-shadow-lg">{cat.name}</h3>
                 </div>
               </Link>
             ))}
