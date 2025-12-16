@@ -988,6 +988,25 @@ const HomePage = () => {
           </div>
         </div>
       </section>
+
+      {/* Best Sellers */}
+      {bestSellers.length > 0 && (
+        <section className="py-12 bg-yellow-50 dark:bg-yellow-900">
+          <div className="container mx-auto px-4">
+            <div className="text-center mb-8">
+              <h2 className="text-4xl font-bold mb-2 dark:text-white">🏆 {t('bestSellers')} 🏆</h2>
+              <p className="text-gray-600 dark:text-gray-300">Most popular products</p>
+            </div>
+            <Slider {...sliderSettings}>
+              {bestSellers.map(product => (
+                <div key={product.id} className="px-2">
+                  <ProductCard product={product} />
+                </div>
+              ))}
+            </Slider>
+          </div>
+        </section>
+      )}
     </div>
   );
 };
