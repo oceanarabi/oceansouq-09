@@ -1659,6 +1659,8 @@ function App() {
                     <Routes>
                       <Route path="/" element={<HomePage />} />
                       <Route path="/products" element={<ProductsPage />} />
+                      <Route path="/account" element={<CustomerAreaPage />} />
+                      <Route path="/my-account" element={<CustomerAreaPage />} />
                     </Routes>
                   </main>
                   <Footer />
