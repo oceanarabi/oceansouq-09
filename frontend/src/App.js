@@ -1634,9 +1634,9 @@ const BottomNavigation = () => {
           <span className="text-xs dark:text-white">Cart</span>
         </button>
         
-        <button onClick={() => navigate(user ? '/dashboard' : '/login')} className="flex flex-col items-center justify-center flex-1">
+        <button onClick={() => navigate(user ? (user.role === 'seller' ? '/dashboard' : '/account') : '/login')} className="flex flex-col items-center justify-center flex-1">
           <span className="text-2xl">👤</span>
-          <span className="text-xs dark:text-white">{user ? 'Profile' : 'Login'}</span>
+          <span className="text-xs dark:text-white">{user ? 'Account' : 'Login'}</span>
         </button>
       </div>
     </div>
