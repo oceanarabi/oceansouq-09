@@ -1133,10 +1133,18 @@ const HomePage = () => {
 // Products Page
 const ProductsPage = () => {
   const [products, setProducts] = useState([]);
+  const [displayedProducts, setDisplayedProducts] = useState([]);
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('');
+  const [sortBy, setSortBy] = useState('newest');
+  const [priceRange, setPriceRange] = useState([0, 10000]);
+  const [selectedBrand, setSelectedBrand] = useState('');
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [showFilters, setShowFilters] = useState(false);
   const { t } = useLanguage();
   const location = window.location;
+  const productsPerPage = 12;
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -1145,15 +1153,55 @@ const ProductsPage = () => {
     
     setSearch(searchParam);
     setCategory(categoryParam);
+    setPage(1);
     
     const apiParams = new URLSearchParams();
     if (searchParam) apiParams.append('search', searchParam);
     if (categoryParam) apiParams.append('category', categoryParam);
     
     axios.get(`${API_URL}/api/products?${apiParams.toString()}`)
-      .then(res => setProducts(res.data))
+      .then(res => {
+        let filtered = res.data;
+        
+        // Apply filters
+        if (selectedBrand) {
+          filtered = filtered.filter(p => p.brand === selectedBrand);
+        }
+        filtered = filtered.filter(p => p.price >= priceRange[0] && p.price <= priceRange[1]);
+        
+        // Apply sorting
+        filtered = sortProducts(filtered, sortBy);
+        
+        setProducts(filtered);
+        setDisplayedProducts(filtered.slice(0, productsPerPage));
+        setHasMore(filtered.length > productsPerPage);
+      })
       .catch(err => console.error(err));
-  }, [location.search]);
+  }, [location.search, sortBy, priceRange, selectedBrand]);
+  
+  const sortProducts = (prods, sort) => {
+    const sorted = [...prods];
+    switch(sort) {
+      case 'priceLow':
+        return sorted.sort((a, b) => a.price - b.price);
+      case 'priceHigh':
+        return sorted.sort((a, b) => b.price - a.price);
+      case 'popular':
+        return sorted.sort((a, b) => (b.stock || 0) - (a.stock || 0));
+      case 'newest':
+      default:
+        return sorted.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+    }
+  };
+  
+  const loadMore = () => {
+    const nextPage = page + 1;
+    const start = nextPage * productsPerPage;
+    const newProducts = products.slice(0, start);
+    setDisplayedProducts(newProducts);
+    setPage(nextPage);
+    setHasMore(products.length > start);
+  };
 
   return (
     <div className="container mx-auto px-4 py-8">
