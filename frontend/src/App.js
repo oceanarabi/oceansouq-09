@@ -369,14 +369,16 @@ const Header = () => {
           </Link>
 
           {/* Search Bar */}
-          <form onSubmit={handleSearch} className="flex-1 max-w-2xl">
+          <form onSubmit={handleSearch} className="flex-1 max-w-2xl relative">
             <div className="relative">
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
+                onFocus={() => searchSuggestions.length > 0 && setShowSuggestions(true)}
+                onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
                 placeholder={t('searchPlaceholder')}
-                className="w-full px-6 py-3 border-2 border-gray-300 rounded-full focus:border-ocean-500 focus:outline-none"
+                className="w-full px-6 py-3 border-2 border-gray-300 rounded-full focus:border-ocean-500 focus:outline-none dark:bg-gray-800 dark:border-gray-600 dark:text-white"
                 data-testid="search-input"
               />
               <button
@@ -387,6 +389,29 @@ const Header = () => {
                 🔍
               </button>
             </div>
+            {/* Search Suggestions */}
+            {showSuggestions && searchSuggestions.length > 0 && (
+              <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-2xl z-50 max-h-96 overflow-y-auto">
+                {searchSuggestions.map((suggestion, idx) => (
+                  <div
+                    key={idx}
+                    onClick={() => {
+                      navigate(`/products/${suggestion.id}`);
+                      setShowSuggestions(false);
+                      setSearchQuery('');
+                    }}
+                    className="p-3 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer flex items-center gap-3 border-b last:border-b-0"
+                  >
+                    <img src={suggestion.image_url} alt={suggestion.title} className="w-12 h-12 object-cover rounded" />
+                    <div className="flex-1">
+                      <p className="font-semibold text-sm dark:text-white">{suggestion.title}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">{suggestion.category}</p>
+                    </div>
+                    <span className="font-bold text-ocean-600">${suggestion.price}</span>
+                  </div>
+                ))}
+              </div>
+            )}
           </form>
 
           {/* Actions */}
