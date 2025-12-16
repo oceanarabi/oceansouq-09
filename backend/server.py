@@ -542,6 +542,159 @@ def remove_from_wishlist(product_id: str, current_user: dict = Depends(get_curre
     
     return {"message": "Removed from wishlist"}
 
+# Trending & Recommendations Endpoints
+@app.get("/api/products/trending")
+def get_trending_products():
+    # Get products sorted by recent orders and views (simulated with created_at for now)
+    trending = list(products_collection.find({}, {"_id": 0}).sort("created_at", -1).limit(12))
+    return trending
+
+@app.get("/api/products/daily-deals")
+def get_daily_deals():
+    # Get products with "deal" tag or random selection (simulated)
+    import random
+    all_products = list(products_collection.find({}, {"_id": 0}))
+    deals = random.sample(all_products, min(8, len(all_products)))
+    # Add discount simulation
+    for deal in deals:
+        deal['original_price'] = deal['price']
+        deal['discount_percent'] = random.choice([10, 15, 20, 25, 30])
+        deal['price'] = round(deal['price'] * (1 - deal['discount_percent']/100), 2)
+    return deals
+
+@app.get("/api/products/best-sellers")
+def get_best_sellers():
+    # Get top selling products (simulated with stock for now)
+    best_sellers = list(products_collection.find({}, {"_id": 0}).sort("stock", -1).limit(12))
+    return best_sellers
+
+@app.get("/api/products/{product_id}/similar")
+def get_similar_products(product_id: str):
+    # Get product
+    product = products_collection.find_one({"id": product_id}, {"_id": 0})
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+    
+    # Find similar products in same category
+    similar = list(products_collection.find({
+        "category": product['category'],
+        "id": {"$ne": product_id}
+    }, {"_id": 0}).limit(6))
+    
+    return similar
+
+@app.get("/api/products/{product_id}/cross-sell")
+def get_cross_sell_products(product_id: str):
+    # Get complementary products (different category, similar price range)
+    product = products_collection.find_one({"id": product_id}, {"_id": 0})
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+    
+    price_min = product['price'] * 0.5
+    price_max = product['price'] * 1.5
+    
+    cross_sell = list(products_collection.find({
+        "category": {"$ne": product['category']},
+        "price": {"$gte": price_min, "$lte": price_max},
+        "id": {"$ne": product_id}
+    }, {"_id": 0}).limit(6))
+    
+    return cross_sell
+
+@app.get("/api/products/recommended")
+def get_recommended_products(current_user: dict = Depends(get_current_user)):
+    # Get recommended based on browsing history and wishlist
+    wishlist = wishlist_collection.find_one({"user_id": current_user['user_id']})
+    
+    if wishlist and wishlist.get('items'):
+        # Get categories from wishlist
+        wishlist_products = list(products_collection.find({"id": {"$in": wishlist['items']}}, {"_id": 0}))
+        categories = list(set([p['category'] for p in wishlist_products]))
+        
+        # Find similar products
+        recommended = list(products_collection.find({
+            "category": {"$in": categories},
+            "id": {"$nin": wishlist['items']}
+        }, {"_id": 0}).limit(12))
+    else:
+        # Return trending if no history
+        recommended = list(products_collection.find({}, {"_id": 0}).sort("created_at", -1).limit(12))
+    
+    return recommended
+
+@app.get("/api/search/suggestions")
+def search_suggestions(q: str):
+    if len(q) < 2:
+        return []
+    
+    # Search in product titles and categories
+    suggestions = list(products_collection.find({
+        "$or": [
+            {"title": {"$regex": q, "$options": "i"}},
+            {"category": {"$regex": q, "$options": "i"}},
+            {"description": {"$regex": q, "$options": "i"}}
+        ]
+    }, {"_id": 0, "id": 1, "title": 1, "category": 1, "price": 1, "image_url": 1}).limit(5))
+    
+    return suggestions
+
+# Loyalty Points Endpoints
+@app.get("/api/loyalty/points")
+def get_loyalty_points(current_user: dict = Depends(get_current_user)):
+    points = loyalty_points_collection.find_one({"user_id": current_user['user_id']}, {"_id": 0})
+    if not points:
+        return {"user_id": current_user['user_id'], "points": 0, "tier": "bronze"}
+    return points
+
+@app.post("/api/loyalty/add-points")
+def add_loyalty_points(points_to_add: int, current_user: dict = Depends(get_current_user)):
+    loyalty = loyalty_points_collection.find_one({"user_id": current_user['user_id']})
+    
+    if not loyalty:
+        loyalty = {"user_id": current_user['user_id'], "points": 0, "tier": "bronze"}
+    
+    loyalty['points'] += points_to_add
+    
+    # Update tier based on points
+    if loyalty['points'] >= 1000:
+        loyalty['tier'] = "platinum"
+    elif loyalty['points'] >= 500:
+        loyalty['tier'] = "gold"
+    elif loyalty['points'] >= 200:
+        loyalty['tier'] = "silver"
+    else:
+        loyalty['tier'] = "bronze"
+    
+    loyalty_points_collection.update_one(
+        {"user_id": current_user['user_id']},
+        {"$set": loyalty},
+        upsert=True
+    )
+    
+    return loyalty
+
+# Browsing History
+@app.post("/api/browsing-history/{product_id}")
+def add_browsing_history(product_id: str, current_user: dict = Depends(get_current_user)):
+    history = browsing_history_collection.find_one({"user_id": current_user['user_id']})
+    
+    if not history:
+        history = {"user_id": current_user['user_id'], "products": []}
+    
+    # Add to beginning and keep last 50
+    if product_id in history['products']:
+        history['products'].remove(product_id)
+    history['products'].insert(0, product_id)
+    history['products'] = history['products'][:50]
+    
+    browsing_history_collection.update_one(
+        {"user_id": current_user['user_id']},
+        {"$set": history},
+        upsert=True
+    )
+    
+    return {"message": "History updated"}
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8001)
