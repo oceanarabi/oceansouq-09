@@ -358,6 +358,22 @@ export const translations = {
     dealEnds: 'ينتهي العرض',
     limitedOffer: 'عرض محدود',
     
+    // Filters
+    filters: 'الفلاتر',
+    priceRange: 'نطاق السعر',
+    brand: 'العلامة التجارية',
+    sortBy: 'ترتيب حسب',
+    newest: 'الأحدث',
+    priceLowToHigh: 'السعر: من الأقل للأعلى',
+    priceHighToLow: 'السعر: من الأعلى للأقل',
+    mostPopular: 'الأكثر شيوعاً',
+    clearFilters: 'مسح الفلاتر',
+    applyFilters: 'تطبيق الفلاتر',
+    showing: 'عرض',
+    results: 'نتيجة',
+    loadMore: 'تحميل المزيد',
+    noMoreProducts: 'لا يوجد منتجات أخرى',
+    
     // Messages
     addedToCart: 'تمت الإضافة إلى السلة بنجاح',
     addedToWishlist: 'تمت الإضافة للمفضلة',
