@@ -1,0 +1,264 @@
+export const translations = {
+  en: {
+    // Top Bar
+    help: 'Help',
+    trackOrder: 'Track Order',
+    language: 'Language',
+    freeShipping: 'Free shipping on orders over $99',
+    
+    // Header
+    searchPlaceholder: 'Search for items, categories, or brands',
+    login: 'Login',
+    register: 'Register',
+    favorites: 'Favorites',
+    cart: 'Cart',
+    
+    // Navigation
+    women: 'Women',
+    men: 'Men',
+    kids: 'Kids',
+    home: 'Home',
+    beauty: 'Beauty',
+    sports: 'Sports',
+    newIn: 'NEW IN',
+    sale: 'SALE %',
+    
+    // Categories
+    boats: 'Boats',
+    diving: 'Diving',
+    fishing: 'Fishing',
+    accessories: 'Accessories',
+    
+    // Hero
+    heroTitle: 'Discover Your Ocean Adventure',
+    heroSubtitle: 'Premium marine equipment for professionals and enthusiasts',
+    shopNow: 'Shop Now',
+    learnMore: 'Learn More',
+    
+    // Products
+    trendingNow: 'Trending Now',
+    freshPicks: 'Fresh picks — updated daily',
+    allProducts: 'All Products',
+    searchProduct: 'Search for a product...',
+    allCategories: 'All Categories',
+    addToCart: 'Add to Cart',
+    addToWishlist: 'Add to Wishlist',
+    quickView: 'Quick View',
+    outOfStock: 'Out of Stock',
+    inStock: 'In Stock',
+    
+    // Product Detail
+    reviews: 'Reviews',
+    addReview: 'Add Review',
+    rating: 'Rating',
+    comment: 'Comment',
+    submitReview: 'Submit Review',
+    quantity: 'Quantity',
+    
+    // Cart
+    shoppingCart: 'Shopping Cart',
+    cartEmpty: 'Your cart is empty',
+    continueShopping: 'Continue Shopping',
+    subtotal: 'Subtotal',
+    shipping: 'Shipping',
+    free: 'Free',
+    total: 'Total',
+    checkout: 'Checkout',
+    remove: 'Remove',
+    
+    // Checkout
+    shippingInformation: 'Shipping Information',
+    fullName: 'Full Name',
+    address: 'Address',
+    city: 'City',
+    zipCode: 'ZIP Code',
+    phone: 'Phone',
+    placeOrder: 'Place Order',
+    orderSummary: 'Order Summary',
+    
+    // Dashboard
+    myProducts: 'My Products',
+    myOrders: 'My Orders',
+    addProduct: 'Add Product',
+    editProduct: 'Edit Product',
+    deleteProduct: 'Delete',
+    productTitle: 'Product Title',
+    description: 'Description',
+    price: 'Price',
+    stock: 'Stock',
+    category: 'Category',
+    save: 'Save',
+    cancel: 'Cancel',
+    
+    // Auth
+    loginTitle: 'Login to Your Account',
+    registerTitle: 'Create New Account',
+    email: 'Email',
+    password: 'Password',
+    name: 'Name',
+    accountType: 'Account Type',
+    buyer: 'Buyer',
+    seller: 'Seller',
+    noAccount: "Don't have an account?",
+    haveAccount: 'Already have an account?',
+    logout: 'Logout',
+    welcome: 'Welcome',
+    
+    // Footer
+    customerService: 'Customer Service',
+    helpCenter: 'Help Center',
+    returns: 'Returns',
+    shippingInfo: 'Shipping Info',
+    trackMyOrder: 'Track My Order',
+    aboutUs: 'About Us',
+    careers: 'Careers',
+    affiliateProgram: 'Affiliate Program',
+    privacyPolicy: 'Privacy Policy',
+    followUs: 'Follow Us',
+    facebook: 'Facebook',
+    instagram: 'Instagram',
+    twitter: 'Twitter',
+    paymentMethods: 'Payment Methods',
+    copyright: '© 2025 OceanSouq. All rights reserved.',
+    
+    // Messages
+    addedToCart: 'Added to cart successfully',
+    addedToWishlist: 'Added to wishlist',
+    removedFromWishlist: 'Removed from wishlist',
+    orderPlaced: 'Order placed successfully',
+    pleaseLogin: 'Please login to continue',
+  },
+  ar: {
+    // Top Bar
+    help: 'مساعدة',
+    trackOrder: 'تتبع الطلب',
+    language: 'اللغة',
+    freeShipping: 'شحن مجاني للطلبات فوق $99',
+    
+    // Header
+    searchPlaceholder: 'ابحث عن منتجات، فئات، أو علامات تجارية',
+    login: 'تسجيل الدخول',
+    register: 'إنشاء حساب',
+    favorites: 'المفضلة',
+    cart: 'السلة',
+    
+    // Navigation
+    women: 'نساء',
+    men: 'رجال',
+    kids: 'أطفال',
+    home: 'منزل',
+    beauty: 'جمال',
+    sports: 'رياضة',
+    newIn: 'جديد',
+    sale: 'تخفيضات %',
+    
+    // Categories
+    boats: 'قوارب',
+    diving: 'غوص',
+    fishing: 'صيد',
+    accessories: 'إكسسوارات',
+    
+    // Hero
+    heroTitle: 'اكتشف مغامرتك البحرية',
+    heroSubtitle: 'معدات بحرية فاخرة للمحترفين والهواة',
+    shopNow: 'تسوق الآن',
+    learnMore: 'اعرف المزيد',
+    
+    // Products
+    trendingNow: 'رائج الآن',
+    freshPicks: 'منتجات جديدة — تحديث يومي',
+    allProducts: 'جميع المنتجات',
+    searchProduct: 'ابحث عن منتج...',
+    allCategories: 'جميع الفئات',
+    addToCart: 'أضف إلى السلة',
+    addToWishlist: 'أضف للمفضلة',
+    quickView: 'عرض سريع',
+    outOfStock: 'نفذت الكمية',
+    inStock: 'متوفر',
+    
+    // Product Detail
+    reviews: 'التقييمات',
+    addReview: 'أضف تقييم',
+    rating: 'التقييم',
+    comment: 'التعليق',
+    submitReview: 'إرسال التقييم',
+    quantity: 'الكمية',
+    
+    // Cart
+    shoppingCart: 'سلة التسوق',
+    cartEmpty: 'السلة فارغة',
+    continueShopping: 'متابعة التسوق',
+    subtotal: 'المجموع الفرعي',
+    shipping: 'الشحن',
+    free: 'مجاني',
+    total: 'الإجمالي',
+    checkout: 'إتمام الطلب',
+    remove: 'حذف',
+    
+    // Checkout
+    shippingInformation: 'معلومات الشحن',
+    fullName: 'الاسم الكامل',
+    address: 'العنوان',
+    city: 'المدينة',
+    zipCode: 'الرمز البريدي',
+    phone: 'رقم الهاتف',
+    placeOrder: 'تأكيد الطلب',
+    orderSummary: 'ملخص الطلب',
+    
+    // Dashboard
+    myProducts: 'منتجاتي',
+    myOrders: 'طلباتي',
+    addProduct: 'إضافة منتج',
+    editProduct: 'تعديل المنتج',
+    deleteProduct: 'حذف',
+    productTitle: 'عنوان المنتج',
+    description: 'الوصف',
+    price: 'السعر',
+    stock: 'المخزون',
+    category: 'الفئة',
+    save: 'حفظ',
+    cancel: 'إلغاء',
+    
+    // Auth
+    loginTitle: 'تسجيل الدخول إلى حسابك',
+    registerTitle: 'إنشاء حساب جديد',
+    email: 'البريد الإلكتروني',
+    password: 'كلمة المرور',
+    name: 'الاسم',
+    accountType: 'نوع الحساب',
+    buyer: 'مشتري',
+    seller: 'بائع',
+    noAccount: 'ليس لديك حساب؟',
+    haveAccount: 'لديك حساب؟',
+    logout: 'تسجيل الخروج',
+    welcome: 'مرحباً',
+    
+    // Footer
+    customerService: 'خدمة العملاء',
+    helpCenter: 'مركز المساعدة',
+    returns: 'المرتجعات',
+    shippingInfo: 'معلومات الشحن',
+    trackMyOrder: 'تتبع طلبي',
+    aboutUs: 'عن الشركة',
+    careers: 'الوظائف',
+    affiliateProgram: 'برنامج الشراكة',
+    privacyPolicy: 'سياسة الخصوصية',
+    followUs: 'تابعنا',
+    facebook: 'فيسبوك',
+    instagram: 'انستغرام',
+    twitter: 'تويتر',
+    paymentMethods: 'طرق الدفع',
+    copyright: '© 2025 OceanSouq. جميع الحقوق محفوظة.',
+    
+    // Messages
+    addedToCart: 'تمت الإضافة إلى السلة بنجاح',
+    addedToWishlist: 'تمت الإضافة للمفضلة',
+    removedFromWishlist: 'تمت الإزالة من المفضلة',
+    orderPlaced: 'تم تأكيد الطلب بنجاح',
+    pleaseLogin: 'يرجى تسجيل الدخول للمتابعة',
+  }
+};
+
+export const getTranslation = (lang, key) => {
+  return translations[lang]?.[key] || translations['en'][key] || key;
+};
