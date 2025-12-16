@@ -528,9 +528,17 @@ const Header = () => {
                 <div className="flex items-center space-x-3">
                   <LoyaltyBadge />
                   <span className="text-sm hidden lg:block dark:text-white" data-testid="user-name">{t('welcome')}, {user.name}</span>
+                  {user.role !== 'seller' && (
+                    <Link 
+                      to="/become-seller"
+                      className="hidden md:block bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-semibold"
+                    >
+                      💼 Become a Seller
+                    </Link>
+                  )}
                   <button
                     onClick={logout}
-                    className="bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-white px-4 py-2 rounded-lg text-sm"
+                    className="bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-white px-3 sm:px-4 py-2 rounded-lg text-sm"
                     data-testid="logout-btn"
                   >
                     {t('logout')}
