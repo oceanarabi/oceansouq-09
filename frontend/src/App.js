@@ -299,8 +299,7 @@ const Header = () => {
               <span className="text-2xl text-white">🌊</span>
             </div>
             <div className="hidden lg:block">
-              <h1 className="text-2xl font-bold text-ocean-700">OceanSouq</h1>
-              <p className="text-xs text-gray-500">Marine Marketplace</p>
+              <h1 className="text-3xl font-bold text-ocean-700">Ocean</h1>
             </div>
           </Link>
 
