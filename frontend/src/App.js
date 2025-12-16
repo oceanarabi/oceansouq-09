@@ -826,6 +826,13 @@ const ProductCard = ({ product, showBadge = true }) => {
       className="product-card bg-white rounded-xl shadow-md overflow-hidden cursor-pointer group relative"
       data-testid={`product-card-${product.id}`}
     >
+      {/* Badge */}
+      {badge && (
+        <div className={`absolute top-3 left-3 z-10 ${badge.color} text-white px-3 py-1 rounded-lg text-xs font-bold shadow-lg`}>
+          {badge.text}
+        </div>
+      )}
+      
       {/* Wishlist Button */}
       <button
         onClick={handleWishlistToggle}
