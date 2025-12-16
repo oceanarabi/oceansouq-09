@@ -861,8 +861,62 @@ const HomePage = () => {
       {/* Hero Section */}
       <HeroSection />
 
+      {/* Daily Deals */}
+      {dailyDeals.length > 0 && (
+        <section className="py-12 bg-red-50 dark:bg-red-900">
+          <div className="container mx-auto px-4">
+            <div className="text-center mb-8">
+              <h2 className="text-4xl font-bold mb-2 text-red-600 dark:text-red-300">⚡ {t('dailyDeals')} ⚡</h2>
+              <p className="text-gray-600 dark:text-gray-300">{t('limitedOffer')}</p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+              {dailyDeals.slice(0, 4).map(product => (
+                <div key={product.id} className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden relative">
+                  <div className="absolute top-2 right-2 bg-red-600 text-white px-3 py-1 rounded-full text-sm font-bold z-10">
+                    {product.discount_percent}% {t('discount')}
+                  </div>
+                  <img src={product.image_url} alt={product.title} className="w-full h-48 object-cover" />
+                  <div className="p-4">
+                    <h3 className="font-bold text-lg mb-2 dark:text-white">{product.title}</h3>
+                    <div className="flex items-center gap-2 mb-3">
+                      <span className="text-2xl font-bold text-red-600">${product.price}</span>
+                      <span className="text-sm line-through text-gray-400">${product.original_price}</span>
+                    </div>
+                    <button 
+                      onClick={() => navigate(`/products/${product.id}`)}
+                      className="w-full bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg font-semibold"
+                    >
+                      {t('shopNow')}
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Recommended Products */}
+      {recommended.length > 0 && (
+        <section className="py-12 bg-purple-50 dark:bg-purple-900">
+          <div className="container mx-auto px-4">
+            <div className="text-center mb-8">
+              <h2 className="text-4xl font-bold mb-2 dark:text-white">💎 {t('recommendedForYou')} 💎</h2>
+              <p className="text-gray-600 dark:text-gray-300">Based on your interests</p>
+            </div>
+            <Slider {...sliderSettings}>
+              {recommended.map(product => (
+                <div key={product.id} className="px-2">
+                  <ProductCard product={product} />
+                </div>
+              ))}
+            </Slider>
+          </div>
+        </section>
+      )}
+
       {/* Trending Products */}
-      <section className="py-16 bg-gray-50">
+      <section className="py-16 bg-gray-50 dark:bg-gray-900">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-4xl font-bold mb-2">{t('trendingNow')}</h2>
