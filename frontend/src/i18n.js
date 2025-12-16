@@ -54,10 +54,11 @@ export const translations = {
     babyCare: 'Baby Care',
     
     // Hero
-    heroTitle: 'Discover Your Ocean Adventure',
-    heroSubtitle: 'Premium marine equipment for professionals and enthusiasts',
+    heroTitle: 'Discover Everything You Need',
+    heroSubtitle: 'Your Ultimate Shopping Destination',
     shopNow: 'Shop Now',
     learnMore: 'Learn More',
+    shopByCategory: 'Shop by Category',
     
     // Products
     trendingNow: 'Trending Now',
