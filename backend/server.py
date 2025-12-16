@@ -32,6 +32,7 @@ products_collection = db['products']
 carts_collection = db['carts']
 orders_collection = db['orders']
 reviews_collection = db['reviews']
+wishlist_collection = db['wishlist']
 
 # JWT Configuration
 JWT_SECRET = os.environ.get('JWT_SECRET', 'oceansouq-secret-key-change-in-production')
