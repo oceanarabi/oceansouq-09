@@ -483,19 +483,19 @@ const HeroSection = () => {
 
   const slides = [
     {
-      image: 'https://images.unsplash.com/photo-1674507593594-964ea25ce06a?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2Nzh8MHwxfHNlYXJjaHwyfHxzYWlsaW5nJTIweWFjaHR8ZW58MHx8fHwxNzY1ODk3MjA2fDA&ixlib=rb-4.1.0&q=85',
-      title: 'Premium Sailing Yachts',
-      subtitle: 'Explore the ocean in luxury',
+      image: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1200&q=80',
+      title: t('heroTitle'),
+      subtitle: t('heroSubtitle'),
     },
     {
-      image: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2NzB8MHwxfHNlYXJjaHwxfHxzY3ViYSUyMGRpdmluZ3xlbnwwfHx8fDE3NjU4OTcyMTJ8MA&ixlib=rb-4.1.0&q=85',
-      title: 'Professional Diving Gear',
-      subtitle: 'Dive deep, explore more',
+      image: 'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=1200&q=80',
+      title: 'Tech & Electronics',
+      subtitle: 'Latest gadgets and devices',
     },
     {
-      image: 'https://images.unsplash.com/photo-1541742425281-c1d3fc8aff96?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDk1Nzh8MHwxfHNlYXJjaHwxfHxmaXNoaW5nfGVufDB8fHx8MTc2NTg5NzIyNXww&ixlib=rb-4.1.0&q=85',
-      title: 'Fishing Adventures',
-      subtitle: 'Cast your line, catch your dream',
+      image: 'https://images.unsplash.com/photo-1445205170230-053b83016050?w=1200&q=80',
+      title: 'Fashion & Style',
+      subtitle: 'Trending styles for everyone',
     },
   ];
 
