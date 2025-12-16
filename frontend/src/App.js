@@ -764,7 +764,7 @@ const HeroSection = () => {
 };
 
 // Product Card Component
-const ProductCard = ({ product }) => {
+const ProductCard = ({ product, showBadge = true }) => {
   const { addToCart } = useCart();
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
   const { t } = useLanguage();
@@ -782,6 +782,22 @@ const ProductCard = ({ product }) => {
 
   const [showAddAnimation, setShowAddAnimation] = useState(false);
   const { token } = useAuth();
+  
+  // Determine badge type
+  const getBadge = () => {
+    if (product.discount_percent) {
+      return { text: `-${product.discount_percent}%`, color: 'bg-red-600', label: 'SALE' };
+    }
+    if (product.isNew) {
+      return { text: 'NEW', color: 'bg-green-600', label: 'NEW' };
+    }
+    if (product.isHot) {
+      return { text: 'HOT', color: 'bg-orange-600', label: 'HOT' };
+    }
+    return null;
+  };
+  
+  const badge = showBadge ? getBadge() : null;
 
   const handleAddToCart = async (e) => {
     e.stopPropagation();
