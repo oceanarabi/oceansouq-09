@@ -871,7 +871,17 @@ const ProductCard = ({ product, showBadge = true }) => {
         <p className="text-gray-600 text-sm mb-3 line-clamp-2">{product.description}</p>
         
         <div className="flex items-center justify-between mb-3">
-          <span className="text-2xl font-bold text-ocean-600" data-testid={`product-price-${product.id}`}>${product.price}</span>
+          <div className="flex flex-col">
+            <div className="flex items-center gap-2">
+              <span className="text-2xl font-bold text-ocean-600" data-testid={`product-price-${product.id}`}>${product.price}</span>
+              {product.original_price && product.original_price > product.price && (
+                <span className="text-sm line-through text-gray-400">${product.original_price}</span>
+              )}
+            </div>
+            {product.discount_percent && (
+              <span className="text-xs text-red-600 font-semibold">Save ${(product.original_price - product.price).toFixed(2)}</span>
+            )}
+          </div>
           <span className="text-xs bg-ocean-100 text-ocean-700 px-2 py-1 rounded">{product.category}</span>
         </div>
 
