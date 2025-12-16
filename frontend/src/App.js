@@ -1210,6 +1210,195 @@ const HomePage = () => {
   );
 };
 
+// Customer Area Page
+const CustomerAreaPage = () => {
+  const [activeTab, setActiveTab] = useState('profile');
+  const { user, token } = useAuth();
+  const [orders, setOrders] = useState([]);
+  const [addresses, setAddresses] = useState([]);
+  const [profile, setProfile] = useState({ name: '', email: '', phone: '' });
+  const { t } = useLanguage();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!token) {
+      navigate('/login');
+      return;
+    }
+    
+    // Load user data
+    if (user) {
+      setProfile({ name: user.name, email: user.email, phone: user.phone || '' });
+    }
+    
+    // Load orders
+    axios.get(`${API_URL}/api/orders`, {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+    .then(res => setOrders(res.data))
+    .catch(err => console.error(err));
+  }, [token, user, navigate]);
+
+  if (!token) return null;
+
+  return (
+    <div className="container mx-auto px-4 py-8">
+      <h1 className="text-4xl font-bold mb-8 dark:text-white">My Account</h1>
+      
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+        {/* Sidebar */}
+        <div className="md:col-span-1">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
+            <div className="text-center mb-6">
+              <div className="w-20 h-20 bg-ocean-600 rounded-full mx-auto flex items-center justify-center text-white text-3xl mb-3">
+                {user.name.charAt(0).toUpperCase()}
+              </div>
+              <h3 className="font-bold text-lg dark:text-white">{user.name}</h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400">{user.email}</p>
+            </div>
+            
+            <nav className="space-y-2">
+              {[
+                { id: 'profile', icon: '👤', label: 'Profile' },
+                { id: 'orders', icon: '📦', label: 'My Orders' },
+                { id: 'addresses', icon: '📍', label: 'Addresses' },
+                { id: 'wishlist', icon: '❤️', label: 'Wishlist' },
+                { id: 'settings', icon: '⚙️', label: 'Settings' },
+              ].map(tab => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`w-full text-left px-4 py-3 rounded-lg flex items-center gap-3 ${
+                    activeTab === tab.id
+                      ? 'bg-ocean-600 text-white'
+                      : 'hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white'
+                  }`}
+                >
+                  <span>{tab.icon}</span>
+                  <span>{tab.label}</span>
+                </button>
+              ))}
+            </nav>
+          </div>
+        </div>
+
+        {/* Content Area */}
+        <div className="md:col-span-3">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-8">
+            {activeTab === 'profile' && (
+              <div>
+                <h2 className="text-2xl font-bold mb-6 dark:text-white">Profile Information</h2>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-semibold mb-2 dark:text-white">Name</label>
+                    <input
+                      type="text"
+                      value={profile.name}
+                      onChange={(e) => setProfile({...profile, name: e.target.value})}
+                      className="w-full px-4 py-2 border rounded-lg dark:bg-gray-700 dark:text-white dark:border-gray-600"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold mb-2 dark:text-white">Email</label>
+                    <input
+                      type="email"
+                      value={profile.email}
+                      disabled
+                      className="w-full px-4 py-2 border rounded-lg bg-gray-100 dark:bg-gray-600 dark:text-white dark:border-gray-600"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold mb-2 dark:text-white">Phone</label>
+                    <input
+                      type="tel"
+                      value={profile.phone}
+                      onChange={(e) => setProfile({...profile, phone: e.target.value})}
+                      className="w-full px-4 py-2 border rounded-lg dark:bg-gray-700 dark:text-white dark:border-gray-600"
+                    />
+                  </div>
+                  <button className="bg-ocean-600 hover:bg-ocean-700 text-white px-6 py-3 rounded-lg font-semibold">
+                    Save Changes
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'orders' && (
+              <div>
+                <h2 className="text-2xl font-bold mb-6 dark:text-white">My Orders</h2>
+                <div className="space-y-4">
+                  {orders.map(order => (
+                    <div key={order.id} className="border dark:border-gray-700 rounded-lg p-6">
+                      <div className="flex justify-between items-start mb-4">
+                        <div>
+                          <p className="text-sm text-gray-500 dark:text-gray-400">Order #{order.id.substring(0, 8)}</p>
+                          <p className="text-sm text-gray-500 dark:text-gray-400">{new Date(order.created_at).toLocaleDateString()}</p>
+                        </div>
+                        <span className="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm">
+                          {order.status}
+                        </span>
+                      </div>
+                      <div className="space-y-2">
+                        {order.items.map((item, idx) => (
+                          <div key={idx} className="flex justify-between text-sm dark:text-white">
+                            <span>{item.title} x{item.quantity}</span>
+                            <span>${item.item_total}</span>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="mt-4 pt-4 border-t dark:border-gray-700 flex justify-between items-center">
+                        <span className="font-bold dark:text-white">Total: ${order.total}</span>
+                        <button className="text-ocean-600 hover:underline">Track Order</button>
+                      </div>
+                    </div>
+                  ))}
+                  {orders.length === 0 && (
+                    <p className="text-center text-gray-500 dark:text-gray-400 py-12">No orders yet</p>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'addresses' && (
+              <div>
+                <h2 className="text-2xl font-bold mb-6 dark:text-white">My Addresses</h2>
+                <button className="bg-ocean-600 hover:bg-ocean-700 text-white px-6 py-3 rounded-lg font-semibold mb-6">
+                  + Add New Address
+                </button>
+                <p className="text-gray-500 dark:text-gray-400">No addresses saved yet</p>
+              </div>
+            )}
+
+            {activeTab === 'wishlist' && (
+              <div>
+                <h2 className="text-2xl font-bold mb-6 dark:text-white">My Wishlist</h2>
+                <Link to="/wishlist" className="text-ocean-600 hover:underline">View Full Wishlist →</Link>
+              </div>
+            )}
+
+            {activeTab === 'settings' && (
+              <div>
+                <h2 className="text-2xl font-bold mb-6 dark:text-white">Account Settings</h2>
+                <div className="space-y-4">
+                  <button className="w-full text-left px-4 py-3 border dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 dark:text-white">
+                    Change Password
+                  </button>
+                  <button className="w-full text-left px-4 py-3 border dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 dark:text-white">
+                    Notification Preferences
+                  </button>
+                  <button className="w-full text-left px-4 py-3 border border-red-600 text-red-600 rounded-lg hover:bg-red-50">
+                    Delete Account
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 // Products Page
 const ProductsPage = () => {
   const [products, setProducts] = useState([]);
