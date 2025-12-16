@@ -328,13 +328,31 @@ const Header = () => {
   const { t } = useLanguage();
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
+  const [searchSuggestions, setSearchSuggestions] = useState([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [showCartPreview, setShowCartPreview] = useState(false);
 
   const handleSearch = (e) => {
     e.preventDefault();
     if (searchQuery.trim()) {
       navigate(`/products?search=${searchQuery}`);
+      setShowSuggestions(false);
     }
   };
+
+  useEffect(() => {
+    if (searchQuery.length >= 2) {
+      axios.get(`${API_URL}/api/search/suggestions?q=${searchQuery}`)
+        .then(res => {
+          setSearchSuggestions(res.data);
+          setShowSuggestions(true);
+        })
+        .catch(err => console.error(err));
+    } else {
+      setSearchSuggestions([]);
+      setShowSuggestions(false);
+    }
+  }, [searchQuery]);
 
   return (
     <header className="bg-white shadow-md sticky top-0 z-40">
