@@ -711,9 +711,28 @@ const ProductCard = ({ product }) => {
     }
   };
 
+  const [showAddAnimation, setShowAddAnimation] = useState(false);
+  const { token } = useAuth();
+
   const handleAddToCart = async (e) => {
     e.stopPropagation();
+    const success = await addToCart(product.id);
+    if (success) {
+      setShowAddAnimation(true);
+      // Award loyalty points
+      if (token) {
+        axios.post(`${API_URL}/api/loyalty/add-points?points_to_add=10`, {}, {
+          headers: { Authorization: `Bearer ${token}` }
+        }).catch(err => console.error(err));
+      }
+      setTimeout(() => setShowAddAnimation(false), 2000);
+    }
+  };
+
+  const handleBuyNow = async (e) => {
+    e.stopPropagation();
     await addToCart(product.id);
+    navigate('/cart');
   };
 
   return (
