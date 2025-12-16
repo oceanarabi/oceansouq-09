@@ -208,10 +208,11 @@ export const translations = {
     babyCare: 'عناية بالأطفال',
     
     // Hero
-    heroTitle: 'اكتشف مغامرتك البحرية',
-    heroSubtitle: 'معدات بحرية فاخرة للمحترفين والهواة',
+    heroTitle: 'اكتشف كل ما تحتاجه',
+    heroSubtitle: 'وجهتك المثالية للتسوق',
     shopNow: 'تسوق الآن',
     learnMore: 'اعرف المزيد',
+    shopByCategory: 'تسوق حسب القسم',
     
     // Products
     trendingNow: 'رائج الآن',
