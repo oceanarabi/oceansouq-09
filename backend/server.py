@@ -203,6 +203,44 @@ def get_products(category: Optional[str] = None, search: Optional[str] = None):
     products = list(products_collection.find(query, {"_id": 0}).sort("created_at", -1))
     return products
 
+# Special Product Endpoints (must be before /{product_id})
+@app.get("/api/products/trending")
+def get_trending_products():
+    trending = list(products_collection.find({}, {"_id": 0}).sort("created_at", -1).limit(12))
+    return trending
+
+@app.get("/api/products/daily-deals")
+def get_daily_deals():
+    import random
+    all_products = list(products_collection.find({}, {"_id": 0}))
+    deals = random.sample(all_products, min(8, len(all_products)))
+    for deal in deals:
+        deal['original_price'] = deal['price']
+        deal['discount_percent'] = random.choice([10, 15, 20, 25, 30])
+        deal['price'] = round(deal['price'] * (1 - deal['discount_percent']/100), 2)
+    return deals
+
+@app.get("/api/products/best-sellers")
+def get_best_sellers():
+    best_sellers = list(products_collection.find({}, {"_id": 0}).sort("stock", -1).limit(12))
+    return best_sellers
+
+@app.get("/api/products/recommended")
+def get_recommended_products(current_user: dict = Depends(get_current_user)):
+    wishlist = wishlist_collection.find_one({"user_id": current_user['user_id']})
+    
+    if wishlist and wishlist.get('items'):
+        wishlist_products = list(products_collection.find({"id": {"$in": wishlist['items']}}, {"_id": 0}))
+        categories = list(set([p['category'] for p in wishlist_products]))
+        recommended = list(products_collection.find({
+            "category": {"$in": categories},
+            "id": {"$nin": wishlist['items']}
+        }, {"_id": 0}).limit(12))
+    else:
+        recommended = list(products_collection.find({}, {"_id": 0}).sort("created_at", -1).limit(12))
+    
+    return recommended
+
 @app.get("/api/products/{product_id}")
 def get_product(product_id: str):
     product = products_collection.find_one({"id": product_id}, {"_id": 0})
