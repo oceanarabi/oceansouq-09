@@ -667,25 +667,48 @@ const HomePage = () => {
       {/* Categories Grid */}
       <section className="py-16">
         <div className="container mx-auto px-4">
-          <h2 className="text-4xl font-bold text-center mb-12">Shop by Category</h2>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <h2 className="text-4xl font-bold text-center mb-12">{t('shopByCategory')}</h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
             {[
-              { name: t('boats'), icon: '⛵', category: 'قوارب', img: 'https://images.unsplash.com/photo-1561728130-afd430af0493' },
-              { name: t('diving'), icon: '🤿', category: 'غوص', img: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5' },
-              { name: t('fishing'), icon: '🎣', category: 'معدات صيد', img: 'https://images.unsplash.com/photo-1529230117010-b6c436154f25' },
-              { name: t('accessories'), icon: '⚓', category: 'إكسسوارات', img: 'https://images.unsplash.com/photo-1504813205186-380b1235a5d2' },
+              { name: t('electronics'), icon: '📱', category: 'Electronics', color: 'from-blue-500 to-blue-700' },
+              { name: t('mensFashion'), icon: '👔', category: 'MensFashion', color: 'from-gray-700 to-gray-900' },
+              { name: t('womensFashion'), icon: '👗', category: 'WomensFashion', color: 'from-pink-500 to-pink-700' },
+              { name: t('kidsBaby'), icon: '👶', category: 'KidsBaby', color: 'from-yellow-400 to-yellow-600' },
+              { name: t('sportsFitness'), icon: '⚽', category: 'SportsFitness', color: 'from-green-500 to-green-700' },
+              { name: t('homeKitchen'), icon: '🏠', category: 'HomeKitchen', color: 'from-orange-500 to-orange-700' },
+              { name: t('beautyPersonalCare'), icon: '💄', category: 'Beauty', color: 'from-purple-500 to-purple-700' },
+              { name: t('shoes'), icon: '👟', category: 'Shoes', color: 'from-red-500 to-red-700' },
+              { name: t('bagsLuggage'), icon: '👜', category: 'Bags', color: 'from-indigo-500 to-indigo-700' },
+              { name: t('jewelryWatches'), icon: '⌚', category: 'Jewelry', color: 'from-yellow-600 to-yellow-800' },
+              { name: t('books'), icon: '📚', category: 'Books', color: 'from-teal-500 to-teal-700' },
+              { name: t('toysGames'), icon: '🎮', category: 'Toys', color: 'from-cyan-500 to-cyan-700' },
+              { name: t('automotive'), icon: '🚗', category: 'Automotive', color: 'from-gray-600 to-gray-800' },
+              { name: t('phonesTablets'), icon: '📱', category: 'Phones', color: 'from-blue-600 to-blue-800' },
+              { name: t('computers'), icon: '💻', category: 'Computers', color: 'from-slate-600 to-slate-800' },
+              { name: t('cameras'), icon: '📷', category: 'Cameras', color: 'from-rose-500 to-rose-700' },
+              { name: t('furniture'), icon: '🛋️', category: 'Furniture', color: 'from-amber-600 to-amber-800' },
+              { name: t('homeDecor'), icon: '🖼️', category: 'HomeDecor', color: 'from-lime-500 to-lime-700' },
+              { name: t('gardenOutdoor'), icon: '🌳', category: 'Garden', color: 'from-emerald-500 to-emerald-700' },
+              { name: t('healthWellness'), icon: '💊', category: 'Health', color: 'from-red-400 to-red-600' },
+              { name: t('groceryFood'), icon: '🛒', category: 'Grocery', color: 'from-green-600 to-green-800' },
+              { name: t('petSupplies'), icon: '🐾', category: 'Pets', color: 'from-orange-400 to-orange-600' },
+              { name: t('officeSupplies'), icon: '📎', category: 'Office', color: 'from-blue-500 to-blue-700' },
+              { name: t('toolsHardware'), icon: '🔧', category: 'Tools', color: 'from-gray-500 to-gray-700' },
+              { name: t('musicalInstruments'), icon: '🎸', category: 'Music', color: 'from-violet-500 to-violet-700' },
+              { name: t('artCrafts'), icon: '🎨', category: 'Art', color: 'from-fuchsia-500 to-fuchsia-700' },
+              { name: t('partySupplies'), icon: '🎉', category: 'Party', color: 'from-pink-400 to-pink-600' },
+              { name: t('babyCare'), icon: '🍼', category: 'BabyCare', color: 'from-sky-400 to-sky-600' },
             ].map((cat, idx) => (
               <Link
                 key={idx}
                 to={`/products?category=${cat.category}`}
-                className="group relative h-64 rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition"
+                className={`group relative h-32 rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition bg-gradient-to-br ${cat.color}`}
                 data-testid={`category-${cat.category}`}
               >
-                <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${cat.img}?w=400&h=300&fit=crop)` }}></div>
-                <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent opacity-70 group-hover:opacity-90 transition"></div>
-                <div className="absolute inset-0 flex flex-col items-center justify-center text-white">
-                  <span className="text-6xl mb-4">{cat.icon}</span>
-                  <h3 className="text-2xl font-bold">{cat.name}</h3>
+                <div className="absolute inset-0 bg-black bg-opacity-20 group-hover:bg-opacity-40 transition"></div>
+                <div className="relative h-full flex flex-col items-center justify-center text-white p-4">
+                  <span className="text-4xl mb-2">{cat.icon}</span>
+                  <h3 className="text-sm font-bold text-center">{cat.name}</h3>
                 </div>
               </Link>
             ))}
