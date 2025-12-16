@@ -615,27 +615,6 @@ def get_cross_sell_products(product_id: str):
     
     return cross_sell
 
-@app.get("/api/products/recommended")
-def get_recommended_products(current_user: dict = Depends(get_current_user)):
-    # Get recommended based on browsing history and wishlist
-    wishlist = wishlist_collection.find_one({"user_id": current_user['user_id']})
-    
-    if wishlist and wishlist.get('items'):
-        # Get categories from wishlist
-        wishlist_products = list(products_collection.find({"id": {"$in": wishlist['items']}}, {"_id": 0}))
-        categories = list(set([p['category'] for p in wishlist_products]))
-        
-        # Find similar products
-        recommended = list(products_collection.find({
-            "category": {"$in": categories},
-            "id": {"$nin": wishlist['items']}
-        }, {"_id": 0}).limit(12))
-    else:
-        # Return trending if no history
-        recommended = list(products_collection.find({}, {"_id": 0}).sort("created_at", -1).limit(12))
-    
-    return recommended
-
 @app.get("/api/search/suggestions")
 def search_suggestions(q: str):
     if len(q) < 2:
