@@ -380,14 +380,16 @@ const Header = () => {
       {/* Navigation Bar */}
       <nav className="bg-gray-50 border-t">
         <div className="container mx-auto px-4">
-          <div className="flex items-center justify-center space-x-8 py-3">
-            <Link to="/products" className="hover:text-ocean-600 font-medium" data-testid="nav-all">{t('allProducts')}</Link>
-            <Link to="/products?category=قوارب" className="hover:text-ocean-600 font-medium">{t('boats')}</Link>
-            <Link to="/products?category=غوص" className="hover:text-ocean-600 font-medium">{t('diving')}</Link>
-            <Link to="/products?category=معدات صيد" className="hover:text-ocean-600 font-medium">{t('fishing')}</Link>
-            <Link to="/products?category=إكسسوارات" className="hover:text-ocean-600 font-medium">{t('accessories')}</Link>
+          <div className="flex items-center justify-center gap-6 py-3 overflow-x-auto">
+            <Link to="/products" className="hover:text-ocean-600 font-medium whitespace-nowrap" data-testid="nav-all">{t('allProducts')}</Link>
+            <Link to="/products?category=Electronics" className="hover:text-ocean-600 font-medium whitespace-nowrap">{t('electronics')}</Link>
+            <Link to="/products?category=Fashion" className="hover:text-ocean-600 font-medium whitespace-nowrap">{t('mensFashion')}</Link>
+            <Link to="/products?category=Beauty" className="hover:text-ocean-600 font-medium whitespace-nowrap">{t('beautyPersonalCare')}</Link>
+            <Link to="/products?category=Home" className="hover:text-ocean-600 font-medium whitespace-nowrap">{t('homeKitchen')}</Link>
+            <Link to="/products?category=Sports" className="hover:text-ocean-600 font-medium whitespace-nowrap">{t('sportsFitness')}</Link>
+            <Link to="/products?category=Kids" className="hover:text-ocean-600 font-medium whitespace-nowrap">{t('kidsBaby')}</Link>
             {user?.role === 'seller' && (
-              <Link to="/dashboard" className="hover:text-ocean-600 font-medium text-ocean-700">{t('myProducts')}</Link>
+              <Link to="/dashboard" className="hover:text-ocean-600 font-medium text-ocean-700 whitespace-nowrap">{t('myProducts')}</Link>
             )}
           </div>
         </div>
