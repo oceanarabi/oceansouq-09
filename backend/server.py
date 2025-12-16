@@ -484,6 +484,61 @@ def get_reviews(product_id: str):
     reviews = list(reviews_collection.find({"product_id": product_id}, {"_id": 0}).sort("created_at", -1))
     return reviews
 
+# Wishlist Endpoints
+@app.get("/api/wishlist")
+def get_wishlist(current_user: dict = Depends(get_current_user)):
+    wishlist = wishlist_collection.find_one({"user_id": current_user['user_id']}, {"_id": 0})
+    if not wishlist:
+        return {"user_id": current_user['user_id'], "items": []}
+    
+    # Populate product details
+    items_with_details = []
+    for product_id in wishlist.get('items', []):
+        product = products_collection.find_one({"id": product_id}, {"_id": 0})
+        if product:
+            items_with_details.append(product)
+    
+    return {"user_id": current_user['user_id'], "items": items_with_details}
+
+@app.post("/api/wishlist/{product_id}")
+def add_to_wishlist(product_id: str, current_user: dict = Depends(get_current_user)):
+    # Check if product exists
+    product = products_collection.find_one({"id": product_id})
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+    
+    # Get or create wishlist
+    wishlist = wishlist_collection.find_one({"user_id": current_user['user_id']})
+    if not wishlist:
+        wishlist = {"user_id": current_user['user_id'], "items": []}
+    
+    # Check if product already in wishlist
+    if product_id not in wishlist['items']:
+        wishlist['items'].append(product_id)
+        wishlist_collection.update_one(
+            {"user_id": current_user['user_id']},
+            {"$set": wishlist},
+            upsert=True
+        )
+    
+    return {"message": "Added to wishlist"}
+
+@app.delete("/api/wishlist/{product_id}")
+def remove_from_wishlist(product_id: str, current_user: dict = Depends(get_current_user)):
+    wishlist = wishlist_collection.find_one({"user_id": current_user['user_id']})
+    if not wishlist:
+        raise HTTPException(status_code=404, detail="Wishlist not found")
+    
+    # Remove item
+    if product_id in wishlist['items']:
+        wishlist['items'].remove(product_id)
+        wishlist_collection.update_one(
+            {"user_id": current_user['user_id']},
+            {"$set": {"items": wishlist['items']}}
+        )
+    
+    return {"message": "Removed from wishlist"}
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8001)
