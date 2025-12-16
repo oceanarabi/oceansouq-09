@@ -322,7 +322,6 @@ const TopBar = () => {
           <Link to="/track-order" className="hover:text-ocean-300" data-testid="track-order-link">{t('trackOrder')}</Link>
         </div>
         <div className="flex items-center space-x-4">
-          <span className="text-ocean-300 hidden md:block">{t('freeShipping')}</span>
           <button
             onClick={toggleDarkMode}
             className="hover:text-ocean-300"
