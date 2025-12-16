@@ -167,6 +167,22 @@ export const translations = {
     dealEnds: 'Deal Ends',
     limitedOffer: 'Limited Offer',
     
+    // Filters
+    filters: 'Filters',
+    priceRange: 'Price Range',
+    brand: 'Brand',
+    sortBy: 'Sort By',
+    newest: 'Newest',
+    priceLowToHigh: 'Price: Low to High',
+    priceHighToLow: 'Price: High to Low',
+    mostPopular: 'Most Popular',
+    clearFilters: 'Clear Filters',
+    applyFilters: 'Apply Filters',
+    showing: 'Showing',
+    results: 'results',
+    loadMore: 'Load More',
+    noMoreProducts: 'No more products',
+    
     // Messages
     addedToCart: 'Added to cart successfully',
     addedToWishlist: 'Added to wishlist',
