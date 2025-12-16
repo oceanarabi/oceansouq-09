@@ -882,11 +882,13 @@ const ProductCard = ({ product, showBadge = true }) => {
       )}
 
       {/* Product Image */}
-      <div className="relative h-64 overflow-hidden">
+      <div className="relative h-64 overflow-hidden bg-gray-200 dark:bg-gray-700">
         <img
           src={product.image_url}
           alt={product.title}
+          loading="lazy"
           className="w-full h-full object-cover group-hover:scale-110 transition duration-300"
+          onLoad={(e) => e.target.classList.remove('skeleton')}
         />
         {product.stock === 0 && (
           <div className="absolute inset-0 bg-black bg-opacity-60 flex items-center justify-center">
