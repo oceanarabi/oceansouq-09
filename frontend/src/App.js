@@ -538,20 +538,88 @@ const Header = () => {
         </div>
       </div>
 
-      {/* Navigation Bar */}
-      <nav className="bg-gray-50 border-t">
+      {/* Main Navigation Bar */}
+      <nav className="bg-white dark:bg-gray-800 border-t dark:border-gray-700 shadow-sm">
         <div className="container mx-auto px-4">
-          <div className="flex items-center justify-center gap-6 py-3 overflow-x-auto">
-            <Link to="/products" className="hover:text-ocean-600 font-medium whitespace-nowrap" data-testid="nav-all">{t('allProducts')}</Link>
-            <Link to="/products?category=Electronics" className="hover:text-ocean-600 font-medium whitespace-nowrap">{t('electronics')}</Link>
-            <Link to="/products?category=Fashion" className="hover:text-ocean-600 font-medium whitespace-nowrap">{t('mensFashion')}</Link>
-            <Link to="/products?category=Beauty" className="hover:text-ocean-600 font-medium whitespace-nowrap">{t('beautyPersonalCare')}</Link>
-            <Link to="/products?category=Home" className="hover:text-ocean-600 font-medium whitespace-nowrap">{t('homeKitchen')}</Link>
-            <Link to="/products?category=Sports" className="hover:text-ocean-600 font-medium whitespace-nowrap">{t('sportsFitness')}</Link>
-            <Link to="/products?category=Kids" className="hover:text-ocean-600 font-medium whitespace-nowrap">{t('kidsBaby')}</Link>
-            {user?.role === 'seller' && (
-              <Link to="/dashboard" className="hover:text-ocean-600 font-medium text-ocean-700 whitespace-nowrap">{t('myProducts')}</Link>
-            )}
+          <div className="flex items-center justify-between py-3">
+            {/* Categories Dropdown */}
+            <div 
+              className="relative"
+              onMouseEnter={() => setShowCategoriesMenu(true)}
+              onMouseLeave={() => setShowCategoriesMenu(false)}
+            >
+              <button className="flex items-center gap-2 px-4 py-2 bg-ocean-600 text-white rounded-lg hover:bg-ocean-700 font-semibold">
+                <span>☰</span>
+                <span>CATEGORIES</span>
+                <span>▼</span>
+              </button>
+              
+              {showCategoriesMenu && (
+                <div className="absolute top-full left-0 mt-1 w-64 bg-white dark:bg-gray-800 rounded-lg shadow-2xl z-50 max-h-96 overflow-y-auto">
+                  <div className="p-2">
+                    {[
+                      { name: t('womensFashion'), icon: '👗', category: 'WomensFashion' },
+                      { name: t('mensFashion'), icon: '👔', category: 'MensFashion' },
+                      { name: t('kidsBaby'), icon: '👶', category: 'KidsBaby' },
+                      { name: t('homeKitchen'), icon: '🏠', category: 'HomeKitchen' },
+                      { name: t('beautyPersonalCare'), icon: '💄', category: 'Beauty' },
+                      { name: t('sportsFitness'), icon: '⚽', category: 'SportsFitness' },
+                      { name: t('electronics'), icon: '📱', category: 'Electronics' },
+                      { name: t('shoes'), icon: '👟', category: 'Shoes' },
+                    ].map((cat, idx) => (
+                      <Link
+                        key={idx}
+                        to={`/products?category=${cat.category}`}
+                        className="flex items-center gap-3 p-3 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
+                      >
+                        <span className="text-2xl">{cat.icon}</span>
+                        <span className="dark:text-white">{cat.name}</span>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Main Nav Links */}
+            <div className="hidden md:flex items-center gap-8">
+              <Link to="/products?category=WomensFashion" className="hover:text-ocean-600 font-medium dark:text-white">WOMEN</Link>
+              <Link to="/products?category=MensFashion" className="hover:text-ocean-600 font-medium dark:text-white">MEN</Link>
+              <Link to="/products?category=KidsBaby" className="hover:text-ocean-600 font-medium dark:text-white">KIDS</Link>
+              <Link to="/products?category=HomeKitchen" className="hover:text-ocean-600 font-medium dark:text-white">HOME</Link>
+              <Link to="/products?category=Beauty" className="hover:text-ocean-600 font-medium dark:text-white">BEAUTY</Link>
+              <Link to="/products?category=SportsFitness" className="hover:text-ocean-600 font-medium dark:text-white">SPORTS</Link>
+              <Link to="/products?new=true" className="hover:text-ocean-600 font-medium text-green-600 dark:text-green-400">NEW IN</Link>
+              <Link to="/products?sale=true" className="hover:text-ocean-600 font-medium text-red-600 dark:text-red-400">SALE %</Link>
+            </div>
+
+            {/* Brands Dropdown */}
+            <div 
+              className="relative hidden lg:block"
+              onMouseEnter={() => setShowBrandsMenu(true)}
+              onMouseLeave={() => setShowBrandsMenu(false)}
+            >
+              <button className="flex items-center gap-2 px-4 py-2 hover:text-ocean-600 font-medium dark:text-white">
+                <span>BRANDS</span>
+                <span>▼</span>
+              </button>
+              
+              {showBrandsMenu && (
+                <div className="absolute top-full right-0 mt-1 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-2xl z-50">
+                  <div className="p-2">
+                    {['Nike', 'Adidas', 'Apple', 'Samsung', 'Sony', 'LG'].map((brand, idx) => (
+                      <Link
+                        key={idx}
+                        to={`/products?brand=${brand}`}
+                        className="block p-3 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg dark:text-white"
+                      >
+                        {brand}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </nav>
