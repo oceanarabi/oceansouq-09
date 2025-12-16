@@ -146,6 +146,27 @@ export const translations = {
     paymentMethods: 'Payment Methods',
     copyright: '© 2025 OceanSouq. All rights reserved.',
     
+    // New Features
+    darkMode: 'Dark Mode',
+    lightMode: 'Light Mode',
+    dailyDeals: 'Daily Deals',
+    trendingProducts: 'Trending Products',
+    bestSellers: 'Best Sellers',
+    recommendedForYou: 'Recommended for You',
+    similarProducts: 'Similar Products',
+    youMayAlsoLike: 'You May Also Like',
+    buyNow: 'Buy Now',
+    viewCart: 'View Cart',
+    loyaltyPoints: 'Loyalty Points',
+    yourPoints: 'Your Points',
+    searchSuggestions: 'Search Suggestions',
+    addedToCartAnimation: 'Added!',
+    discount: 'OFF',
+    saveAmount: 'Save',
+    originalPrice: 'Original Price',
+    dealEnds: 'Deal Ends',
+    limitedOffer: 'Limited Offer',
+    
     // Messages
     addedToCart: 'Added to cart successfully',
     addedToWishlist: 'Added to wishlist',
