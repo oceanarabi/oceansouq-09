@@ -813,6 +813,7 @@ const HomePage = () => {
   const [recommended, setRecommended] = useState([]);
   const { t } = useLanguage();
   const { token } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     // Fetch all product sections
