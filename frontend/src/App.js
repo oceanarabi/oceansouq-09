@@ -470,11 +470,12 @@ const Header = () => {
                     </div>
                   )}
                 </div>
-                <div className="flex items-center space-x-2">
-                  <span className="text-sm hidden lg:block" data-testid="user-name">{t('welcome')}, {user.name}</span>
+                <div className="flex items-center space-x-3">
+                  <LoyaltyBadge />
+                  <span className="text-sm hidden lg:block dark:text-white" data-testid="user-name">{t('welcome')}, {user.name}</span>
                   <button
                     onClick={logout}
-                    className="bg-gray-200 hover:bg-gray-300 px-4 py-2 rounded-lg text-sm"
+                    className="bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-white px-4 py-2 rounded-lg text-sm"
                     data-testid="logout-btn"
                   >
                     {t('logout')}
