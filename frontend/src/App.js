@@ -765,10 +765,34 @@ const ProductsPage = () => {
           data-testid="category-filter"
         >
           <option value="">{t('allCategories')}</option>
-          <option value="قوارب">{t('boats')}</option>
-          <option value="غوص">{t('diving')}</option>
-          <option value="معدات صيد">{t('fishing')}</option>
-          <option value="إكسسوارات">{t('accessories')}</option>
+          <option value="Electronics">{t('electronics')}</option>
+          <option value="MensFashion">{t('mensFashion')}</option>
+          <option value="WomensFashion">{t('womensFashion')}</option>
+          <option value="KidsBaby">{t('kidsBaby')}</option>
+          <option value="SportsFitness">{t('sportsFitness')}</option>
+          <option value="HomeKitchen">{t('homeKitchen')}</option>
+          <option value="Beauty">{t('beautyPersonalCare')}</option>
+          <option value="Shoes">{t('shoes')}</option>
+          <option value="Bags">{t('bagsLuggage')}</option>
+          <option value="Jewelry">{t('jewelryWatches')}</option>
+          <option value="Books">{t('books')}</option>
+          <option value="Toys">{t('toysGames')}</option>
+          <option value="Automotive">{t('automotive')}</option>
+          <option value="Phones">{t('phonesTablets')}</option>
+          <option value="Computers">{t('computers')}</option>
+          <option value="Cameras">{t('cameras')}</option>
+          <option value="Furniture">{t('furniture')}</option>
+          <option value="HomeDecor">{t('homeDecor')}</option>
+          <option value="Garden">{t('gardenOutdoor')}</option>
+          <option value="Health">{t('healthWellness')}</option>
+          <option value="Grocery">{t('groceryFood')}</option>
+          <option value="Pets">{t('petSupplies')}</option>
+          <option value="Office">{t('officeSupplies')}</option>
+          <option value="Tools">{t('toolsHardware')}</option>
+          <option value="Music">{t('musicalInstruments')}</option>
+          <option value="Art">{t('artCrafts')}</option>
+          <option value="Party">{t('partySupplies')}</option>
+          <option value="BabyCare">{t('babyCare')}</option>
         </select>
       </div>
 
