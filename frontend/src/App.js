@@ -807,13 +807,39 @@ const ProductCard = ({ product }) => {
 // Home Page
 const HomePage = () => {
   const [products, setProducts] = useState([]);
+  const [dailyDeals, setDailyDeals] = useState([]);
+  const [trending, setTrending] = useState([]);
+  const [bestSellers, setBestSellers] = useState([]);
+  const [recommended, setRecommended] = useState([]);
   const { t } = useLanguage();
+  const { token } = useAuth();
 
   useEffect(() => {
+    // Fetch all product sections
     axios.get(`${API_URL}/api/products`)
       .then(res => setProducts(res.data))
       .catch(err => console.error(err));
-  }, []);
+    
+    axios.get(`${API_URL}/api/products/daily-deals`)
+      .then(res => setDailyDeals(res.data))
+      .catch(err => console.error(err));
+    
+    axios.get(`${API_URL}/api/products/trending`)
+      .then(res => setTrending(res.data))
+      .catch(err => console.error(err));
+    
+    axios.get(`${API_URL}/api/products/best-sellers`)
+      .then(res => setBestSellers(res.data))
+      .catch(err => console.error(err));
+    
+    if (token) {
+      axios.get(`${API_URL}/api/products/recommended`, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      .then(res => setRecommended(res.data))
+      .catch(err => console.error(err));
+    }
+  }, [token]);
 
   const sliderSettings = {
     dots: false,
