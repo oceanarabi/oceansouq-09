@@ -776,15 +776,29 @@ const ProductCard = ({ product }) => {
           <span className="text-xs bg-ocean-100 text-ocean-700 px-2 py-1 rounded">{product.category}</span>
         </div>
 
-        {/* Add to Cart Button */}
-        <button
-          onClick={handleAddToCart}
-          disabled={product.stock === 0}
-          className="w-full bg-ocean-600 hover:bg-ocean-700 text-white py-2 rounded-lg font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed transition"
-          data-testid={`add-cart-btn-${product.id}`}
-        >
-          {t('addToCart')}
-        </button>
+        {/* Action Buttons */}
+        <div className="flex gap-2">
+          <button
+            onClick={handleAddToCart}
+            disabled={product.stock === 0}
+            className="flex-1 bg-ocean-600 hover:bg-ocean-700 text-white py-2 rounded-lg font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed transition relative"
+            data-testid={`add-cart-btn-${product.id}`}
+          >
+            {showAddAnimation ? (
+              <span className="animate-bounce">{t('addedToCartAnimation')}</span>
+            ) : (
+              t('addToCart')
+            )}
+          </button>
+          <button
+            onClick={handleBuyNow}
+            disabled={product.stock === 0}
+            className="flex-1 bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed transition"
+            data-testid={`buy-now-btn-${product.id}`}
+          >
+            {t('buyNow')}
+          </button>
+        </div>
       </div>
     </div>
   );
