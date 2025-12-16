@@ -1102,28 +1102,81 @@ const ProductsPage = () => {
   );
 };
 
+// Bottom Navigation for Mobile
+const BottomNavigation = () => {
+  const { t } = useLanguage();
+  const { user } = useAuth();
+  const { cart } = useCart();
+  const { wishlist } = useWishlist();
+  const navigate = useNavigate();
+
+  return (
+    <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 border-t dark:border-gray-700 z-50 pb-safe">
+      <div className="flex justify-around items-center h-16">
+        <button onClick={() => navigate('/')} className="flex flex-col items-center justify-center flex-1">
+          <span className="text-2xl">🏠</span>
+          <span className="text-xs dark:text-white">Home</span>
+        </button>
+        
+        <button onClick={() => navigate('/products')} className="flex flex-col items-center justify-center flex-1">
+          <span className="text-2xl">🔍</span>
+          <span className="text-xs dark:text-white">Search</span>
+        </button>
+        
+        <button onClick={() => navigate('/wishlist')} className="flex flex-col items-center justify-center flex-1 relative">
+          <span className="text-2xl">❤️</span>
+          {wishlist.items.length > 0 && (
+            <span className="absolute top-0 right-1/4 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
+              {wishlist.items.length}
+            </span>
+          )}
+          <span className="text-xs dark:text-white">Wishlist</span>
+        </button>
+        
+        <button onClick={() => navigate('/cart')} className="flex flex-col items-center justify-center flex-1 relative">
+          <span className="text-2xl">🛒</span>
+          {cart.items.length > 0 && (
+            <span className="absolute top-0 right-1/4 bg-ocean-600 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
+              {cart.items.length}
+            </span>
+          )}
+          <span className="text-xs dark:text-white">Cart</span>
+        </button>
+        
+        <button onClick={() => navigate(user ? '/dashboard' : '/login')} className="flex flex-col items-center justify-center flex-1">
+          <span className="text-2xl">👤</span>
+          <span className="text-xs dark:text-white">{user ? 'Profile' : 'Login'}</span>
+        </button>
+      </div>
+    </div>
+  );
+};
+
 // Main App Component
 function App() {
   return (
     <Router>
       <LanguageProvider>
-        <AuthProvider>
-          <CartProvider>
-            <WishlistProvider>
-              <div className="min-h-screen bg-gray-50 flex flex-col">
-                <TopBar />
-                <Header />
-                <main className="flex-1">
-                  <Routes>
-                    <Route path="/" element={<HomePage />} />
-                    <Route path="/products" element={<ProductsPage />} />
-                  </Routes>
-                </main>
-                <Footer />
-              </div>
-            </WishlistProvider>
-          </CartProvider>
-        </AuthProvider>
+        <DarkModeProvider>
+          <AuthProvider>
+            <CartProvider>
+              <WishlistProvider>
+                <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col">
+                  <TopBar />
+                  <Header />
+                  <main className="flex-1 pb-20 md:pb-0">
+                    <Routes>
+                      <Route path="/" element={<HomePage />} />
+                      <Route path="/products" element={<ProductsPage />} />
+                    </Routes>
+                  </main>
+                  <Footer />
+                  <BottomNavigation />
+                </div>
+              </WishlistProvider>
+            </CartProvider>
+          </AuthProvider>
+        </DarkModeProvider>
       </LanguageProvider>
     </Router>
   );
