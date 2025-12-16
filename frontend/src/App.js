@@ -363,6 +363,8 @@ const Header = () => {
   const [searchSuggestions, setSearchSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [showCartPreview, setShowCartPreview] = useState(false);
+  const [showCategoriesMenu, setShowCategoriesMenu] = useState(false);
+  const [showBrandsMenu, setShowBrandsMenu] = useState(false);
 
   const handleSearch = (e) => {
     e.preventDefault();
