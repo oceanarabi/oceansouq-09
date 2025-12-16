@@ -837,6 +837,13 @@ const ProductCard = ({ product, showBadge = true }) => {
         {inWishlist ? '❤️' : '🤍'}
       </button>
 
+      {/* Badge */}
+      {badge && (
+        <div className={`absolute top-3 left-3 z-10 ${badge.color} text-white px-3 py-1 rounded-full text-xs font-bold shadow-md`}>
+          {badge.text}
+        </div>
+      )}
+
       {/* Product Image */}
       <div className="relative h-64 overflow-hidden">
         <img
