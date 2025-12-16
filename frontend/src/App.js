@@ -279,6 +279,7 @@ const WishlistProvider = ({ children }) => {
 // Top Bar Component
 const TopBar = () => {
   const { t, language, switchLanguage } = useLanguage();
+  const { darkMode, toggleDarkMode } = useDarkMode();
 
   return (
     <div className="bg-gray-900 text-white text-sm py-2">
@@ -288,7 +289,15 @@ const TopBar = () => {
           <Link to="/track-order" className="hover:text-ocean-300" data-testid="track-order-link">{t('trackOrder')}</Link>
         </div>
         <div className="flex items-center space-x-4">
-          <span className="text-ocean-300">{t('freeShipping')}</span>
+          <span className="text-ocean-300 hidden md:block">{t('freeShipping')}</span>
+          <button
+            onClick={toggleDarkMode}
+            className="hover:text-ocean-300"
+            title={darkMode ? t('lightMode') : t('darkMode')}
+            data-testid="dark-mode-toggle"
+          >
+            {darkMode ? '☀️' : '🌙'}
+          </button>
           <div className="flex items-center space-x-2">
             <button
               onClick={() => switchLanguage('en')}
