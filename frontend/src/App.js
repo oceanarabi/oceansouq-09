@@ -426,14 +426,50 @@ const Header = () => {
                     </span>
                   )}
                 </Link>
-                <Link to="/cart" className="relative hover:text-ocean-600" data-testid="cart-link">
-                  <span className="text-2xl">🛒</span>
-                  {cart.items.length > 0 && (
-                    <span className="absolute -top-2 -right-2 bg-ocean-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                      {cart.items.length}
-                    </span>
+                <div 
+                  className="relative"
+                  onMouseEnter={() => setShowCartPreview(true)}
+                  onMouseLeave={() => setShowCartPreview(false)}
+                >
+                  <Link to="/cart" className="relative hover:text-ocean-600" data-testid="cart-link">
+                    <span className="text-2xl">🛒</span>
+                    {cart.items.length > 0 && (
+                      <span className="absolute -top-2 -right-2 bg-ocean-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                        {cart.items.length}
+                      </span>
+                    )}
+                  </Link>
+                  
+                  {/* Cart Preview */}
+                  {showCartPreview && cart.items.length > 0 && (
+                    <div className="absolute top-full right-0 mt-2 w-80 bg-white dark:bg-gray-800 rounded-lg shadow-2xl z-50 p-4">
+                      <h3 className="font-bold text-lg mb-3 dark:text-white">{t('shoppingCart')}</h3>
+                      <div className="max-h-64 overflow-y-auto space-y-2">
+                        {cart.items.slice(0, 3).map(item => (
+                          <div key={item.product_id} className="flex items-center gap-2 p-2 bg-gray-50 dark:bg-gray-700 rounded">
+                            <img src={item.product?.image_url} alt={item.product?.title} className="w-12 h-12 object-cover rounded" />
+                            <div className="flex-1">
+                              <p className="text-sm font-semibold line-clamp-1 dark:text-white">{item.product?.title}</p>
+                              <p className="text-xs text-gray-600 dark:text-gray-400">{item.quantity} x ${item.product?.price}</p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="mt-3 pt-3 border-t">
+                        <div className="flex justify-between mb-3">
+                          <span className="font-bold dark:text-white">{t('total')}:</span>
+                          <span className="font-bold text-ocean-600">${cart.total}</span>
+                        </div>
+                        <Link 
+                          to="/cart" 
+                          className="block w-full bg-ocean-600 text-white text-center py-2 rounded-lg hover:bg-ocean-700"
+                        >
+                          {t('viewCart')}
+                        </Link>
+                      </div>
+                    </div>
                   )}
-                </Link>
+                </div>
                 <div className="flex items-center space-x-2">
                   <span className="text-sm hidden lg:block" data-testid="user-name">{t('welcome')}, {user.name}</span>
                   <button
