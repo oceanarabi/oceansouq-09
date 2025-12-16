@@ -465,4 +465,328 @@ const Footer = () => {
   );
 };
 
+// Hero Section Component
+const HeroSection = () => {
+  const { t } = useLanguage();
+  const navigate = useNavigate();
+
+  const settings = {
+    dots: true,
+    infinite: true,
+    speed: 500,
+    slidesToShow: 1,
+    slidesToScroll: 1,
+    autoplay: true,
+    autoplaySpeed: 4000,
+  };
+
+  const slides = [
+    {
+      image: 'https://images.unsplash.com/photo-1674507593594-964ea25ce06a?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2Nzh8MHwxfHNlYXJjaHwyfHxzYWlsaW5nJTIweWFjaHR8ZW58MHx8fHwxNzY1ODk3MjA2fDA&ixlib=rb-4.1.0&q=85',
+      title: 'Premium Sailing Yachts',
+      subtitle: 'Explore the ocean in luxury',
+    },
+    {
+      image: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2NzB8MHwxfHNlYXJjaHwxfHxzY3ViYSUyMGRpdmluZ3xlbnwwfHx8fDE3NjU4OTcyMTJ8MA&ixlib=rb-4.1.0&q=85',
+      title: 'Professional Diving Gear',
+      subtitle: 'Dive deep, explore more',
+    },
+    {
+      image: 'https://images.unsplash.com/photo-1541742425281-c1d3fc8aff96?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDk1Nzh8MHwxfHNlYXJjaHwxfHxmaXNoaW5nfGVufDB8fHx8MTc2NTg5NzIyNXww&ixlib=rb-4.1.0&q=85',
+      title: 'Fishing Adventures',
+      subtitle: 'Cast your line, catch your dream',
+    },
+  ];
+
+  return (
+    <div className="relative">
+      <Slider {...settings}>
+        {slides.map((slide, idx) => (
+          <div key={idx} className="relative">
+            <div className="h-96 md:h-[500px] bg-cover bg-center relative" style={{ backgroundImage: `url(${slide.image})` }}>
+              <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">
+                <div className="text-center text-white px-4">
+                  <h2 className="text-5xl md:text-6xl font-bold mb-4" data-testid="hero-title">{slide.title}</h2>
+                  <p className="text-xl md:text-2xl mb-8">{slide.subtitle}</p>
+                  <div className="flex justify-center space-x-4">
+                    <button
+                      onClick={() => navigate('/products')}
+                      className="bg-ocean-600 hover:bg-ocean-700 text-white px-8 py-3 rounded-lg text-lg font-semibold"
+                      data-testid="shop-now-btn"
+                    >
+                      {t('shopNow')}
+                    </button>
+                    <button
+                      onClick={() => navigate('/about')}
+                      className="bg-white hover:bg-gray-100 text-ocean-600 px-8 py-3 rounded-lg text-lg font-semibold"
+                    >
+                      {t('learnMore')}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </Slider>
+    </div>
+  );
+};
+
+// Product Card Component
+const ProductCard = ({ product }) => {
+  const { addToCart } = useCart();
+  const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
+  const { t } = useLanguage();
+  const navigate = useNavigate();
+  const inWishlist = isInWishlist(product.id);
+
+  const handleWishlistToggle = async (e) => {
+    e.stopPropagation();
+    if (inWishlist) {
+      await removeFromWishlist(product.id);
+    } else {
+      await addToWishlist(product.id);
+    }
+  };
+
+  const handleAddToCart = async (e) => {
+    e.stopPropagation();
+    await addToCart(product.id);
+  };
+
+  return (
+    <div
+      onClick={() => navigate(`/products/${product.id}`)}
+      className="product-card bg-white rounded-xl shadow-md overflow-hidden cursor-pointer group relative"
+      data-testid={`product-card-${product.id}`}
+    >
+      {/* Wishlist Button */}
+      <button
+        onClick={handleWishlistToggle}
+        className={`absolute top-3 right-3 z-10 w-10 h-10 rounded-full flex items-center justify-center ${
+          inWishlist ? 'bg-red-500 text-white' : 'bg-white text-gray-600'
+        } shadow-md hover:scale-110 transition`}
+        data-testid={`wishlist-btn-${product.id}`}
+      >
+        {inWishlist ? '❤️' : '🤍'}
+      </button>
+
+      {/* Product Image */}
+      <div className="relative h-64 overflow-hidden">
+        <img
+          src={product.image_url}
+          alt={product.title}
+          className="w-full h-full object-cover group-hover:scale-110 transition duration-300"
+        />
+        {product.stock === 0 && (
+          <div className="absolute inset-0 bg-black bg-opacity-60 flex items-center justify-center">
+            <span className="text-white text-lg font-bold">{t('outOfStock')}</span>
+          </div>
+        )}
+      </div>
+
+      {/* Product Info */}
+      <div className="p-4">
+        <h3 className="font-bold text-lg mb-2 line-clamp-1" data-testid={`product-title-${product.id}`}>{product.title}</h3>
+        <p className="text-gray-600 text-sm mb-3 line-clamp-2">{product.description}</p>
+        
+        <div className="flex items-center justify-between mb-3">
+          <span className="text-2xl font-bold text-ocean-600" data-testid={`product-price-${product.id}`}>${product.price}</span>
+          <span className="text-xs bg-ocean-100 text-ocean-700 px-2 py-1 rounded">{product.category}</span>
+        </div>
+
+        {/* Add to Cart Button */}
+        <button
+          onClick={handleAddToCart}
+          disabled={product.stock === 0}
+          className="w-full bg-ocean-600 hover:bg-ocean-700 text-white py-2 rounded-lg font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed transition"
+          data-testid={`add-cart-btn-${product.id}`}
+        >
+          {t('addToCart')}
+        </button>
+      </div>
+    </div>
+  );
+};
+
+// Home Page
+const HomePage = () => {
+  const [products, setProducts] = useState([]);
+  const { t } = useLanguage();
+
+  useEffect(() => {
+    axios.get(`${API_URL}/api/products`)
+      .then(res => setProducts(res.data))
+      .catch(err => console.error(err));
+  }, []);
+
+  const sliderSettings = {
+    dots: false,
+    infinite: true,
+    speed: 500,
+    slidesToShow: 4,
+    slidesToScroll: 1,
+    autoplay: true,
+    autoplaySpeed: 3000,
+    responsive: [
+      { breakpoint: 1024, settings: { slidesToShow: 3 } },
+      { breakpoint: 768, settings: { slidesToShow: 2 } },
+      { breakpoint: 480, settings: { slidesToShow: 1 } }
+    ]
+  };
+
+  return (
+    <div>
+      {/* Hero Section */}
+      <HeroSection />
+
+      {/* Trending Products */}
+      <section className="py-16 bg-gray-50">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl font-bold mb-2">{t('trendingNow')}</h2>
+            <p className="text-gray-600">{t('freshPicks')}</p>
+          </div>
+
+          {products.length > 0 ? (
+            <Slider {...sliderSettings}>
+              {products.map(product => (
+                <div key={product.id} className="px-2">
+                  <ProductCard product={product} />
+                </div>
+              ))}
+            </Slider>
+          ) : (
+            <p className="text-center text-gray-600">Loading products...</p>
+          )}
+        </div>
+      </section>
+
+      {/* Categories Grid */}
+      <section className="py-16">
+        <div className="container mx-auto px-4">
+          <h2 className="text-4xl font-bold text-center mb-12">Shop by Category</h2>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            {[
+              { name: t('boats'), icon: '⛵', category: 'قوارب', img: 'https://images.unsplash.com/photo-1561728130-afd430af0493' },
+              { name: t('diving'), icon: '🤿', category: 'غوص', img: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5' },
+              { name: t('fishing'), icon: '🎣', category: 'معدات صيد', img: 'https://images.unsplash.com/photo-1529230117010-b6c436154f25' },
+              { name: t('accessories'), icon: '⚓', category: 'إكسسوارات', img: 'https://images.unsplash.com/photo-1504813205186-380b1235a5d2' },
+            ].map((cat, idx) => (
+              <Link
+                key={idx}
+                to={`/products?category=${cat.category}`}
+                className="group relative h-64 rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition"
+                data-testid={`category-${cat.category}`}
+              >
+                <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${cat.img}?w=400&h=300&fit=crop)` }}></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent opacity-70 group-hover:opacity-90 transition"></div>
+                <div className="absolute inset-0 flex flex-col items-center justify-center text-white">
+                  <span className="text-6xl mb-4">{cat.icon}</span>
+                  <h3 className="text-2xl font-bold">{cat.name}</h3>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+};
+
+// Products Page
+const ProductsPage = () => {
+  const [products, setProducts] = useState([]);
+  const [search, setSearch] = useState('');
+  const [category, setCategory] = useState('');
+  const { t } = useLanguage();
+  const location = window.location;
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const searchParam = params.get('search') || '';
+    const categoryParam = params.get('category') || '';
+    
+    setSearch(searchParam);
+    setCategory(categoryParam);
+    
+    const apiParams = new URLSearchParams();
+    if (searchParam) apiParams.append('search', searchParam);
+    if (categoryParam) apiParams.append('category', categoryParam);
+    
+    axios.get(`${API_URL}/api/products?${apiParams.toString()}`)
+      .then(res => setProducts(res.data))
+      .catch(err => console.error(err));
+  }, [location.search]);
+
+  return (
+    <div className="container mx-auto px-4 py-8">
+      <h1 className="text-4xl font-bold mb-8">{t('allProducts')}</h1>
+      
+      {/* Filters */}
+      <div className="mb-8 flex flex-col md:flex-row gap-4">
+        <input
+          type="text"
+          placeholder={t('searchProduct')}
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="flex-1 px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-ocean-500 focus:outline-none"
+          data-testid="search-filter"
+        />
+        <select
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+          className="px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-ocean-500 focus:outline-none"
+          data-testid="category-filter"
+        >
+          <option value="">{t('allCategories')}</option>
+          <option value="قوارب">{t('boats')}</option>
+          <option value="غوص">{t('diving')}</option>
+          <option value="معدات صيد">{t('fishing')}</option>
+          <option value="إكسسوارات">{t('accessories')}</option>
+        </select>
+      </div>
+
+      {/* Products Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        {products.map(product => (
+          <ProductCard key={product.id} product={product} />
+        ))}
+      </div>
+
+      {products.length === 0 && (
+        <p className="text-center text-gray-600 py-12">No products found</p>
+      )}
+    </div>
+  );
+};
+
+// Main App Component
+function App() {
+  return (
+    <Router>
+      <LanguageProvider>
+        <AuthProvider>
+          <CartProvider>
+            <WishlistProvider>
+              <div className="min-h-screen bg-gray-50 flex flex-col">
+                <TopBar />
+                <Header />
+                <main className="flex-1">
+                  <Routes>
+                    <Route path="/" element={<HomePage />} />
+                    <Route path="/products" element={<ProductsPage />} />
+                  </Routes>
+                </main>
+                <Footer />
+              </div>
+            </WishlistProvider>
+          </CartProvider>
+        </AuthProvider>
+      </LanguageProvider>
+    </Router>
+  );
+}
+
 export default App;
