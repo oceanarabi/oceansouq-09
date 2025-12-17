@@ -358,35 +358,39 @@ const TopBar = () => {
   const { darkMode, toggleDarkMode } = useDarkMode();
 
   return (
-    <div className="bg-gray-900 text-white text-sm py-2">
+    <div className="bg-white border-b border-ocean-200 text-sm py-3">
       <div className="container mx-auto px-4 flex justify-between items-center">
         <div className="flex items-center space-x-6">
-          <Link to="/help" className="hover:text-ocean-300" data-testid="help-link">{t('help')}</Link>
-          <Link to="/track-order" className="hover:text-ocean-300" data-testid="track-order-link">{t('trackOrder')}</Link>
+          <Link to="/help" className="text-ocean-600 hover:text-ocean-700 font-medium" data-testid="help-link">
+            📞 {t('help')}
+          </Link>
+          <Link to="/track-order" className="text-ocean-600 hover:text-ocean-700 font-medium" data-testid="track-order-link">
+            📦 {t('trackOrder')}
+          </Link>
         </div>
-        <div className="flex items-center space-x-4">
-          <button
-            onClick={toggleDarkMode}
-            className="hover:text-ocean-300"
-            title={darkMode ? t('lightMode') : t('darkMode')}
-            data-testid="dark-mode-toggle"
-          >
-            {darkMode ? '☀️' : '🌙'}
-          </button>
-          <div className="flex items-center space-x-2">
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 border-2 border-ocean-200 rounded-full px-3 py-1">
             <button
               onClick={() => switchLanguage('en')}
-              className={`px-2 py-1 rounded ${language === 'en' ? 'bg-ocean-600' : 'hover:bg-gray-800'}`}
+              className={`px-3 py-1 rounded-full text-sm font-semibold transition ${
+                language === 'en' 
+                  ? 'bg-ocean-500 text-white' 
+                  : 'text-ocean-600 hover:bg-ocean-50'
+              }`}
               data-testid="lang-en"
             >
               EN
             </button>
             <button
               onClick={() => switchLanguage('ar')}
-              className={`px-2 py-1 rounded ${language === 'ar' ? 'bg-ocean-600' : 'hover:bg-gray-800'}`}
+              className={`px-3 py-1 rounded-full text-sm font-semibold transition ${
+                language === 'ar' 
+                  ? 'bg-ocean-500 text-white' 
+                  : 'text-ocean-600 hover:bg-ocean-50'
+              }`}
               data-testid="lang-ar"
             >
-              AR
+              العربية
             </button>
           </div>
         </div>
