@@ -436,8 +436,8 @@ const Header = () => {
   }, [searchQuery]);
 
   return (
-    <header className="bg-white shadow-md sticky top-0 z-40">
-      <div className="container mx-auto px-4 py-4">
+    <header className="bg-white border-b-2 border-ocean-100 sticky top-0 z-40 shadow-sm">
+      <div className="container mx-auto px-4 py-5">
         <div className="flex items-center justify-between gap-6">
           {/* Animated Logo */}
           <AnimatedLogo />
