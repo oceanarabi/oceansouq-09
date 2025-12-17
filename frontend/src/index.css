@@ -11,11 +11,24 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Custom Ocean Font Styles */
+/* Custom Ocean Font Styles - Handwritten/Script */
 .ocean-brand {
-  font-family: 'Poppins', sans-serif;
-  font-weight: 800;
-  letter-spacing: 0.05em;
+  font-family: 'Pacifico', 'Dancing Script', cursive;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  color: #0ea5e9;
+  text-shadow: 1px 1px 2px rgba(14, 165, 233, 0.2);
+}
+
+/* Ocean Theme - White & Blue Only */
+:root {
+  --ocean-primary: #0ea5e9;
+  --ocean-dark: #0284c7;
+  --ocean-darker: #0369a1;
+  --ocean-light: #38bdf8;
+  --ocean-lighter: #7dd3fc;
+  --ocean-lightest: #bae6fd;
+  --ocean-bg: #f0f9ff;
 }
 
 /* Skeleton Loading Styles */
