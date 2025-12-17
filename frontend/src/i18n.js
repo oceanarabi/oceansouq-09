@@ -43,6 +43,7 @@ export const translations = {
     furniture: 'Furniture',
     homeDecor: 'Home Decor',
     gardenOutdoor: 'Garden & Outdoor',
+    fragrance: 'Fragrance & Perfumes',
     healthWellness: 'Health & Wellness',
     groceryFood: 'Grocery & Food',
     petSupplies: 'Pet Supplies',
