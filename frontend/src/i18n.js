@@ -235,6 +235,7 @@ export const translations = {
     furniture: 'أثاث',
     homeDecor: 'ديكور منزلي',
     gardenOutdoor: 'حديقة وخارجي',
+    fragrance: 'عطور وبخور',
     healthWellness: 'صحة وعافية',
     groceryFood: 'بقالة وأطعمة',
     petSupplies: 'مستلزمات حيوانات',
