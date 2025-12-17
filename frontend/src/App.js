@@ -443,8 +443,8 @@ const Header = () => {
           <AnimatedLogo />
 
           {/* Search Bar */}
-          <form onSubmit={handleSearch} className="flex-1 max-w-2xl relative">
-            <div className="relative">
+          <form onSubmit={handleSearch} className="flex-1 max-w-3xl relative">
+            <div className="relative flex items-center gap-2">
               <input
                 type="text"
                 value={searchQuery}
@@ -452,12 +452,20 @@ const Header = () => {
                 onFocus={() => searchSuggestions.length > 0 && setShowSuggestions(true)}
                 onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
                 placeholder={t('searchPlaceholder')}
-                className="w-full px-6 py-3 border-2 border-gray-300 rounded-full focus:border-ocean-500 focus:outline-none dark:bg-gray-800 dark:border-gray-600 dark:text-white"
+                className="flex-1 px-6 py-3 border-2 border-ocean-300 rounded-full focus:border-ocean-500 focus:outline-none focus:ring-2 focus:ring-ocean-200"
                 data-testid="search-input"
               />
               <button
+                type="button"
+                onClick={() => alert('Barcode scanner feature - Coming soon!')}
+                className="absolute right-20 top-1/2 -translate-y-1/2 text-ocean-600 hover:text-ocean-700 text-xl"
+                title="Scan Barcode"
+              >
+                📷
+              </button>
+              <button
                 type="submit"
-                className="absolute right-2 top-1/2 -translate-y-1/2 bg-ocean-600 text-white px-6 py-2 rounded-full hover:bg-ocean-700"
+                className="absolute right-2 top-1/2 -translate-y-1/2 bg-ocean-500 text-white px-6 py-2 rounded-full hover:bg-ocean-600 transition"
                 data-testid="search-button"
               >
                 🔍
