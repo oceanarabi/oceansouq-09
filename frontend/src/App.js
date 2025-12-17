@@ -1654,34 +1654,46 @@ const BottomNavigation = () => {
   );
 };
 
-// Main App Component
+// Store Layout Component
+function StoreLayout() {
+  return (
+    <LanguageProvider>
+      <DarkModeProvider>
+        <AuthProvider>
+          <CartProvider>
+            <WishlistProvider>
+              <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col">
+                <TopBar />
+                <Header />
+                <main className="flex-1 pb-20 md:pb-0">
+                  <Routes>
+                    <Route path="/" element={<HomePage />} />
+                    <Route path="/products" element={<ProductsPage />} />
+                    <Route path="/account" element={<CustomerAreaPage />} />
+                    <Route path="/my-account" element={<CustomerAreaPage />} />
+                  </Routes>
+                </main>
+                <Footer />
+                <BottomNavigation />
+              </div>
+            </WishlistProvider>
+          </CartProvider>
+        </AuthProvider>
+      </DarkModeProvider>
+    </LanguageProvider>
+  );
+}
+
+// Main App Component with Admin Route
 function App() {
   return (
     <Router>
-      <LanguageProvider>
-        <DarkModeProvider>
-          <AuthProvider>
-            <CartProvider>
-              <WishlistProvider>
-                <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col">
-                  <TopBar />
-                  <Header />
-                  <main className="flex-1 pb-20 md:pb-0">
-                    <Routes>
-                      <Route path="/" element={<HomePage />} />
-                      <Route path="/products" element={<ProductsPage />} />
-                      <Route path="/account" element={<CustomerAreaPage />} />
-                      <Route path="/my-account" element={<CustomerAreaPage />} />
-                    </Routes>
-                  </main>
-                  <Footer />
-                  <BottomNavigation />
-                </div>
-              </WishlistProvider>
-            </CartProvider>
-          </AuthProvider>
-        </DarkModeProvider>
-      </LanguageProvider>
+      <Routes>
+        {/* Admin Dashboard */}
+        <Route path="/admin/*" element={<AdminApp />} />
+        {/* Store */}
+        <Route path="/*" element={<StoreLayout />} />
+      </Routes>
     </Router>
   );
 }
