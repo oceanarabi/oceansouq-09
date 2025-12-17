@@ -298,11 +298,10 @@ const ProductSkeleton = () => {
   );
 };
 
-// Animated Logo Component
+// Animated Logo Component - Text Only with Ocean Theme
 const AnimatedLogo = () => {
   const [showArabic, setShowArabic] = useState(false);
   const { language } = useLanguage();
-  const navigate = useNavigate();
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -312,16 +311,10 @@ const AnimatedLogo = () => {
   }, []);
 
   return (
-    <Link to="/" className="flex items-center space-x-2 min-w-fit" data-testid="logo">
-      <div className="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-ocean-500 to-ocean-700 rounded-full flex items-center justify-center shadow-lg">
-        <span className="text-2xl sm:text-3xl text-white">🌊</span>
-      </div>
-      <div className="hidden md:block">
-        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-ocean-700 dark:text-ocean-400 ocean-brand transition-all duration-500">
-          {showArabic && language === 'ar' ? 'المحيط' : 'Ocean'}
-        </h1>
-        <p className="text-xs text-gray-500 dark:text-gray-400">Your Shopping Destination</p>
-      </div>
+    <Link to="/" className="flex items-center min-w-fit" data-testid="logo">
+      <h1 className="text-3xl sm:text-4xl lg:text-5xl ocean-brand transition-all duration-500 hover:scale-105">
+        {showArabic && language === 'ar' ? 'المحيط' : 'Ocean'}
+      </h1>
     </Link>
   );
 };
