@@ -39,6 +39,13 @@ wishlist_collection = db['wishlist']
 loyalty_points_collection = db['loyalty_points']
 browsing_history_collection = db['browsing_history']
 notifications_collection = db['notifications']
+settings_collection = db['settings']
+
+# Set database for admin routes
+set_admin_db(db)
+
+# Include admin router
+app.include_router(admin_router)
 
 # JWT Configuration
 JWT_SECRET = os.environ.get('JWT_SECRET', 'oceansouq-secret-key-change-in-production')
