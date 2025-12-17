@@ -12,6 +12,9 @@ import uuid
 
 app = FastAPI()
 
+# Import and include admin routes
+from routes.admin import router as admin_router, set_db as set_admin_db
+
 # CORS Configuration
 app.add_middleware(
     CORSMiddleware,
