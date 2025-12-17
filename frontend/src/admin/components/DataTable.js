@@ -1,6 +1,17 @@
 import React from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useAdmin } from '../contexts/AdminContext';
+
+const ChevronLeft = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+    <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+  </svg>
+);
+
+const ChevronRight = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+    <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+  </svg>
+);
 
 const DataTable = ({ 
   columns, 
@@ -75,7 +86,7 @@ const DataTable = ({
               disabled={pagination.page === 1}
               className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {language === 'ar' ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
+              {language === 'ar' ? <ChevronRight /> : <ChevronLeft />}
             </button>
             <span className="text-sm text-slate-600 dark:text-slate-400">
               {pagination.page} / {pagination.pages}
@@ -85,7 +96,7 @@ const DataTable = ({
               disabled={pagination.page === pagination.pages}
               className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {language === 'ar' ? <ChevronLeft size={20} /> : <ChevronRight size={20} />}
+              {language === 'ar' ? <ChevronLeft /> : <ChevronRight />}
             </button>
           </div>
         </div>
