@@ -16,12 +16,13 @@ const RegisterPage = () => {
   const navigate = useNavigate();
   const language = localStorage.getItem('language') || 'en';
   const t = (key) => getTranslation(language, key);
-  const [user, setUser] = useState(null);
   
-  const login = (userData, userToken) => {
-    localStorage.setItem('token', userToken);
+  // Check if already logged in
+  const existingToken = localStorage.getItem('token');
+  if (existingToken) {
     window.location.href = '/';
-  };
+    return null;
+  }
   
   const [formData, setFormData] = useState({
     name: '',
