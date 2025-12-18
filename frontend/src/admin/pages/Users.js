@@ -19,18 +19,18 @@ const Users = () => {
   const [selectedUser, setSelectedUser] = useState(null);
   const [showModal, setShowModal] = useState(false);
 
-  const fetchUsers = useCallback(async () => {
+  const fetchUsers = useCallback(async (page = 1) => {
     setLoading(true);
     try {
-      const params = new URLSearchParams({ page: pagination.page, limit: 20, ...(filters.search && { search: filters.search }), ...(filters.role && { role: filters.role }), ...(filters.status && { status: filters.status }) });
+      const params = new URLSearchParams({ page: page, limit: 20, ...(filters.search && { search: filters.search }), ...(filters.role && { role: filters.role }), ...(filters.status && { status: filters.status }) });
       const res = await api.get(`/api/admin/users?${params}`);
-      setUsers(res.data.users);
+      setUsers(res.data.users || []);
       setPagination({ page: res.data.page, pages: res.data.pages, total: res.data.total });
-    } catch (error) { console.error('Error fetching users:', error); }
+    } catch (error) { console.error('Error fetching users:', error); setUsers([]); }
     finally { setLoading(false); }
-  }, [api, pagination.page, filters]);
+  }, [api, filters]);
 
-  useEffect(() => { fetchUsers(); }, [fetchUsers]);
+  useEffect(() => { fetchUsers(pagination.page); }, [fetchUsers, pagination.page]);
 
   const handleStatusUpdate = async (userId, newStatus) => {
     try { await api.put(`/api/admin/users/${userId}/status`, { status: newStatus }); fetchUsers(); }
