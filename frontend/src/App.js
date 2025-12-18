@@ -760,9 +760,9 @@ const Footer = () => {
   );
 };
 
-// Hero Section Component
+// Hero Section Component - Mobile Optimized
 const HeroSection = () => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const navigate = useNavigate();
 
   const settings = {
@@ -773,6 +773,7 @@ const HeroSection = () => {
     slidesToScroll: 1,
     autoplay: true,
     autoplaySpeed: 4000,
+    arrows: false, // Hide arrows on mobile
   };
 
   const slides = [
@@ -783,13 +784,13 @@ const HeroSection = () => {
     },
     {
       image: 'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=1200&q=80',
-      title: 'Tech & Electronics',
-      subtitle: 'Latest gadgets and devices',
+      title: language === 'ar' ? 'تقنية وإلكترونيات' : 'Tech & Electronics',
+      subtitle: language === 'ar' ? 'أحدث الأجهزة والتقنيات' : 'Latest gadgets and devices',
     },
     {
       image: 'https://images.unsplash.com/photo-1445205170230-053b83016050?w=1200&q=80',
-      title: 'Fashion & Style',
-      subtitle: 'Trending styles for everyone',
+      title: language === 'ar' ? 'أزياء وموضة' : 'Fashion & Style',
+      subtitle: language === 'ar' ? 'أحدث صيحات الموضة' : 'Trending styles for everyone',
     },
   ];
 
@@ -798,22 +799,36 @@ const HeroSection = () => {
       <Slider {...settings}>
         {slides.map((slide, idx) => (
           <div key={idx} className="relative">
-            <div className="h-96 md:h-[500px] bg-cover bg-center relative" style={{ backgroundImage: `url(${slide.image})` }}>
-              <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">
-                <div className="text-center text-white px-4">
-                  <h2 className="text-5xl md:text-6xl font-bold mb-4" data-testid="hero-title">{slide.title}</h2>
-                  <p className="text-xl md:text-2xl mb-8">{slide.subtitle}</p>
-                  <div className="flex justify-center space-x-4">
+            {/* Mobile: 280px, Tablet: 350px, Desktop: 500px */}
+            <div 
+              className="h-[280px] sm:h-[350px] md:h-[500px] bg-cover bg-center relative" 
+              style={{ backgroundImage: `url(${slide.image})` }}
+            >
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-black/30 flex items-center justify-center">
+                <div className="text-center text-white px-6 md:px-4 max-w-2xl">
+                  {/* Mobile: 1.75rem, Tablet: 2.5rem, Desktop: 3.75rem */}
+                  <h2 
+                    className="text-[1.75rem] sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-2 md:mb-4 leading-tight" 
+                    data-testid="hero-title"
+                  >
+                    {slide.title}
+                  </h2>
+                  {/* Mobile: 0.875rem, Tablet: 1rem, Desktop: 1.25rem */}
+                  <p className="text-sm sm:text-base md:text-xl lg:text-2xl mb-4 md:mb-8 opacity-90">
+                    {slide.subtitle}
+                  </p>
+                  {/* Mobile: Stacked buttons, Desktop: Side by side */}
+                  <div className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4">
                     <button
                       onClick={() => navigate('/products')}
-                      className="bg-ocean-600 hover:bg-ocean-700 text-white px-8 py-3 rounded-lg text-lg font-semibold"
+                      className="touch-btn touch-btn-primary text-sm md:text-lg"
                       data-testid="shop-now-btn"
                     >
                       {t('shopNow')}
                     </button>
                     <button
                       onClick={() => navigate('/about')}
-                      className="bg-white hover:bg-gray-100 text-ocean-600 px-8 py-3 rounded-lg text-lg font-semibold"
+                      className="touch-btn touch-btn-secondary text-sm md:text-lg"
                     >
                       {t('learnMore')}
                     </button>
@@ -824,6 +839,25 @@ const HeroSection = () => {
           </div>
         ))}
       </Slider>
+      {/* Custom Dots Styling for Mobile */}
+      <style>{`
+        .slick-dots {
+          bottom: 16px !important;
+        }
+        .slick-dots li button:before {
+          color: white !important;
+          opacity: 0.5 !important;
+          font-size: 10px !important;
+        }
+        .slick-dots li.slick-active button:before {
+          opacity: 1 !important;
+        }
+        @media (max-width: 640px) {
+          .slick-dots li {
+            margin: 0 3px !important;
+          }
+        }
+      `}</style>
     </div>
   );
 };
