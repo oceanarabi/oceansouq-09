@@ -91,33 +91,43 @@ const FollowSeller = ({ sellerId, sellerName }) => {
   };
 
   return (
-    <div className="flex items-center gap-3">
+    <div className="flex items-center gap-3 relative">
       <button
         onClick={handleFollow}
         disabled={loading}
-        className={`px-4 py-2 rounded-lg font-semibold transition flex items-center gap-2 ${
+        className={`px-4 py-2 rounded-lg font-semibold transition-all duration-300 flex items-center gap-2 transform ${
           isFollowing
-            ? 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-red-100 hover:text-red-600'
-            : 'bg-ocean-600 hover:bg-ocean-700 text-white'
+            ? 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 hover:bg-red-100 hover:text-red-600 border-2 border-green-500'
+            : 'bg-ocean-600 hover:bg-ocean-700 text-white hover:scale-105'
         } disabled:opacity-50`}
       >
         {loading ? (
           <span className="animate-spin">⏳</span>
         ) : isFollowing ? (
           <>
-            <span>✓</span>
+            <span className="text-lg">✓</span>
             <span>{t('following')}</span>
           </>
         ) : (
           <>
-            <span>+</span>
+            <span className="text-lg">+</span>
             <span>{t('follow')}</span>
           </>
         )}
       </button>
-      <span className="text-sm text-gray-500 dark:text-gray-400">
-        {followersCount.toLocaleString()} {t('followers')}
-      </span>
+      <div className="flex items-center gap-1">
+        <span className="text-lg">👥</span>
+        <span className={`font-bold transition-all duration-300 ${showSuccess ? 'text-green-500 scale-125' : 'text-gray-600 dark:text-gray-400'}`}>
+          {followersCount.toLocaleString()}
+        </span>
+        <span className="text-sm text-gray-500 dark:text-gray-400">{t('followers')}</span>
+      </div>
+      {/* Success Animation */}
+      {showSuccess && (
+        <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-3 py-1 rounded-full text-sm animate-bounce">
+          ✓ {language === 'ar' ? 'تمت المتابعة!' : 'Followed!'}
+        </div>
+      )}
     </div>
   );
 };
