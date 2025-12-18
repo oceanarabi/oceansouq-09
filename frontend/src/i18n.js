@@ -382,10 +382,9 @@ export const translations = {
     removedFromWishlist: 'تمت الإزالة من المفضلة',
     orderPlaced: 'تم تأكيد الطلب بنجاح',
     pleaseLogin: 'يرجى تسجيل الدخول للمتابعة',
-  }
-};
-
-// Turkish translations
+  },
+  
+  // Turkish translations
   tr: {
     // Top Bar
     help: 'Yardım',
