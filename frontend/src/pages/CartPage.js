@@ -1,12 +1,56 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { useCart, useLanguage, useAuth } from '../contexts';
+import axios from 'axios';
+
+const API_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
+
+const getTranslation = (lang, key) => {
+  const translations = {
+    en: { login: 'Login', shopNow: 'Shop Now', total: 'Total', viewCart: 'View Cart' },
+    ar: { login: 'تسجيل الدخول', shopNow: 'تسوق الآن', total: 'الإجمالي', viewCart: 'عرض السلة' }
+  };
+  return translations[lang]?.[key] || key;
+};
 
 const CartPage = () => {
   const navigate = useNavigate();
-  const { t, language } = useLanguage();
-  const { cart, updateCartItem, removeFromCart } = useCart();
-  const { user } = useAuth();
+  const language = localStorage.getItem('language') || 'en';
+  const t = (key) => getTranslation(language, key);
+  const token = localStorage.getItem('token');
+  const [user, setUser] = useState(null);
+  const [cart, setCart] = useState({ items: [], total: 0 });
+  const [loading, setLoading] = useState(true);
+
+  const fetchCart = async () => {
+    if (!token) { setLoading(false); return; }
+    try {
+      const [userRes, cartRes] = await Promise.all([
+        axios.get(`${API_URL}/api/auth/me`, { headers: { Authorization: `Bearer ${token}` } }),
+        axios.get(`${API_URL}/api/cart`, { headers: { Authorization: `Bearer ${token}` } })
+      ]);
+      setUser(userRes.data);
+      setCart(cartRes.data);
+    } catch (err) { console.error(err); }
+    finally { setLoading(false); }
+  };
+
+  useEffect(() => { fetchCart(); }, [token]);
+
+  const updateCartItem = async (productId, quantity) => {
+    try {
+      await axios.put(`${API_URL}/api/cart/${productId}`, { product_id: productId, quantity }, { headers: { Authorization: `Bearer ${token}` } });
+      await fetchCart();
+    } catch (err) { console.error(err); }
+  };
+
+  const removeFromCart = async (productId) => {
+    try {
+      await axios.delete(`${API_URL}/api/cart/${productId}`, { headers: { Authorization: `Bearer ${token}` } });
+      await fetchCart();
+    } catch (err) { console.error(err); }
+  };
+
+  if (loading) return <div className="container mx-auto px-4 py-16 text-center"><div className="loading-spinner mx-auto"></div></div>;
 
   const handleQuantityChange = (productId, newQuantity) => {
     if (newQuantity < 1) {
