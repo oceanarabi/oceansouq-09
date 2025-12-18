@@ -1761,6 +1761,10 @@ function StoreLayout() {
                     <Route path="/wishlist" element={<WishlistPage />} />
                     <Route path="/login" element={<LoginPage />} />
                     <Route path="/register" element={<RegisterPage />} />
+                    {/* New Social & Advanced Features Routes */}
+                    <Route path="/compare" element={<ProductComparison />} />
+                    <Route path="/shopping-lists" element={<SharedLists />} />
+                    <Route path="/shared-list/:listId" element={<SharedLists />} />
                   </Routes>
                 </main>
                 <Footer />
