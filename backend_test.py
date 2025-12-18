@@ -3,28 +3,41 @@ import sys
 import json
 from datetime import datetime
 
-class AdminAPITester:
+class SellerAPITester:
     def __init__(self, base_url="https://merchant-hub-125.preview.emergentagent.com"):
         self.base_url = base_url
         self.token = None
+        self.seller_id = None
         self.tests_run = 0
         self.tests_passed = 0
-        self.failed_tests = []
+        self.test_results = []
+
+    def log_test(self, name, success, details=""):
+        """Log test result"""
+        self.tests_run += 1
+        if success:
+            self.tests_passed += 1
+            print(f"✅ {name}")
+        else:
+            print(f"❌ {name} - {details}")
+        
+        self.test_results.append({
+            "test": name,
+            "success": success,
+            "details": details
+        })
 
     def run_test(self, name, method, endpoint, expected_status, data=None, headers=None):
         """Run a single API test"""
-        url = f"{self.base_url}/{endpoint}"
+        url = f"{self.base_url}{endpoint}"
         test_headers = {'Content-Type': 'application/json'}
-        
         if self.token:
             test_headers['Authorization'] = f'Bearer {self.token}'
-        
         if headers:
             test_headers.update(headers)
 
-        self.tests_run += 1
         print(f"\n🔍 Testing {name}...")
-        print(f"   URL: {url}")
+        print(f"   URL: {method} {url}")
         
         try:
             if method == 'GET':
@@ -37,197 +50,209 @@ class AdminAPITester:
                 response = requests.delete(url, headers=test_headers, timeout=10)
 
             success = response.status_code == expected_status
+            details = f"Status: {response.status_code}"
+            
             if success:
-                self.tests_passed += 1
-                print(f"✅ Passed - Status: {response.status_code}")
                 try:
-                    return success, response.json() if response.text else {}
+                    response_data = response.json()
+                    self.log_test(name, True, details)
+                    return True, response_data
                 except:
-                    return success, {}
+                    self.log_test(name, True, details + " (No JSON response)")
+                    return True, {}
             else:
-                print(f"❌ Failed - Expected {expected_status}, got {response.status_code}")
-                print(f"   Response: {response.text[:200]}...")
-                self.failed_tests.append({
-                    'name': name,
-                    'expected': expected_status,
-                    'actual': response.status_code,
-                    'response': response.text[:200]
-                })
+                try:
+                    error_data = response.json()
+                    error_msg = error_data.get('detail', 'Unknown error')
+                    self.log_test(name, False, f"{details}, Error: {error_msg}")
+                except:
+                    self.log_test(name, False, f"{details}, Response: {response.text[:100]}")
                 return False, {}
 
+        except requests.exceptions.Timeout:
+            self.log_test(name, False, "Request timeout")
+            return False, {}
         except Exception as e:
-            print(f"❌ Failed - Error: {str(e)}")
-            self.failed_tests.append({
-                'name': name,
-                'error': str(e)
-            })
+            self.log_test(name, False, f"Exception: {str(e)}")
             return False, {}
 
-    def test_admin_login(self):
-        """Test admin login"""
-        print("\n=== TESTING ADMIN LOGIN ===")
+    def test_seller_login(self):
+        """Test seller login"""
         success, response = self.run_test(
-            "Admin Login",
+            "Seller Login",
             "POST",
-            "api/auth/login",
+            "/api/auth/login",
             200,
-            data={"email": "admin@ocean.com", "password": "admin123"}
+            data={"email": "seller@ocean.com", "password": "seller123"}
         )
-        
         if success and 'token' in response:
             self.token = response['token']
-            print(f"✅ Admin login successful, token obtained")
-            
-            # Verify admin role
-            if response.get('user', {}).get('role') in ['admin', 'super_admin']:
-                print(f"✅ User has admin role: {response['user']['role']}")
-                return True
-            else:
-                print(f"❌ User does not have admin role: {response.get('user', {}).get('role')}")
-                return False
-        else:
-            print("❌ Admin login failed")
-            return False
+            self.seller_id = response.get('user', {}).get('id')
+            print(f"   ✓ Token obtained, Seller ID: {self.seller_id}")
+            return True
+        return False
 
     def test_dashboard_apis(self):
         """Test dashboard related APIs"""
-        print("\n=== TESTING DASHBOARD APIs ===")
+        print("\n📊 Testing Dashboard APIs...")
         
         # Dashboard stats
-        self.run_test("Dashboard Stats", "GET", "api/admin/dashboard/stats", 200)
+        self.run_test("Dashboard Stats", "GET", "/api/seller/dashboard/stats", 200)
         
-        # Revenue chart
-        self.run_test("Revenue Chart", "GET", "api/admin/dashboard/revenue-chart?days=7", 200)
+        # Sales chart
+        self.run_test("Sales Chart (7 days)", "GET", "/api/seller/dashboard/sales-chart?days=7", 200)
         
-        # Recent orders
-        self.run_test("Recent Orders", "GET", "api/admin/dashboard/recent-orders?limit=5", 200)
-        
-        # Alerts
-        self.run_test("Dashboard Alerts", "GET", "api/admin/dashboard/alerts", 200)
+        # Top products
+        self.run_test("Top Products", "GET", "/api/seller/dashboard/top-products?limit=5", 200)
 
     def test_products_apis(self):
-        """Test products management APIs"""
-        print("\n=== TESTING PRODUCTS APIs ===")
+        """Test products CRUD operations"""
+        print("\n📦 Testing Products APIs...")
         
-        # Get all products
-        success, products_data = self.run_test("Get All Products", "GET", "api/admin/products?page=1&limit=20", 200)
+        # Get products
+        success, products_data = self.run_test("Get Products", "GET", "/api/seller/products?page=1&limit=20", 200)
         
-        # Get categories
-        self.run_test("Get Categories", "GET", "api/admin/categories", 200)
+        # Create product
+        product_data = {
+            "title": "Test Product",
+            "description": "Test product description",
+            "price": 99.99,
+            "category": "Electronics",
+            "stock": 10,
+            "image_url": "https://via.placeholder.com/300"
+        }
+        success, create_response = self.run_test("Create Product", "POST", "/api/seller/products", 200, product_data)
         
-        # Test product approval if products exist
-        if success and products_data.get('products'):
-            product_id = products_data['products'][0].get('id')
+        product_id = None
+        if success and 'product' in create_response:
+            product_id = create_response['product'].get('id')
+            print(f"   ✓ Product created with ID: {product_id}")
+            
+            # Get specific product
             if product_id:
-                self.run_test("Approve Product", "PUT", f"api/admin/products/{product_id}/approve", 200, 
-                            data={"status": "approved", "notes": "Test approval"})
+                self.run_test("Get Product Details", "GET", f"/api/seller/products/{product_id}", 200)
+                
+                # Update product
+                update_data = {"title": "Updated Test Product", "price": 89.99}
+                self.run_test("Update Product", "PUT", f"/api/seller/products/{product_id}", 200, update_data)
+                
+                # Update stock
+                self.run_test("Update Product Stock", "PUT", f"/api/seller/products/{product_id}/stock?stock=15", 200)
+                
+                # Delete product
+                self.run_test("Delete Product", "DELETE", f"/api/seller/products/{product_id}", 200)
 
     def test_orders_apis(self):
         """Test orders management APIs"""
-        print("\n=== TESTING ORDERS APIs ===")
+        print("\n🛒 Testing Orders APIs...")
         
-        # Get all orders
-        success, orders_data = self.run_test("Get All Orders", "GET", "api/admin/orders?page=1&limit=20", 200)
+        # Get orders
+        self.run_test("Get Orders", "GET", "/api/seller/orders?page=1&limit=20", 200)
         
-        # Test order status update if orders exist
-        if success and orders_data.get('orders'):
-            order_id = orders_data['orders'][0].get('id')
-            if order_id:
-                self.run_test("Update Order Status", "PUT", f"api/admin/orders/{order_id}/status?status=confirmed", 200)
-                
-                # Get order details
-                self.run_test("Get Order Details", "GET", f"api/admin/orders/{order_id}", 200)
+        # Get orders with status filter
+        self.run_test("Get Pending Orders", "GET", "/api/seller/orders?status=pending", 200)
 
-    def test_users_apis(self):
-        """Test users management APIs"""
-        print("\n=== TESTING USERS APIs ===")
+    def test_finance_apis(self):
+        """Test finance APIs"""
+        print("\n💰 Testing Finance APIs...")
         
-        # Get all users
-        success, users_data = self.run_test("Get All Users", "GET", "api/admin/users?page=1&limit=20", 200)
+        # Finance overview
+        self.run_test("Finance Overview", "GET", "/api/seller/finance/overview", 200)
         
-        # Test user management if users exist
-        if success and users_data.get('users'):
-            user_id = users_data['users'][0].get('id')
-            if user_id:
-                # Get user details
-                self.run_test("Get User Details", "GET", f"api/admin/users/{user_id}", 200)
-                
-                # Update user status
-                self.run_test("Update User Status", "PUT", f"api/admin/users/{user_id}/status", 200,
-                            data={"status": "active", "reason": "Test status update"})
+        # Transactions
+        self.run_test("Transaction History", "GET", "/api/seller/finance/transactions?page=1&limit=20", 200)
 
-    def test_analytics_apis(self):
-        """Test analytics APIs"""
-        print("\n=== TESTING ANALYTICS APIs ===")
+    def test_inventory_apis(self):
+        """Test inventory APIs"""
+        print("\n📋 Testing Inventory APIs...")
         
-        # Sales analytics
-        for period in ['day', 'week', 'month', 'year']:
-            self.run_test(f"Sales Analytics ({period})", "GET", f"api/admin/analytics/sales?period={period}", 200)
+        # Inventory overview
+        self.run_test("Inventory Overview", "GET", "/api/seller/inventory", 200)
+
+    def test_promotions_apis(self):
+        """Test promotions APIs"""
+        print("\n🏷️ Testing Promotions APIs...")
         
-        # User analytics
-        self.run_test("User Analytics", "GET", "api/admin/analytics/users", 200)
+        # Get coupons
+        self.run_test("Get Coupons", "GET", "/api/seller/coupons", 200)
+        
+        # Create coupon
+        coupon_data = {
+            "code": "TEST10",
+            "discount_type": "percentage",
+            "discount_value": 10,
+            "min_order": 50,
+            "max_uses": 100
+        }
+        success, coupon_response = self.run_test("Create Coupon", "POST", "/api/seller/coupons", 200, coupon_data)
+        
+        # Get flash sales
+        self.run_test("Get Flash Sales", "GET", "/api/seller/flash-sales", 200)
+
+    def test_reviews_apis(self):
+        """Test reviews APIs"""
+        print("\n⭐ Testing Reviews APIs...")
+        
+        # Get reviews
+        self.run_test("Get Reviews", "GET", "/api/seller/reviews?page=1&limit=20", 200)
+        
+        # Review stats
+        self.run_test("Review Stats", "GET", "/api/seller/reviews/stats", 200)
 
     def test_settings_apis(self):
         """Test settings APIs"""
-        print("\n=== TESTING SETTINGS APIs ===")
+        print("\n⚙️ Testing Settings APIs...")
         
         # Get settings
-        success, settings_data = self.run_test("Get Settings", "GET", "api/admin/settings", 200)
+        success, settings_data = self.run_test("Get Store Settings", "GET", "/api/seller/settings", 200)
         
-        # Update settings (only if super_admin)
+        # Update settings
         if success:
-            self.run_test("Update Settings", "PUT", "api/admin/settings", 200,
-                        data={"site_name": "Ocean Test", "maintenance_mode": False})
+            update_settings = {
+                "store_name": "Test Store Updated",
+                "store_description": "Updated description",
+                "contact_email": "test@example.com"
+            }
+            self.run_test("Update Store Settings", "PUT", "/api/seller/settings", 200, update_settings)
 
-    def test_auth_protection(self):
-        """Test API protection without token"""
-        print("\n=== TESTING AUTH PROTECTION ===")
+    def run_all_tests(self):
+        """Run all seller API tests"""
+        print("🚀 Starting Seller Dashboard API Tests")
+        print("=" * 50)
         
-        # Temporarily remove token
-        original_token = self.token
-        self.token = None
+        # Login first
+        if not self.test_seller_login():
+            print("❌ Login failed, stopping tests")
+            return False
         
-        # Should fail without token
-        self.run_test("Protected API without token", "GET", "api/admin/dashboard/stats", 401)
+        # Run all test suites
+        self.test_dashboard_apis()
+        self.test_products_apis()
+        self.test_orders_apis()
+        self.test_finance_apis()
+        self.test_inventory_apis()
+        self.test_promotions_apis()
+        self.test_reviews_apis()
+        self.test_settings_apis()
         
-        # Restore token
-        self.token = original_token
+        # Print summary
+        print("\n" + "=" * 50)
+        print(f"📊 Test Summary: {self.tests_passed}/{self.tests_run} tests passed")
+        print(f"Success Rate: {(self.tests_passed/self.tests_run)*100:.1f}%")
+        
+        # Print failed tests
+        failed_tests = [t for t in self.test_results if not t['success']]
+        if failed_tests:
+            print("\n❌ Failed Tests:")
+            for test in failed_tests:
+                print(f"   - {test['test']}: {test['details']}")
+        
+        return self.tests_passed == self.tests_run
 
 def main():
-    print("🚀 Starting Ocean Admin API Tests")
-    print("=" * 50)
-    
-    tester = AdminAPITester()
-    
-    # Test admin login first
-    if not tester.test_admin_login():
-        print("\n❌ Admin login failed, stopping tests")
-        return 1
-    
-    # Test all admin APIs
-    tester.test_dashboard_apis()
-    tester.test_products_apis()
-    tester.test_orders_apis()
-    tester.test_users_apis()
-    tester.test_analytics_apis()
-    tester.test_settings_apis()
-    tester.test_auth_protection()
-    
-    # Print final results
-    print("\n" + "=" * 50)
-    print(f"📊 FINAL RESULTS")
-    print(f"Tests Run: {tester.tests_run}")
-    print(f"Tests Passed: {tester.tests_passed}")
-    print(f"Tests Failed: {tester.tests_run - tester.tests_passed}")
-    print(f"Success Rate: {(tester.tests_passed / tester.tests_run * 100):.1f}%")
-    
-    if tester.failed_tests:
-        print(f"\n❌ FAILED TESTS:")
-        for test in tester.failed_tests:
-            error_msg = test.get('error', f"Expected {test.get('expected')}, got {test.get('actual')}")
-            print(f"  - {test['name']}: {error_msg}")
-    
-    return 0 if tester.tests_passed == tester.tests_run else 1
+    tester = SellerAPITester()
+    success = tester.run_all_tests()
+    return 0 if success else 1
 
 if __name__ == "__main__":
     sys.exit(main())
