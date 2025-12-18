@@ -17,18 +17,18 @@ const Orders = () => {
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [showModal, setShowModal] = useState(false);
 
-  const fetchOrders = useCallback(async () => {
+  const fetchOrders = useCallback(async (page = 1) => {
     setLoading(true);
     try {
-      const params = new URLSearchParams({ page: pagination.page, limit: 20, ...(filters.search && { search: filters.search }), ...(filters.status && { status: filters.status }) });
+      const params = new URLSearchParams({ page: page, limit: 20, ...(filters.search && { search: filters.search }), ...(filters.status && { status: filters.status }) });
       const res = await api.get(`/api/admin/orders?${params}`);
-      setOrders(res.data.orders);
+      setOrders(res.data.orders || []);
       setPagination({ page: res.data.page, pages: res.data.pages, total: res.data.total });
-    } catch (error) { console.error('Error fetching orders:', error); }
+    } catch (error) { console.error('Error fetching orders:', error); setOrders([]); }
     finally { setLoading(false); }
-  }, [api, pagination.page, filters]);
+  }, [api, filters]);
 
-  useEffect(() => { fetchOrders(); }, [fetchOrders]);
+  useEffect(() => { fetchOrders(pagination.page); }, [fetchOrders, pagination.page]);
 
   const handleStatusUpdate = async (orderId, newStatus) => {
     try {
