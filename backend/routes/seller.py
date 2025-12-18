@@ -251,7 +251,8 @@ def create_product(product: ProductCreate, seller: dict = Depends(get_seller_use
     }
     
     db.products.insert_one(product_data)
-    del product_data['_id'] if '_id' in product_data else None
+    if '_id' in product_data:
+        del product_data['_id']
     
     return {"message": "Product created", "product": product_data}
 
