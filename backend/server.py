@@ -42,6 +42,13 @@ browsing_history_collection = db['browsing_history']
 notifications_collection = db['notifications']
 settings_collection = db['settings']
 
+# New Collections for Social & Advanced Features
+followers_collection = db['followers']  # Follow sellers
+shared_lists_collection = db['shared_lists']  # Shared shopping lists
+product_comparisons_collection = db['product_comparisons']  # Compare products
+recently_viewed_collection = db['recently_viewed']  # Recently viewed products
+review_votes_collection = db['review_votes']  # Helpful review votes
+
 # Set database for admin routes
 set_admin_db(db)
 
