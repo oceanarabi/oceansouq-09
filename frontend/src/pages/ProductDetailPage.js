@@ -1,17 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { useCart, useWishlist, useLanguage, useAuth } from '../contexts';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
+
+const getTranslation = (lang, key) => {
+  const translations = {
+    en: { addToCart: 'Add to Cart', outOfStock: 'Out of Stock', addedToCartAnimation: '✓ Added!' },
+    ar: { addToCart: 'أضف للسلة', outOfStock: 'نفد المخزون', addedToCartAnimation: '✓ تمت الإضافة!' }
+  };
+  return translations[lang]?.[key] || key;
+};
 
 const ProductDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { t, language } = useLanguage();
-  const { addToCart } = useCart();
-  const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
-  const { token } = useAuth();
+  const language = localStorage.getItem('language') || 'en';
+  const t = (key) => getTranslation(language, key);
+  const token = localStorage.getItem('token');
   
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -19,8 +25,43 @@ const ProductDetailPage = () => {
   const [selectedImage, setSelectedImage] = useState(0);
   const [showAddedMessage, setShowAddedMessage] = useState(false);
   const [relatedProducts, setRelatedProducts] = useState([]);
+  const [wishlistIds, setWishlistIds] = useState([]);
 
-  const inWishlist = product ? isInWishlist(product.id) : false;
+  const inWishlist = product ? wishlistIds.includes(product.id) : false;
+
+  // Fetch wishlist IDs
+  useEffect(() => {
+    if (token) {
+      axios.get(`${API_URL}/api/wishlist`, { headers: { Authorization: `Bearer ${token}` } })
+        .then(res => setWishlistIds(res.data.items.map(i => i.id)))
+        .catch(err => console.error(err));
+    }
+  }, [token]);
+
+  const addToCart = async (productId, qty = 1) => {
+    if (!token) { alert('Please login'); return false; }
+    try {
+      await axios.post(`${API_URL}/api/cart`, { product_id: productId, quantity: qty }, { headers: { Authorization: `Bearer ${token}` } });
+      return true;
+    } catch (err) { console.error(err); return false; }
+  };
+
+  const addToWishlist = async (productId) => {
+    if (!token) { alert('Please login'); return false; }
+    try {
+      await axios.post(`${API_URL}/api/wishlist/${productId}`, {}, { headers: { Authorization: `Bearer ${token}` } });
+      setWishlistIds(prev => [...prev, productId]);
+      return true;
+    } catch (err) { console.error(err); return false; }
+  };
+
+  const removeFromWishlist = async (productId) => {
+    try {
+      await axios.delete(`${API_URL}/api/wishlist/${productId}`, { headers: { Authorization: `Bearer ${token}` } });
+      setWishlistIds(prev => prev.filter(id => id !== productId));
+      return true;
+    } catch (err) { console.error(err); return false; }
+  };
 
   useEffect(() => {
     const fetchProduct = async () => {
