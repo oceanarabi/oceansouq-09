@@ -1,15 +1,40 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { useCart, useLanguage, useAuth } from '../contexts';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
 
+const getTranslation = (lang, key) => {
+  const translations = {
+    en: { login: 'Login', shopNow: 'Shop Now' },
+    ar: { login: 'تسجيل الدخول', shopNow: 'تسوق الآن' }
+  };
+  return translations[lang]?.[key] || key;
+};
+
 const CheckoutPage = () => {
   const navigate = useNavigate();
-  const { t, language } = useLanguage();
-  const { cart, fetchCart } = useCart();
-  const { user, token } = useAuth();
+  const language = localStorage.getItem('language') || 'en';
+  const t = (key) => getTranslation(language, key);
+  const token = localStorage.getItem('token');
+  const [user, setUser] = useState(null);
+  const [cart, setCart] = useState({ items: [], total: 0 });
+  const [pageLoading, setPageLoading] = useState(true);
+
+  const fetchCart = async () => {
+    if (!token) { setPageLoading(false); return; }
+    try {
+      const [userRes, cartRes] = await Promise.all([
+        axios.get(`${API_URL}/api/auth/me`, { headers: { Authorization: `Bearer ${token}` } }),
+        axios.get(`${API_URL}/api/cart`, { headers: { Authorization: `Bearer ${token}` } })
+      ]);
+      setUser(userRes.data);
+      setCart(cartRes.data);
+    } catch (err) { console.error(err); }
+    finally { setPageLoading(false); }
+  };
+
+  useEffect(() => { fetchCart(); }, [token]);
   
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
