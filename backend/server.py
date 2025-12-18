@@ -1135,6 +1135,261 @@ def get_seller_products(seller_id: str, limit: int = 20, skip: int = 0):
     
     return {"products": products, "total": total}
 
+# ==========================================
+# AI CHATBOT - Customer Service Assistant
+# ==========================================
+
+from emergentintegrations.llm.chat import LlmChat, UserMessage
+
+# Chat sessions storage
+chat_sessions = {}
+
+EMERGENT_LLM_KEY = os.environ.get('EMERGENT_LLM_KEY', '')
+
+class ChatMessage(BaseModel):
+    message: str
+    session_id: Optional[str] = None
+    language: str = "en"
+
+# Chat history collection
+chat_history_collection = db['chat_history']
+
+def get_system_prompt(language: str = "en") -> str:
+    """Get system prompt based on language"""
+    prompts = {
+        "en": """You are Ocean AI Assistant, a helpful customer service chatbot for Ocean E-commerce marketplace.
+
+Your capabilities:
+- Help customers find products
+- Answer questions about orders, shipping, returns
+- Provide product recommendations
+- Assist with account issues
+- Answer general shopping questions
+
+Guidelines:
+- Be friendly, professional, and helpful
+- Keep responses concise (max 2-3 sentences unless more detail is needed)
+- If you don't know something, say so honestly
+- For order tracking, ask for order ID
+- Suggest relevant products when appropriate
+- Use emojis sparingly to be friendly 😊
+
+Store info:
+- Free shipping on orders over $99
+- 30-day return policy
+- 1 year warranty on electronics
+- Multiple payment options: Credit Card, PayPal, Cash on Delivery""",
+
+        "ar": """أنت مساعد Ocean الذكي، روبوت خدمة عملاء لسوق Ocean للتجارة الإلكترونية.
+
+قدراتك:
+- مساعدة العملاء في إيجاد المنتجات
+- الإجابة على أسئلة الطلبات والشحن والإرجاع
+- تقديم توصيات المنتجات
+- المساعدة في مشاكل الحساب
+- الإجابة على أسئلة التسوق العامة
+
+إرشادات:
+- كن ودوداً ومهنياً ومفيداً
+- اجعل الردود مختصرة (جملتين أو ثلاث كحد أقصى)
+- إذا لم تعرف شيئاً، قل ذلك بصدق
+- لتتبع الطلب، اطلب رقم الطلب
+- اقترح منتجات مناسبة عند الحاجة
+- استخدم الرموز التعبيرية باعتدال 😊
+
+معلومات المتجر:
+- شحن مجاني للطلبات فوق 99$
+- سياسة إرجاع 30 يوم
+- ضمان سنة على الإلكترونيات
+- خيارات دفع متعددة""",
+
+        "tr": """Sen Ocean AI Asistanı'sın, Ocean E-ticaret pazaryeri için yardımcı müşteri hizmetleri chatbot'u.
+
+Yeteneklerin:
+- Müşterilerin ürün bulmasına yardım et
+- Siparişler, kargo, iadeler hakkında soruları yanıtla
+- Ürün önerileri sun
+- Hesap sorunlarında yardım et
+
+Kurallar:
+- Samimi, profesyonel ve yardımsever ol
+- Yanıtları kısa tut
+- Bilmediğin bir şey varsa dürüstçe söyle""",
+
+        "de": """Du bist Ocean AI Assistent, ein hilfreicher Kundenservice-Chatbot für den Ocean E-Commerce-Marktplatz.
+
+Fähigkeiten:
+- Kunden bei der Produktsuche helfen
+- Fragen zu Bestellungen, Versand, Rückgaben beantworten
+- Produktempfehlungen geben
+
+Richtlinien:
+- Sei freundlich, professionell und hilfsbereit
+- Halte Antworten kurz
+- Wenn du etwas nicht weißt, sag es ehrlich""",
+
+        "zh": """你是Ocean AI助手，Ocean电商平台的客服机器人。
+
+能力：
+- 帮助客户找到产品
+- 回答订单、物流、退货问题
+- 提供产品推荐
+
+准则：
+- 友好、专业、乐于助人
+- 保持回答简洁
+- 如果不知道，诚实说明""",
+
+        "fr": """Tu es Ocean AI Assistant, un chatbot de service client pour la marketplace Ocean E-commerce.
+
+Capacités:
+- Aider les clients à trouver des produits
+- Répondre aux questions sur les commandes, livraisons, retours
+- Fournir des recommandations de produits
+
+Directives:
+- Sois amical, professionnel et utile
+- Garde les réponses concises
+- Si tu ne sais pas quelque chose, dis-le honnêtement"""
+    }
+    return prompts.get(language, prompts["en"])
+
+@app.post("/api/chat")
+async def chat_with_ai(chat_data: ChatMessage, current_user: dict = Depends(get_current_user_optional)):
+    """AI Chatbot endpoint"""
+    try:
+        user_id = current_user['user_id'] if current_user else "anonymous"
+        session_id = chat_data.session_id or f"{user_id}_{datetime.utcnow().strftime('%Y%m%d')}"
+        
+        # Get or create chat instance
+        if session_id not in chat_sessions:
+            chat_sessions[session_id] = LlmChat(
+                api_key=EMERGENT_LLM_KEY,
+                session_id=session_id,
+                system_message=get_system_prompt(chat_data.language)
+            ).with_model("gemini", "gemini-2.5-flash")
+        
+        chat = chat_sessions[session_id]
+        
+        # Send message and get response
+        user_message = UserMessage(text=chat_data.message)
+        response = await chat.send_message(user_message)
+        
+        # Save to database
+        chat_record = {
+            "id": str(uuid.uuid4()),
+            "session_id": session_id,
+            "user_id": user_id,
+            "user_message": chat_data.message,
+            "ai_response": response,
+            "language": chat_data.language,
+            "created_at": datetime.utcnow().isoformat()
+        }
+        chat_history_collection.insert_one(chat_record)
+        
+        return {
+            "response": response,
+            "session_id": session_id
+        }
+    except Exception as e:
+        print(f"Chat error: {e}")
+        # Fallback response
+        fallback_responses = {
+            "en": "I'm having trouble connecting right now. Please try again in a moment. 🙏",
+            "ar": "أواجه مشكلة في الاتصال حالياً. يرجى المحاولة مرة أخرى. 🙏",
+            "tr": "Şu anda bağlantı sorunu yaşıyorum. Lütfen tekrar deneyin. 🙏",
+            "de": "Ich habe gerade Verbindungsprobleme. Bitte versuchen Sie es erneut. 🙏",
+            "zh": "我现在连接有问题。请稍后重试。🙏",
+            "fr": "J'ai des problèmes de connexion. Veuillez réessayer. 🙏"
+        }
+        return {
+            "response": fallback_responses.get(chat_data.language, fallback_responses["en"]),
+            "session_id": chat_data.session_id or "error",
+            "error": True
+        }
+
+@app.get("/api/chat/history")
+async def get_chat_history(session_id: str = None, current_user: dict = Depends(get_current_user)):
+    """Get chat history for a session"""
+    query = {"user_id": current_user['user_id']}
+    if session_id:
+        query["session_id"] = session_id
+    
+    history = list(chat_history_collection.find(
+        query,
+        {"_id": 0}
+    ).sort("created_at", -1).limit(50))
+    
+    return {"history": history}
+
+@app.delete("/api/chat/clear")
+async def clear_chat_session(session_id: str, current_user: dict = Depends(get_current_user)):
+    """Clear chat session"""
+    if session_id in chat_sessions:
+        del chat_sessions[session_id]
+    
+    chat_history_collection.delete_many({
+        "session_id": session_id,
+        "user_id": current_user['user_id']
+    })
+    
+    return {"message": "Chat session cleared"}
+
+# ==========================================
+# AI PRODUCT RECOMMENDATIONS
+# ==========================================
+
+@app.get("/api/recommendations/ai")
+async def get_ai_recommendations(current_user: dict = Depends(get_current_user)):
+    """Get AI-powered product recommendations based on user behavior"""
+    user_id = current_user['user_id']
+    
+    # Get user's recently viewed products
+    recent = recently_viewed_collection.find_one({"user_id": user_id})
+    recent_ids = recent.get('products', [])[:5] if recent else []
+    
+    # Get user's purchase history
+    orders = list(orders_collection.find({"user_id": user_id}, {"items": 1}).limit(5))
+    purchased_categories = set()
+    for order in orders:
+        for item in order.get('items', []):
+            product = products_collection.find_one({"id": item.get('product_id')})
+            if product:
+                purchased_categories.add(product.get('category'))
+    
+    # Get user's wishlist
+    wishlist = wishlist_collection.find_one({"user_id": user_id})
+    wishlist_ids = [item['id'] for item in wishlist.get('items', [])] if wishlist else []
+    
+    # Combine all viewed/purchased/wishlisted IDs to exclude
+    exclude_ids = set(recent_ids + wishlist_ids)
+    
+    # Get recommendations based on categories
+    recommendations = []
+    for category in purchased_categories:
+        prods = list(products_collection.find(
+            {"category": category, "id": {"$nin": list(exclude_ids)}},
+            {"_id": 0}
+        ).limit(3))
+        recommendations.extend(prods)
+    
+    # If not enough, get trending products
+    if len(recommendations) < 8:
+        trending = list(products_collection.find(
+            {"id": {"$nin": list(exclude_ids)}},
+            {"_id": 0}
+        ).sort("stock", -1).limit(8 - len(recommendations)))
+        recommendations.extend(trending)
+    
+    return {
+        "recommendations": recommendations[:8],
+        "based_on": {
+            "recently_viewed": len(recent_ids),
+            "purchase_history": len(purchased_categories),
+            "wishlist": len(wishlist_ids)
+        }
+    }
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8001)
