@@ -18,20 +18,15 @@ const LoginPage = () => {
   const navigate = useNavigate();
   const language = localStorage.getItem('language') || 'en';
   const t = (key) => getTranslation(language, key);
-  const [user, setUser] = useState(null);
-  
-  const login = (userData, userToken) => {
-    localStorage.setItem('token', userToken);
-    window.location.href = '/'; // Force reload to update context
-  };
   
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // Redirect if already logged in
-  if (user) {
-    navigate('/');
+  // Check if already logged in
+  const existingToken = localStorage.getItem('token');
+  if (existingToken) {
+    window.location.href = '/';
     return null;
   }
 
@@ -41,10 +36,19 @@ const LoginPage = () => {
     setError('');
     
     try {
+      console.log('Attempting login to:', `${API_URL}/api/auth/login`);
       const res = await axios.post(`${API_URL}/api/auth/login`, formData);
-      login(res.data.user, res.data.token);
-      navigate('/');
+      console.log('Login response:', res.data);
+      
+      if (res.data.token) {
+        localStorage.setItem('token', res.data.token);
+        // Force page reload to update all contexts
+        window.location.href = '/';
+      } else {
+        setError(language === 'ar' ? 'خطأ في الاستجابة' : 'Invalid response');
+      }
     } catch (err) {
+      console.error('Login error:', err);
       setError(err.response?.data?.detail || (language === 'ar' ? 'فشل تسجيل الدخول' : 'Login failed'));
     } finally {
       setLoading(false);
