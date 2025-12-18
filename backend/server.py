@@ -14,6 +14,7 @@ app = FastAPI()
 
 # Import and include admin routes
 from routes.admin import router as admin_router, set_db as set_admin_db
+from routes.seller import router as seller_router, set_db as set_seller_db
 
 # CORS Configuration
 app.add_middleware(
@@ -44,8 +45,14 @@ settings_collection = db['settings']
 # Set database for admin routes
 set_admin_db(db)
 
+# Set database for seller routes
+set_seller_db(db)
+
 # Include admin router
 app.include_router(admin_router)
+
+# Include seller router
+app.include_router(seller_router)
 
 # JWT Configuration
 JWT_SECRET = os.environ.get('JWT_SECRET', 'oceansouq-secret-key-change-in-production')
