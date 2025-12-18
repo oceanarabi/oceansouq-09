@@ -7,6 +7,7 @@ import 'slick-carousel/slick/slick-theme.css';
 import './App.css';
 import { getTranslation } from './i18n';
 import AdminApp from './admin/AdminApp';
+import SellerApp from './seller/SellerApp';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
 
@@ -1691,6 +1692,8 @@ function App() {
       <Routes>
         {/* Admin Dashboard */}
         <Route path="/admin/*" element={<AdminApp />} />
+        {/* Seller Dashboard */}
+        <Route path="/seller/*" element={<SellerApp />} />
         {/* Store */}
         <Route path="/*" element={<StoreLayout />} />
       </Routes>
