@@ -1,6 +1,16 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { useWishlist, useCart, useLanguage, useAuth } from '../contexts';
+import axios from 'axios';
+
+const API_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
+
+const getTranslation = (lang, key) => {
+  const translations = {
+    en: { login: 'Login', shopNow: 'Shop Now', addToCart: 'Add to Cart', outOfStock: 'Out of Stock' },
+    ar: { login: 'تسجيل الدخول', shopNow: 'تسوق الآن', addToCart: 'أضف للسلة', outOfStock: 'نفد المخزون' }
+  };
+  return translations[lang]?.[key] || key;
+};
 
 const WishlistPage = () => {
   const navigate = useNavigate();
