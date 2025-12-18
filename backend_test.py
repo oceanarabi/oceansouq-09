@@ -4,7 +4,7 @@ import json
 from datetime import datetime
 
 class SellerAPITester:
-    def __init__(self, base_url="https://merchant-hub-125.preview.emergentagent.com"):
+    def __init__(self, base_url="https://ocean-ecommerce.preview.emergentagent.com"):
         self.base_url = base_url
         self.token = None
         self.seller_id = None
