@@ -1,93 +1,45 @@
-import React, { useState, useEffect, createContext, useContext } from 'react';
-import { BrowserRouter as Router, Routes, Route, Link, Navigate, useNavigate, useParams, useLocation } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, Link, Navigate, useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
 import Slider from 'react-slick';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 import './App.css';
-import { getTranslation } from './i18n';
+
+// Import contexts
+import {
+  LanguageProvider,
+  useLanguage,
+  DarkModeProvider,
+  useDarkMode,
+  AuthProvider,
+  useAuth,
+  CartProvider,
+  useCart,
+  WishlistProvider,
+  useWishlist
+} from './contexts';
+
+// Import components
+import {
+  TopBar,
+  Header,
+  Footer,
+  BottomNavigation,
+  ProductCard,
+  ProductSkeleton,
+  HeroSection
+} from './components';
+
+// Import dashboard apps
 import AdminApp from './admin/AdminApp';
 import SellerApp from './seller/SellerApp';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
 
-// Language Context
-const LanguageContext = createContext();
-
-const useLanguage = () => {
-  const context = useContext(LanguageContext);
-  if (!context) throw new Error('useLanguage must be used within LanguageProvider');
-  return context;
-};
-
-const LanguageProvider = ({ children }) => {
-  const [language, setLanguage] = useState(localStorage.getItem('language') || 'en');
-
-  const t = (key) => getTranslation(language, key);
-
-  const switchLanguage = (lang) => {
-    setLanguage(lang);
-    localStorage.setItem('language', lang);
-    document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
-    document.documentElement.lang = lang;
-  };
-
-  useEffect(() => {
-    document.documentElement.dir = language === 'ar' ? 'rtl' : 'ltr';
-    document.documentElement.lang = language;
-  }, [language]);
-
-  return (
-    <LanguageContext.Provider value={{ language, switchLanguage, t }}>
-      {children}
-    </LanguageContext.Provider>
-  );
-};
-
-// Dark Mode Context
-const DarkModeContext = createContext();
-
-const useDarkMode = () => {
-  const context = useContext(DarkModeContext);
-  if (!context) throw new Error('useDarkMode must be used within DarkModeProvider');
-  return context;
-};
-
-const DarkModeProvider = ({ children }) => {
-  const [darkMode, setDarkMode] = useState(localStorage.getItem('darkMode') === 'true');
-
-  const toggleDarkMode = () => {
-    const newMode = !darkMode;
-    setDarkMode(newMode);
-    localStorage.setItem('darkMode', newMode.toString());
-    if (newMode) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  };
-
-  useEffect(() => {
-    if (darkMode) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  }, [darkMode]);
-
-  return (
-    <DarkModeContext.Provider value={{ darkMode, toggleDarkMode }}>
-      {children}
-    </DarkModeContext.Provider>
-  );
-};
-
-// Auth Context
-const AuthContext = createContext();
-
-const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (!context) throw new Error('useAuth must be used within AuthProvider');
+// Legacy support - Remove these after full migration
+const AnimatedLogo = null; // Imported from components
+const LoyaltyBadge = null; // Imported from components
   return context;
 };
 
