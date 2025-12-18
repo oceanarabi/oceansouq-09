@@ -1,14 +1,29 @@
-import React, { useState } from 'react';
+import React, { useState, useContext, createContext } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
-import { useLanguage, useAuth } from '../contexts';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
 
+// These will be imported from App.js context through window or passed via props
+// For now using localStorage for compatibility
+const getTranslation = (lang, key) => {
+  const translations = {
+    en: { login: 'Login', register: 'Register', shopNow: 'Shop Now' },
+    ar: { login: 'تسجيل الدخول', register: 'إنشاء حساب', shopNow: 'تسوق الآن' }
+  };
+  return translations[lang]?.[key] || key;
+};
+
 const LoginPage = () => {
   const navigate = useNavigate();
-  const { t, language } = useLanguage();
-  const { login, user } = useAuth();
+  const language = localStorage.getItem('language') || 'en';
+  const t = (key) => getTranslation(language, key);
+  const [user, setUser] = useState(null);
+  
+  const login = (userData, userToken) => {
+    localStorage.setItem('token', userToken);
+    window.location.href = '/'; // Force reload to update context
+  };
   
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [loading, setLoading] = useState(false);
