@@ -1,3 +1,6 @@
 export { default as ProductDetailPage } from './ProductDetailPage';
 export { default as CartPage } from './CartPage';
 export { default as CheckoutPage } from './CheckoutPage';
+export { default as WishlistPage } from './WishlistPage';
+export { default as LoginPage } from './LoginPage';
+export { default as RegisterPage } from './RegisterPage';
