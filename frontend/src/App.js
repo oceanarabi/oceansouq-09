@@ -1710,8 +1710,14 @@ function StoreLayout() {
                   <Routes>
                     <Route path="/" element={<HomePage />} />
                     <Route path="/products" element={<ProductsPage />} />
+                    <Route path="/products/:id" element={<ProductDetailPage />} />
+                    <Route path="/cart" element={<CartPage />} />
+                    <Route path="/checkout" element={<CheckoutPage />} />
                     <Route path="/account" element={<CustomerAreaPage />} />
                     <Route path="/my-account" element={<CustomerAreaPage />} />
+                    <Route path="/wishlist" element={<WishlistPage />} />
+                    <Route path="/login" element={<LoginPage />} />
+                    <Route path="/register" element={<RegisterPage />} />
                   </Routes>
                 </main>
                 <Footer />
