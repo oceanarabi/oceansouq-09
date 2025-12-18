@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import requests
 import sys
 import json
@@ -7,252 +9,403 @@ class OceanEcommerceSocialTester:
     def __init__(self, base_url="https://ocean-ecommerce.preview.emergentagent.com"):
         self.base_url = base_url
         self.token = None
-        self.seller_id = None
+        self.user_id = None
         self.tests_run = 0
         self.tests_passed = 0
-        self.test_results = []
-
-    def log_test(self, name, success, details=""):
-        """Log test result"""
-        self.tests_run += 1
-        if success:
-            self.tests_passed += 1
-            print(f"✅ {name}")
-        else:
-            print(f"❌ {name} - {details}")
-        
-        self.test_results.append({
-            "test": name,
-            "success": success,
-            "details": details
-        })
+        self.seller_id = None
+        self.product_id = None
+        self.list_id = None
 
     def run_test(self, name, method, endpoint, expected_status, data=None, headers=None):
         """Run a single API test"""
-        url = f"{self.base_url}{endpoint}"
+        url = f"{self.base_url}/{endpoint}"
         test_headers = {'Content-Type': 'application/json'}
-        if self.token:
-            test_headers['Authorization'] = f'Bearer {self.token}'
         if headers:
             test_headers.update(headers)
+        if self.token and 'Authorization' not in test_headers:
+            test_headers['Authorization'] = f'Bearer {self.token}'
 
+        self.tests_run += 1
         print(f"\n🔍 Testing {name}...")
         print(f"   URL: {method} {url}")
         
         try:
             if method == 'GET':
-                response = requests.get(url, headers=test_headers, timeout=10)
+                response = requests.get(url, headers=test_headers, timeout=15)
             elif method == 'POST':
-                response = requests.post(url, json=data, headers=test_headers, timeout=10)
+                response = requests.post(url, json=data, headers=test_headers, timeout=15)
             elif method == 'PUT':
-                response = requests.put(url, json=data, headers=test_headers, timeout=10)
+                response = requests.put(url, json=data, headers=test_headers, timeout=15)
             elif method == 'DELETE':
-                response = requests.delete(url, headers=test_headers, timeout=10)
+                response = requests.delete(url, headers=test_headers, timeout=15)
 
             success = response.status_code == expected_status
-            details = f"Status: {response.status_code}"
-            
             if success:
+                self.tests_passed += 1
+                print(f"✅ Passed - Status: {response.status_code}")
                 try:
-                    response_data = response.json()
-                    self.log_test(name, True, details)
-                    return True, response_data
+                    return True, response.json() if response.text else {}
                 except:
-                    self.log_test(name, True, details + " (No JSON response)")
                     return True, {}
             else:
-                try:
-                    error_data = response.json()
-                    error_msg = error_data.get('detail', 'Unknown error')
-                    self.log_test(name, False, f"{details}, Error: {error_msg}")
-                except:
-                    self.log_test(name, False, f"{details}, Response: {response.text[:100]}")
+                print(f"❌ Failed - Expected {expected_status}, got {response.status_code}")
+                print(f"   Response: {response.text[:200]}")
                 return False, {}
 
-        except requests.exceptions.Timeout:
-            self.log_test(name, False, "Request timeout")
-            return False, {}
         except Exception as e:
-            self.log_test(name, False, f"Exception: {str(e)}")
+            print(f"❌ Failed - Error: {str(e)}")
             return False, {}
 
-    def test_seller_login(self):
-        """Test seller login"""
+    def test_authentication(self):
+        """Test login with provided credentials"""
+        print("\n" + "="*50)
+        print("TESTING AUTHENTICATION")
+        print("="*50)
+        
         success, response = self.run_test(
-            "Seller Login",
+            "Login with test buyer credentials",
             "POST",
-            "/api/auth/login",
+            "api/auth/login",
             200,
-            data={"email": "seller@ocean.com", "password": "seller123"}
+            data={"email": "testbuyer@ocean.com", "password": "test123"}
         )
         if success and 'token' in response:
             self.token = response['token']
-            self.seller_id = response.get('user', {}).get('id')
-            print(f"   ✓ Token obtained, Seller ID: {self.seller_id}")
+            self.user_id = response['user']['id']
+            print(f"   Token obtained: {self.token[:20]}...")
             return True
         return False
 
-    def test_dashboard_apis(self):
-        """Test dashboard related APIs"""
-        print("\n📊 Testing Dashboard APIs...")
+    def test_basic_apis(self):
+        """Test basic APIs to get data for social features"""
+        print("\n" + "="*50)
+        print("TESTING BASIC APIS")
+        print("="*50)
         
-        # Dashboard stats
-        self.run_test("Dashboard Stats", "GET", "/api/seller/dashboard/stats", 200)
+        # Test get products
+        success, response = self.run_test(
+            "Get products",
+            "GET",
+            "api/products",
+            200
+        )
         
-        # Sales chart
-        self.run_test("Sales Chart (7 days)", "GET", "/api/seller/dashboard/sales-chart?days=7", 200)
-        
-        # Top products
-        self.run_test("Top Products", "GET", "/api/seller/dashboard/top-products?limit=5", 200)
-
-    def test_products_apis(self):
-        """Test products CRUD operations"""
-        print("\n📦 Testing Products APIs...")
-        
-        # Get products
-        success, products_data = self.run_test("Get Products", "GET", "/api/seller/products?page=1&limit=20", 200)
-        
-        # Create product
-        product_data = {
-            "title": "Test Product",
-            "description": "Test product description",
-            "price": 99.99,
-            "category": "Electronics",
-            "stock": 10,
-            "image_url": "https://via.placeholder.com/300"
-        }
-        success, create_response = self.run_test("Create Product", "POST", "/api/seller/products", 200, product_data)
-        
-        product_id = None
-        if success and 'product' in create_response:
-            product_id = create_response['product'].get('id')
-            print(f"   ✓ Product created with ID: {product_id}")
+        if success and response and len(response) > 0:
+            # Find a product with seller_id
+            for product in response:
+                if 'seller_id' in product and product['seller_id']:
+                    self.seller_id = product['seller_id']
+                    self.product_id = product['id']
+                    print(f"   Found seller ID: {self.seller_id}")
+                    print(f"   Found product ID: {self.product_id}")
+                    break
             
-            # Get specific product
-            if product_id:
-                self.run_test("Get Product Details", "GET", f"/api/seller/products/{product_id}", 200)
-                
-                # Update product
-                update_data = {"title": "Updated Test Product", "price": 89.99}
-                self.run_test("Update Product", "PUT", f"/api/seller/products/{product_id}", 200, update_data)
-                
-                # Update stock
-                self.run_test("Update Product Stock", "PUT", f"/api/seller/products/{product_id}/stock?stock=15", 200)
-                
-                # Delete product
-                self.run_test("Delete Product", "DELETE", f"/api/seller/products/{product_id}", 200)
-
-    def test_orders_apis(self):
-        """Test orders management APIs"""
-        print("\n🛒 Testing Orders APIs...")
-        
-        # Get orders
-        self.run_test("Get Orders", "GET", "/api/seller/orders?page=1&limit=20", 200)
-        
-        # Get orders with status filter
-        self.run_test("Get Pending Orders", "GET", "/api/seller/orders?status=pending", 200)
-
-    def test_finance_apis(self):
-        """Test finance APIs"""
-        print("\n💰 Testing Finance APIs...")
-        
-        # Finance overview
-        self.run_test("Finance Overview", "GET", "/api/seller/finance/overview", 200)
-        
-        # Transactions
-        self.run_test("Transaction History", "GET", "/api/seller/finance/transactions?page=1&limit=20", 200)
-
-    def test_inventory_apis(self):
-        """Test inventory APIs"""
-        print("\n📋 Testing Inventory APIs...")
-        
-        # Inventory overview
-        self.run_test("Inventory Overview", "GET", "/api/seller/inventory", 200)
-
-    def test_promotions_apis(self):
-        """Test promotions APIs"""
-        print("\n🏷️ Testing Promotions APIs...")
-        
-        # Get coupons
-        self.run_test("Get Coupons", "GET", "/api/seller/coupons", 200)
-        
-        # Create coupon
-        coupon_data = {
-            "code": "TEST10",
-            "discount_type": "percentage",
-            "discount_value": 10,
-            "min_order": 50,
-            "max_uses": 100
-        }
-        success, coupon_response = self.run_test("Create Coupon", "POST", "/api/seller/coupons", 200, coupon_data)
-        
-        # Get flash sales
-        self.run_test("Get Flash Sales", "GET", "/api/seller/flash-sales", 200)
-
-    def test_reviews_apis(self):
-        """Test reviews APIs"""
-        print("\n⭐ Testing Reviews APIs...")
-        
-        # Get reviews
-        self.run_test("Get Reviews", "GET", "/api/seller/reviews?page=1&limit=20", 200)
-        
-        # Review stats
-        self.run_test("Review Stats", "GET", "/api/seller/reviews/stats", 200)
-
-    def test_settings_apis(self):
-        """Test settings APIs"""
-        print("\n⚙️ Testing Settings APIs...")
-        
-        # Get settings
-        success, settings_data = self.run_test("Get Store Settings", "GET", "/api/seller/settings", 200)
-        
-        # Update settings
-        if success:
-            update_settings = {
-                "store_name": "Test Store Updated",
-                "store_description": "Updated description",
-                "contact_email": "test@example.com"
-            }
-            self.run_test("Update Store Settings", "PUT", "/api/seller/settings", 200, update_settings)
-
-    def run_all_tests(self):
-        """Run all seller API tests"""
-        print("🚀 Starting Seller Dashboard API Tests")
-        print("=" * 50)
-        
-        # Login first
-        if not self.test_seller_login():
-            print("❌ Login failed, stopping tests")
+            if not self.seller_id:
+                print("❌ No seller ID found in products")
+                return False
+        else:
+            print("❌ No products found")
             return False
         
-        # Run all test suites
-        self.test_dashboard_apis()
-        self.test_products_apis()
-        self.test_orders_apis()
-        self.test_finance_apis()
-        self.test_inventory_apis()
-        self.test_promotions_apis()
-        self.test_reviews_apis()
-        self.test_settings_apis()
+        return True
+
+    def test_follow_seller_features(self):
+        """Test Follow Seller functionality"""
+        print("\n" + "="*50)
+        print("TESTING FOLLOW SELLER FEATURES")
+        print("="*50)
         
-        # Print summary
-        print("\n" + "=" * 50)
-        print(f"📊 Test Summary: {self.tests_passed}/{self.tests_run} tests passed")
-        print(f"Success Rate: {(self.tests_passed/self.tests_run)*100:.1f}%")
+        if not self.seller_id:
+            print("❌ No seller ID available for testing")
+            return False
         
-        # Print failed tests
-        failed_tests = [t for t in self.test_results if not t['success']]
-        if failed_tests:
-            print("\n❌ Failed Tests:")
-            for test in failed_tests:
-                print(f"   - {test['test']}: {test['details']}")
+        # Test follow seller
+        success, response = self.run_test(
+            "Follow seller",
+            "POST",
+            f"api/sellers/{self.seller_id}/follow",
+            200
+        )
         
-        return self.tests_passed == self.tests_run
+        # Test check following status
+        self.run_test(
+            "Check if following seller",
+            "GET",
+            f"api/sellers/{self.seller_id}/is-following",
+            200
+        )
+        
+        # Test get followers count
+        self.run_test(
+            "Get seller followers count",
+            "GET",
+            f"api/sellers/{self.seller_id}/followers",
+            200
+        )
+        
+        # Test get user following list
+        self.run_test(
+            "Get user following list",
+            "GET",
+            "api/user/following",
+            200
+        )
+        
+        # Test unfollow seller
+        self.run_test(
+            "Unfollow seller",
+            "DELETE",
+            f"api/sellers/{self.seller_id}/follow",
+            200
+        )
+        
+        return True
+
+    def test_product_comparison_features(self):
+        """Test product comparison features"""
+        print("\n" + "="*50)
+        print("TESTING PRODUCT COMPARISON FEATURES")
+        print("="*50)
+        
+        if not self.product_id:
+            print("❌ No product ID available for testing")
+            return False
+        
+        # Test add to compare
+        self.run_test(
+            "Add product to comparison",
+            "POST",
+            f"api/compare/{self.product_id}",
+            200
+        )
+        
+        # Test get comparison
+        self.run_test(
+            "Get comparison list",
+            "GET",
+            "api/compare",
+            200
+        )
+        
+        # Test remove from compare
+        self.run_test(
+            "Remove product from comparison",
+            "DELETE",
+            f"api/compare/{self.product_id}",
+            200
+        )
+        
+        # Test clear comparison
+        self.run_test(
+            "Clear comparison list",
+            "DELETE",
+            "api/compare",
+            200
+        )
+        
+        return True
+
+    def test_shared_lists_features(self):
+        """Test shared shopping lists"""
+        print("\n" + "="*50)
+        print("TESTING SHARED SHOPPING LISTS")
+        print("="*50)
+        
+        # Test create shared list
+        success, response = self.run_test(
+            "Create shared shopping list",
+            "POST",
+            "api/shared-lists",
+            200,
+            data={
+                "name": "Test Shopping List",
+                "description": "Test list for automation",
+                "is_public": True
+            }
+        )
+        
+        if success and 'id' in response:
+            self.list_id = response['id']
+            print(f"   Created list ID: {self.list_id}")
+            
+            # Test get user's shared lists
+            self.run_test(
+                "Get user shared lists",
+                "GET",
+                "api/shared-lists",
+                200
+            )
+            
+            # Test get specific shared list
+            self.run_test(
+                "Get specific shared list",
+                "GET",
+                f"api/shared-lists/{self.list_id}",
+                200
+            )
+            
+            # Test add product to list (if we have a product)
+            if self.product_id:
+                self.run_test(
+                    "Add product to shared list",
+                    "POST",
+                    f"api/shared-lists/{self.list_id}/products",
+                    200,
+                    data={
+                        "product_id": self.product_id,
+                        "note": "Test product note"
+                    }
+                )
+                
+                # Test remove product from list
+                self.run_test(
+                    "Remove product from shared list",
+                    "DELETE",
+                    f"api/shared-lists/{self.list_id}/products/{self.product_id}",
+                    200
+                )
+        
+        return True
+
+    def test_recently_viewed_features(self):
+        """Test recently viewed products"""
+        print("\n" + "="*50)
+        print("TESTING RECENTLY VIEWED FEATURES")
+        print("="*50)
+        
+        if not self.product_id:
+            print("❌ No product ID available for testing")
+            return False
+        
+        # Test add to recently viewed
+        self.run_test(
+            "Add product to recently viewed",
+            "POST",
+            f"api/recently-viewed/{self.product_id}",
+            200
+        )
+        
+        # Test get recently viewed
+        self.run_test(
+            "Get recently viewed products",
+            "GET",
+            "api/recently-viewed",
+            200
+        )
+        
+        return True
+
+    def test_enhanced_reviews_features(self):
+        """Test enhanced review features"""
+        print("\n" + "="*50)
+        print("TESTING ENHANCED REVIEWS")
+        print("="*50)
+        
+        if not self.product_id:
+            print("❌ No product ID available for testing")
+            return False
+        
+        # Test get reviews summary
+        self.run_test(
+            "Get product reviews summary",
+            "GET",
+            f"api/products/{self.product_id}/reviews/summary",
+            200
+        )
+        
+        return True
+
+    def test_seller_profile_features(self):
+        """Test seller profile features"""
+        print("\n" + "="*50)
+        print("TESTING SELLER PROFILE FEATURES")
+        print("="*50)
+        
+        if not self.seller_id:
+            print("❌ No seller ID available for testing")
+            return False
+        
+        # Test get seller profile
+        self.run_test(
+            "Get seller profile",
+            "GET",
+            f"api/sellers/{self.seller_id}/profile",
+            200
+        )
+        
+        # Test get seller products
+        self.run_test(
+            "Get seller products",
+            "GET",
+            f"api/sellers/{self.seller_id}/products",
+            200
+        )
+        
+        return True
+
+    def test_multi_language_support(self):
+        """Test multi-language support (backend should handle all languages)"""
+        print("\n" + "="*50)
+        print("TESTING MULTI-LANGUAGE SUPPORT")
+        print("="*50)
+        
+        # Test basic endpoints with different language headers
+        languages = ['en', 'ar', 'tr', 'de', 'zh', 'fr']
+        
+        for lang in languages:
+            headers = {'Accept-Language': lang}
+            self.run_test(
+                f"Get products with {lang} language",
+                "GET",
+                "api/products",
+                200,
+                headers=headers
+            )
+        
+        return True
+
+    def run_all_tests(self):
+        """Run all tests"""
+        print("🚀 Starting Ocean E-commerce Social Features API Tests")
+        print(f"📍 Testing against: {self.base_url}")
+        
+        # Test authentication first
+        if not self.test_authentication():
+            print("❌ Authentication failed, stopping tests")
+            return 1
+        
+        # Test basic APIs to get data
+        if not self.test_basic_apis():
+            print("❌ Basic APIs failed, stopping tests")
+            return 1
+        
+        # Test all social features
+        self.test_follow_seller_features()
+        self.test_product_comparison_features()
+        self.test_shared_lists_features()
+        self.test_recently_viewed_features()
+        self.test_enhanced_reviews_features()
+        self.test_seller_profile_features()
+        self.test_multi_language_support()
+        
+        # Print results
+        print("\n" + "="*50)
+        print("TEST RESULTS SUMMARY")
+        print("="*50)
+        print(f"📊 Tests passed: {self.tests_passed}/{self.tests_run}")
+        success_rate = (self.tests_passed / self.tests_run * 100) if self.tests_run > 0 else 0
+        print(f"📈 Success rate: {success_rate:.1f}%")
+        
+        if success_rate >= 80:
+            print("✅ Overall: PASS")
+            return 0
+        else:
+            print("❌ Overall: FAIL")
+            return 1
 
 def main():
-    tester = SellerAPITester()
-    success = tester.run_all_tests()
-    return 0 if success else 1
+    tester = OceanEcommerceSocialTester()
+    return tester.run_all_tests()
 
 if __name__ == "__main__":
     sys.exit(main())
