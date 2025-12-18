@@ -5,10 +5,14 @@ from pydantic import BaseModel, EmailStr
 from pymongo import MongoClient
 from typing import Optional, List
 import os
+from dotenv import load_dotenv
 import bcrypt
 import jwt
 from datetime import datetime, timedelta
 import uuid
+
+# Load environment variables
+load_dotenv()
 
 app = FastAPI()
 
