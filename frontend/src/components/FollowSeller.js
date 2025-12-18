@@ -57,6 +57,8 @@ const FollowSeller = ({ sellerId, sellerName }) => {
     }
   };
 
+  const [showSuccess, setShowSuccess] = useState(false);
+
   const handleFollow = async () => {
     if (!token) {
       alert(t('loginToFollow'));
@@ -77,9 +79,13 @@ const FollowSeller = ({ sellerId, sellerName }) => {
         });
         setIsFollowing(true);
         setFollowersCount(prev => prev + 1);
+        // Show success animation
+        setShowSuccess(true);
+        setTimeout(() => setShowSuccess(false), 2000);
       }
     } catch (err) {
       console.error('Error toggling follow:', err);
+      alert(language === 'ar' ? 'حدث خطأ' : 'An error occurred');
     }
     setLoading(false);
   };
