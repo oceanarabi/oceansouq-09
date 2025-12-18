@@ -5,11 +5,6 @@ import Slider from 'react-slick';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
 
-// Import from App.js - these will be passed as props or imported from shared components
-const ProductCard = React.lazy(() => import('../components/ProductCard'));
-const ProductSkeleton = React.lazy(() => import('../components/ProductSkeleton'));
-const HeroSection = React.lazy(() => import('../components/HeroSection'));
-
 // Language hook placeholder - will be replaced with context
 const useLanguage = () => {
   const language = localStorage.getItem('language') || 'en';
