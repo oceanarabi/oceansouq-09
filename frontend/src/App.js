@@ -9,6 +9,9 @@ import { getTranslation } from './i18n';
 import AdminApp from './admin/AdminApp';
 import SellerApp from './seller/SellerApp';
 
+// Import new pages
+import { ProductDetailPage, CartPage, CheckoutPage } from './pages';
+
 const API_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
 
 // Language Context
