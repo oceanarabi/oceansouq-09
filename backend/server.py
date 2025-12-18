@@ -1278,7 +1278,7 @@ async def chat_with_ai(chat_data: ChatMessage, current_user: dict = Depends(get_
                 api_key=EMERGENT_LLM_KEY,
                 session_id=session_id,
                 system_message=get_system_prompt(chat_data.language)
-            ).with_model("gemini", "gemini-2.5-flash")
+            ).with_model("openai", "gpt-4o-mini")
         
         chat = chat_sessions[session_id]
         
