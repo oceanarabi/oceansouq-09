@@ -908,7 +908,7 @@ const HeroSection = () => {
 const ProductCard = ({ product, showBadge = true }) => {
   const { addToCart } = useCart();
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const navigate = useNavigate();
   const inWishlist = isInWishlist(product.id);
 
