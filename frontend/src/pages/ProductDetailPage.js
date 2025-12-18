@@ -317,6 +317,26 @@ const ProductDetailPage = () => {
             </button>
           </div>
 
+          {/* Seller Info */}
+          {product.seller_id && (
+            <div className="pt-6 border-t dark:border-gray-700">
+              <div className="flex items-center justify-between bg-gray-50 dark:bg-gray-700/50 p-4 rounded-xl">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 bg-ocean-100 dark:bg-ocean-900/30 rounded-full flex items-center justify-center">
+                    <span className="text-2xl">🏪</span>
+                  </div>
+                  <div>
+                    <p className="font-semibold text-gray-900 dark:text-white">
+                      {language === 'ar' ? 'البائع' : 'Sold by'}
+                    </p>
+                    <p className="text-sm text-ocean-600">{product.seller_name || 'Ocean Seller'}</p>
+                  </div>
+                </div>
+                <FollowSeller sellerId={product.seller_id} />
+              </div>
+            </div>
+          )}
+
           {/* Features */}
           <div className="grid grid-cols-2 gap-4 pt-6 border-t dark:border-gray-700">
             <div className="flex items-center gap-3">
