@@ -1,43 +1,358 @@
-import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Link, Navigate, useNavigate, useParams } from 'react-router-dom';
+import React, { useState, useEffect, createContext, useContext } from 'react';
+import { BrowserRouter as Router, Routes, Route, Link, Navigate, useNavigate, useParams, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import Slider from 'react-slick';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 import './App.css';
-
-// Import contexts
-import {
-  LanguageProvider,
-  useLanguage,
-  DarkModeProvider,
-  useDarkMode,
-  AuthProvider,
-  useAuth,
-  CartProvider,
-  useCart,
-  WishlistProvider,
-  useWishlist
-} from './contexts';
-
-// Import components
-import {
-  TopBar,
-  Header,
-  Footer,
-  BottomNavigation,
-  ProductCard,
-  ProductSkeleton,
-  HeroSection
-} from './components';
-
-// Import dashboard apps
+import { getTranslation } from './i18n';
 import AdminApp from './admin/AdminApp';
 import SellerApp from './seller/SellerApp';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
 
-// Components imported from ./components - see components folder for implementations
+// Language Context
+const LanguageContext = createContext();
+
+const useLanguage = () => {
+  const context = useContext(LanguageContext);
+  if (!context) throw new Error('useLanguage must be used within LanguageProvider');
+  return context;
+};
+
+const LanguageProvider = ({ children }) => {
+  const [language, setLanguage] = useState(localStorage.getItem('language') || 'en');
+
+  const t = (key) => getTranslation(language, key);
+
+  const switchLanguage = (lang) => {
+    setLanguage(lang);
+    localStorage.setItem('language', lang);
+    document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+    document.documentElement.lang = lang;
+  };
+
+  useEffect(() => {
+    document.documentElement.dir = language === 'ar' ? 'rtl' : 'ltr';
+    document.documentElement.lang = language;
+  }, [language]);
+
+  return (
+    <LanguageContext.Provider value={{ language, switchLanguage, t }}>
+      {children}
+    </LanguageContext.Provider>
+  );
+};
+
+// Dark Mode Context
+const DarkModeContext = createContext();
+
+const useDarkMode = () => {
+  const context = useContext(DarkModeContext);
+  if (!context) throw new Error('useDarkMode must be used within DarkModeProvider');
+  return context;
+};
+
+const DarkModeProvider = ({ children }) => {
+  const [darkMode, setDarkMode] = useState(localStorage.getItem('darkMode') === 'true');
+
+  const toggleDarkMode = () => {
+    const newMode = !darkMode;
+    setDarkMode(newMode);
+    localStorage.setItem('darkMode', newMode.toString());
+    if (newMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  };
+
+  useEffect(() => {
+    if (darkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [darkMode]);
+
+  return (
+    <DarkModeContext.Provider value={{ darkMode, toggleDarkMode }}>
+      {children}
+    </DarkModeContext.Provider>
+  );
+};
+
+// Auth Context
+const AuthContext = createContext();
+
+const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) throw new Error('useAuth must be used within AuthProvider');
+  return context;
+};
+
+const AuthProvider = ({ children }) => {
+  const [user, setUser] = useState(null);
+  const [token, setToken] = useState(localStorage.getItem('token'));
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (token) {
+      axios.get(`${API_URL}/api/auth/me`, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      .then(res => setUser(res.data))
+      .catch(() => {
+        localStorage.removeItem('token');
+        setToken(null);
+      })
+      .finally(() => setLoading(false));
+    } else {
+      setLoading(false);
+    }
+  }, [token]);
+
+  const login = (userData, userToken) => {
+    setUser(userData);
+    setToken(userToken);
+    localStorage.setItem('token', userToken);
+  };
+
+  const logout = () => {
+    setUser(null);
+    setToken(null);
+    localStorage.removeItem('token');
+  };
+
+  return (
+    <AuthContext.Provider value={{ user, token, login, logout, loading }}>
+      {children}
+    </AuthContext.Provider>
+  );
+};
+
+// Cart Context
+const CartContext = createContext();
+
+const useCart = () => {
+  const context = useContext(CartContext);
+  if (!context) throw new Error('useCart must be used within CartProvider');
+  return context;
+};
+
+const CartProvider = ({ children }) => {
+  const [cart, setCart] = useState({ items: [], total: 0 });
+  const { token } = useAuth();
+
+  const fetchCart = async () => {
+    if (!token) return;
+    try {
+      const res = await axios.get(`${API_URL}/api/cart`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setCart(res.data);
+    } catch (error) {
+      console.error('Error fetching cart:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchCart();
+  }, [token]);
+
+  const addToCart = async (productId, quantity = 1) => {
+    if (!token) {
+      alert('Please login to add items to cart');
+      return false;
+    }
+    try {
+      await axios.post(`${API_URL}/api/cart`, 
+        { product_id: productId, quantity },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      await fetchCart();
+      return true;
+    } catch (error) {
+      alert(error.response?.data?.detail || 'Error adding to cart');
+      return false;
+    }
+  };
+
+  const updateCartItem = async (productId, quantity) => {
+    try {
+      await axios.put(`${API_URL}/api/cart/${productId}`, 
+        { product_id: productId, quantity },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      await fetchCart();
+    } catch (error) {
+      console.error('Error updating cart:', error);
+    }
+  };
+
+  const removeFromCart = async (productId) => {
+    try {
+      await axios.delete(`${API_URL}/api/cart/${productId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      await fetchCart();
+    } catch (error) {
+      console.error('Error removing from cart:', error);
+    }
+  };
+
+  return (
+    <CartContext.Provider value={{ cart, addToCart, updateCartItem, removeFromCart, fetchCart }}>
+      {children}
+    </CartContext.Provider>
+  );
+};
+
+// Wishlist Context
+const WishlistContext = createContext();
+
+const useWishlist = () => {
+  const context = useContext(WishlistContext);
+  if (!context) throw new Error('useWishlist must be used within WishlistProvider');
+  return context;
+};
+
+const WishlistProvider = ({ children }) => {
+  const [wishlist, setWishlist] = useState({ items: [] });
+  const { token } = useAuth();
+
+  const fetchWishlist = async () => {
+    if (!token) return;
+    try {
+      const res = await axios.get(`${API_URL}/api/wishlist`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setWishlist(res.data);
+    } catch (error) {
+      console.error('Error fetching wishlist:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchWishlist();
+  }, [token]);
+
+  const addToWishlist = async (productId) => {
+    if (!token) {
+      alert('Please login to add to wishlist');
+      return false;
+    }
+    try {
+      await axios.post(`${API_URL}/api/wishlist/${productId}`, {}, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      await fetchWishlist();
+      return true;
+    } catch (error) {
+      console.error('Error adding to wishlist:', error);
+      return false;
+    }
+  };
+
+  const removeFromWishlist = async (productId) => {
+    try {
+      await axios.delete(`${API_URL}/api/wishlist/${productId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      await fetchWishlist();
+      return true;
+    } catch (error) {
+      console.error('Error removing from wishlist:', error);
+      return false;
+    }
+  };
+
+  const isInWishlist = (productId) => {
+    return wishlist.items.some(item => item.id === productId);
+  };
+
+  return (
+    <WishlistContext.Provider value={{ wishlist, addToWishlist, removeFromWishlist, isInWishlist, fetchWishlist }}>
+      {children}
+    </WishlistContext.Provider>
+  );
+};
+
+// Skeleton Loading Component
+const ProductSkeleton = () => {
+  return (
+    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden">
+      <div className="h-64 skeleton"></div>
+      <div className="p-4 space-y-3">
+        <div className="h-6 skeleton rounded w-3/4"></div>
+        <div className="h-4 skeleton rounded w-full"></div>
+        <div className="h-4 skeleton rounded w-5/6"></div>
+        <div className="flex justify-between items-center">
+          <div className="h-8 skeleton rounded w-20"></div>
+          <div className="h-6 skeleton rounded w-16"></div>
+        </div>
+        <div className="flex gap-2">
+          <div className="flex-1 h-10 skeleton rounded"></div>
+          <div className="flex-1 h-10 skeleton rounded"></div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Animated Logo Component - Text Only with Ocean Theme
+const AnimatedLogo = () => {
+  const [showArabic, setShowArabic] = useState(false);
+  const { language } = useLanguage();
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setShowArabic(prev => !prev);
+    }, 6000);
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <Link to="/" className="flex items-center min-w-fit" data-testid="logo">
+      <h1 className="text-3xl sm:text-4xl lg:text-5xl ocean-brand transition-all duration-500 hover:scale-105">
+        {showArabic && language === 'ar' ? 'المحيط' : 'Ocean'}
+      </h1>
+    </Link>
+  );
+};
+
+// Loyalty Badge Component
+const LoyaltyBadge = () => {
+  const [points, setPoints] = useState(null);
+  const { token } = useAuth();
+  const { t } = useLanguage();
+
+  useEffect(() => {
+    if (token) {
+      axios.get(`${API_URL}/api/loyalty/points`, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      .then(res => setPoints(res.data))
+      .catch(err => console.error(err));
+    }
+  }, [token]);
+
+  if (!points) return null;
+
+  const tierColors = {
+    bronze: 'bg-orange-600',
+    silver: 'bg-gray-400',
+    gold: 'bg-yellow-500',
+    platinum: 'bg-purple-600'
+  };
+
+  return (
+    <div className={`${tierColors[points.tier]} text-white px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1`}>
+      <span>⭐</span>
+      <span>{points.points}</span>
+    </div>
+  );
+};
 
 // Top Bar Component - Mobile Optimized
 const TopBar = () => {
