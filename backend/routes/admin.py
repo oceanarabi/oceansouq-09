@@ -541,7 +541,7 @@ def get_settings(admin: dict = Depends(get_admin_user)):
     """Get global settings"""
     settings = db.settings.find_one({"type": "global"}, {"_id": 0})
     if not settings:
-        settings = {
+        default_settings = {
             "type": "global",
             "site_name": "Ocean",
             "maintenance_mode": False,
@@ -549,7 +549,9 @@ def get_settings(admin: dict = Depends(get_admin_user)):
             "default_language": "en",
             "supported_languages": ["en", "ar"]
         }
-        db.settings.insert_one(settings)
+        db.settings.insert_one(default_settings)
+        # Re-fetch without _id
+        settings = db.settings.find_one({"type": "global"}, {"_id": 0})
     
     return settings
 
