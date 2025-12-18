@@ -34,12 +34,6 @@ const RegisterPage = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // Redirect if already logged in
-  if (user) {
-    navigate('/');
-    return null;
-  }
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
