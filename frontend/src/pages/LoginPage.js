@@ -19,14 +19,21 @@ const LoginPage = () => {
   const language = localStorage.getItem('language') || 'en';
   const t = (key) => getTranslation(language, key);
   
+  // All hooks must be called before any conditional returns
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // Check if already logged in
+  // Check if already logged in - redirect after hooks
   const existingToken = localStorage.getItem('token');
+  
+  useEffect(() => {
+    if (existingToken) {
+      navigate('/');
+    }
+  }, [existingToken, navigate]);
+
   if (existingToken) {
-    window.location.href = '/';
     return null;
   }
 

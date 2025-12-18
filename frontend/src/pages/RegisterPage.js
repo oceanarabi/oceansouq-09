@@ -17,13 +17,7 @@ const RegisterPage = () => {
   const language = localStorage.getItem('language') || 'en';
   const t = (key) => getTranslation(language, key);
   
-  // Check if already logged in
-  const existingToken = localStorage.getItem('token');
-  if (existingToken) {
-    window.location.href = '/';
-    return null;
-  }
-  
+  // All hooks must be called before any conditional returns
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -33,6 +27,19 @@ const RegisterPage = () => {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  // Check if already logged in - redirect after hooks
+  const existingToken = localStorage.getItem('token');
+  
+  useEffect(() => {
+    if (existingToken) {
+      navigate('/');
+    }
+  }, [existingToken, navigate]);
+
+  if (existingToken) {
+    return null;
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault();
