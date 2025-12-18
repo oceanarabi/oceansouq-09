@@ -17,6 +17,7 @@ import ProductComparison from './components/ProductComparison';
 import RecentlyViewed from './components/RecentlyViewed';
 import FollowSeller from './components/FollowSeller';
 import SharedLists from './components/SharedLists';
+import AIChatbot from './components/AIChatbot';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
 
