@@ -52,14 +52,19 @@ const RegisterPage = () => {
     }
     
     try {
+      console.log('Attempting register to:', `${API_URL}/api/auth/register`);
       const res = await axios.post(`${API_URL}/api/auth/register`, {
         name: formData.name,
         email: formData.email,
         password: formData.password,
         role: formData.role
       });
-      login(res.data.user, res.data.token);
-      navigate('/');
+      console.log('Register response:', res.data);
+      
+      if (res.data.token) {
+        localStorage.setItem('token', res.data.token);
+        window.location.href = '/';
+      }
     } catch (err) {
       setError(err.response?.data?.detail || (language === 'ar' ? 'فشل التسجيل' : 'Registration failed'));
     } finally {
