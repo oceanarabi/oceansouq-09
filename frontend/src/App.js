@@ -1817,14 +1817,20 @@ function StoreLayout() {
 function App() {
   return (
     <Router>
-      <Routes>
-        {/* Admin Dashboard */}
-        <Route path="/admin/*" element={<AdminApp />} />
-        {/* Seller Dashboard */}
-        <Route path="/seller/*" element={<SellerApp />} />
-        {/* Store */}
-        <Route path="/*" element={<StoreLayout />} />
-      </Routes>
+      <LanguageProvider>
+        <DarkModeProvider>
+          <Routes>
+            {/* Admin Dashboard */}
+            <Route path="/admin/*" element={<AdminApp />} />
+            {/* Seller Dashboard */}
+            <Route path="/seller/*" element={<SellerApp />} />
+            {/* Store */}
+            <Route path="/*" element={<StoreLayout />} />
+          </Routes>
+          {/* AI Chatbot - Floating on all pages */}
+          <AIChatbot />
+        </DarkModeProvider>
+      </LanguageProvider>
     </Router>
   );
 }
