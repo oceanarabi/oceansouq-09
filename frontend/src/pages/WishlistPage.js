@@ -14,10 +14,44 @@ const getTranslation = (lang, key) => {
 
 const WishlistPage = () => {
   const navigate = useNavigate();
-  const { t, language } = useLanguage();
-  const { wishlist, removeFromWishlist } = useWishlist();
-  const { addToCart } = useCart();
-  const { user } = useAuth();
+  const language = localStorage.getItem('language') || 'en';
+  const t = (key) => getTranslation(language, key);
+  const token = localStorage.getItem('token');
+  const [user, setUser] = useState(null);
+  const [wishlist, setWishlist] = useState({ items: [] });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      if (!token) { setLoading(false); return; }
+      try {
+        const [userRes, wishlistRes] = await Promise.all([
+          axios.get(`${API_URL}/api/auth/me`, { headers: { Authorization: `Bearer ${token}` } }),
+          axios.get(`${API_URL}/api/wishlist`, { headers: { Authorization: `Bearer ${token}` } })
+        ]);
+        setUser(userRes.data);
+        setWishlist(wishlistRes.data);
+      } catch (err) { console.error(err); }
+      finally { setLoading(false); }
+    };
+    fetchData();
+  }, [token]);
+
+  const removeFromWishlist = async (productId) => {
+    try {
+      await axios.delete(`${API_URL}/api/wishlist/${productId}`, { headers: { Authorization: `Bearer ${token}` } });
+      setWishlist(prev => ({ ...prev, items: prev.items.filter(p => p.id !== productId) }));
+    } catch (err) { console.error(err); }
+  };
+
+  const addToCart = async (productId) => {
+    try {
+      await axios.post(`${API_URL}/api/cart`, { product_id: productId, quantity: 1 }, { headers: { Authorization: `Bearer ${token}` } });
+      return true;
+    } catch (err) { console.error(err); return false; }
+  };
+
+  if (loading) return <div className="container mx-auto px-4 py-16 text-center"><div className="loading-spinner mx-auto"></div></div>;
 
   const handleAddToCart = async (productId) => {
     const success = await addToCart(productId);
