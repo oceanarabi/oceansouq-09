@@ -442,15 +442,17 @@ const Header = () => {
   }, [searchQuery]);
 
   return (
-    <header className="bg-white border-b-2 border-ocean-100 sticky top-0 z-40 shadow-sm">
-      <div className="container mx-auto px-4 py-5">
-        <div className="flex items-center justify-between gap-6">
+    <header className="bg-white dark:bg-gray-900 border-b-2 border-ocean-100 dark:border-gray-700 sticky top-0 z-40 shadow-sm">
+      <div className="container mx-auto px-3 md:px-4 py-3 md:py-5">
+        <div className="flex items-center justify-between gap-3 md:gap-6">
           {/* Animated Logo */}
-          <AnimatedLogo />
+          <div className="flex-shrink-0">
+            <AnimatedLogo />
+          </div>
 
-          {/* Search Bar */}
+          {/* Search Bar - Mobile Optimized */}
           <form onSubmit={handleSearch} className="flex-1 max-w-3xl relative">
-            <div className="relative flex items-center gap-2">
+            <div className="relative flex items-center">
               <input
                 type="text"
                 value={searchQuery}
@@ -458,20 +460,20 @@ const Header = () => {
                 onFocus={() => searchSuggestions.length > 0 && setShowSuggestions(true)}
                 onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
                 placeholder={t('searchPlaceholder')}
-                className="flex-1 px-6 py-3 border-2 border-ocean-300 rounded-full focus:border-ocean-500 focus:outline-none focus:ring-2 focus:ring-ocean-200"
+                className="w-full px-4 md:px-6 py-2.5 md:py-3 text-sm md:text-base border-2 border-ocean-300 dark:border-gray-600 rounded-xl md:rounded-full bg-gray-50 dark:bg-gray-800 dark:text-white focus:border-ocean-500 focus:outline-none focus:ring-2 focus:ring-ocean-200 dark:focus:ring-ocean-500/30 focus:bg-white dark:focus:bg-gray-700 transition-all"
                 data-testid="search-input"
               />
               <button
                 type="button"
                 onClick={() => alert('Barcode scanner feature - Coming soon!')}
-                className="absolute right-20 top-1/2 -translate-y-1/2 text-ocean-600 hover:text-ocean-700 text-xl"
+                className="absolute right-14 md:right-20 top-1/2 -translate-y-1/2 text-ocean-600 hover:text-ocean-700 text-lg md:text-xl p-1"
                 title="Scan Barcode"
               >
                 📷
               </button>
               <button
                 type="submit"
-                className="absolute right-2 top-1/2 -translate-y-1/2 bg-ocean-500 text-white px-6 py-2 rounded-full hover:bg-ocean-600 transition"
+                className="absolute right-1.5 top-1/2 -translate-y-1/2 bg-ocean-500 text-white px-3 md:px-6 py-1.5 md:py-2 rounded-lg md:rounded-full hover:bg-ocean-600 transition text-sm md:text-base"
                 data-testid="search-button"
               >
                 🔍
