@@ -1117,6 +1117,9 @@ const HomePage = () => {
       {/* Hero Section */}
       <HeroSection />
 
+      {/* Recently Viewed Products */}
+      <RecentlyViewed limit={6} />
+
       {/* Daily Deals */}
       {dailyDeals.length > 0 && (
         <section className="py-12 bg-red-50 dark:bg-red-900">
