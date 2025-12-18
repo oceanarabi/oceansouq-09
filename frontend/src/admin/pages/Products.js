@@ -42,11 +42,11 @@ const Products = () => {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [showModal, setShowModal] = useState(false);
 
-  const fetchProducts = useCallback(async () => {
+  const fetchProducts = useCallback(async (page = 1) => {
     setLoading(true);
     try {
       const params = new URLSearchParams({
-        page: pagination.page,
+        page: page,
         limit: 20,
         ...(filters.search && { search: filters.search }),
         ...(filters.status && { status: filters.status }),
@@ -54,28 +54,32 @@ const Products = () => {
       });
       
       const res = await api.get(`/api/admin/products?${params}`);
-      setProducts(res.data.products);
+      setProducts(res.data.products || []);
       setPagination({ page: res.data.page, pages: res.data.pages, total: res.data.total });
     } catch (error) {
       console.error('Error fetching products:', error);
+      setProducts([]);
     } finally {
       setLoading(false);
     }
-  }, [api, pagination.page, filters]);
+  }, [api, filters]);
 
   const fetchCategories = useCallback(async () => {
     try {
       const res = await api.get('/api/admin/categories');
-      setCategories(res.data);
+      setCategories(res.data || []);
     } catch (error) {
       console.error('Error fetching categories:', error);
     }
   }, [api]);
 
   useEffect(() => {
-    fetchProducts();
+    fetchProducts(pagination.page);
+  }, [fetchProducts, pagination.page]);
+
+  useEffect(() => {
     fetchCategories();
-  }, [fetchProducts, fetchCategories]);
+  }, [fetchCategories]);
 
   const handleApprove = async (productId) => {
     try {
