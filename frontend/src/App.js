@@ -975,6 +975,7 @@ const ProductCard = ({ product, showBadge = true }) => {
       )}
       
       {/* Wishlist Button - Touch Optimized */}
+      {/* Wishlist Button */}
       <button
         onClick={handleWishlistToggle}
         className={`absolute top-2 md:top-3 right-2 md:right-3 z-10 w-9 h-9 md:w-10 md:h-10 rounded-full flex items-center justify-center ${
@@ -983,6 +984,28 @@ const ProductCard = ({ product, showBadge = true }) => {
         data-testid={`wishlist-btn-${product.id}`}
       >
         {inWishlist ? '❤️' : '🤍'}
+      </button>
+      
+      {/* Compare Button */}
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          if (!token) {
+            alert('Please login to compare products');
+            return;
+          }
+          axios.post(`${API_URL}/api/compare/${product.id}`, {}, {
+            headers: { Authorization: `Bearer ${token}` }
+          }).then(() => {
+            alert(language === 'ar' ? 'تمت الإضافة للمقارنة!' : 'Added to comparison!');
+          }).catch(err => {
+            alert(err.response?.data?.detail || 'Error adding to comparison');
+          });
+        }}
+        className="absolute top-12 md:top-14 right-2 md:right-3 z-10 w-9 h-9 md:w-10 md:h-10 rounded-full flex items-center justify-center bg-white/90 dark:bg-gray-700 text-gray-600 dark:text-gray-300 shadow-md active:scale-95 transition hover:bg-ocean-100"
+        title={language === 'ar' ? 'إضافة للمقارنة' : 'Add to Compare'}
+      >
+        📊
       </button>
 
       {/* Product Image - Responsive Height */}
