@@ -140,6 +140,17 @@ def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(securit
     user_data = decode_token(token)
     return user_data
 
+def get_current_user_optional(credentials: HTTPAuthorizationCredentials = Depends(HTTPBearer(auto_error=False))):
+    """Optional authentication - returns None if no token"""
+    if not credentials:
+        return None
+    try:
+        token = credentials.credentials
+        user_data = decode_token(token)
+        return user_data
+    except:
+        return None
+
 # Routes
 @app.get("/api")
 def read_root():
