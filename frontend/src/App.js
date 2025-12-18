@@ -1486,24 +1486,25 @@ const ProductsPage = () => {
     if (searchParam) apiParams.append('search', searchParam);
     if (categoryParam) apiParams.append('category', categoryParam);
     
-    axios.get(`${API_URL}/api/products?${apiParams.toString()}`)
+    axios.get(`${API_URL}/api/products?${apiParams.toString()}&limit=100`)
       .then(res => {
-        let filtered = res.data;
+        // API returns { products: [], total: n } or array directly
+        let allProducts = Array.isArray(res.data) ? res.data : (res.data.products || []);
         
         // Apply filters
         if (selectedBrand) {
-          filtered = filtered.filter(p => p.brand === selectedBrand);
+          allProducts = allProducts.filter(p => p.brand === selectedBrand);
         }
-        filtered = filtered.filter(p => p.price >= priceRange[0] && p.price <= priceRange[1]);
+        allProducts = allProducts.filter(p => p.price >= priceRange[0] && p.price <= priceRange[1]);
         
         // Apply sorting
-        filtered = sortProducts(filtered, sortBy);
+        const filtered = sortProducts(allProducts, sortBy);
         
         setProducts(filtered);
         setDisplayedProducts(filtered.slice(0, productsPerPage));
         setHasMore(filtered.length > productsPerPage);
       })
-      .catch(err => console.error(err));
+      .catch(err => console.error('Error fetching products:', err));
   }, [location.search, sortBy, priceRange, selectedBrand]);
   
   const sortProducts = (prods, sort) => {
