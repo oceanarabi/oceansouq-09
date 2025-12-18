@@ -2,45 +2,56 @@
 
 ## Test Configuration
 - **Test Date:** 2024-12-18
-- **Test Type:** Frontend Testing (Store Pages)
+- **Test Type:** Frontend & Backend Testing (Social + Advanced Features)
 
 ### Test Credentials:
 - **Buyer:** testbuyer@ocean.com / test123
-- **New User:** Can register with any email
 - **Admin:** admin@ocean.com / admin123
 - **Seller:** seller@ocean.com / seller123
 
-### API Endpoints to Test:
-1. POST /api/auth/login - Login
-2. POST /api/auth/register - Registration  
-3. GET /api/products - Products list
-4. GET /api/cart - Cart
-5. POST /api/cart - Add to cart
-6. GET /api/wishlist - Wishlist
+### New Features to Test:
 
-### Frontend Pages to Test:
-1. /login - Login page
-2. /register - Registration page
-3. /products - Products listing
-4. / - Homepage
-5. /cart - Cart page
-6. /wishlist - Wishlist page
-7. /products/:id - Product detail
+#### 1. Multi-Language Support (4 new languages)
+- Turkish (tr), German (de), Chinese (zh), French (fr)
+- Language selector in TopBar with dropdown menu
 
-### Recent Fixes Applied:
-1. Fixed React Hooks order in LoginPage.js and RegisterPage.js
-2. useState hooks now called before conditional returns
-3. Added useEffect for token redirect
+#### 2. Product Comparison Feature
+- Route: /compare
+- APIs: POST/DELETE /api/compare/{product_id}, GET/DELETE /api/compare
+- Compare button (📊) on product cards
+
+#### 3. Recently Viewed Products
+- APIs: GET /api/recently-viewed, POST /api/recently-viewed/{product_id}
+- Component shows on homepage for logged-in users
+
+#### 4. Follow Seller Feature
+- APIs: POST/DELETE /api/sellers/{seller_id}/follow
+- GET /api/sellers/{seller_id}/followers
+- GET /api/sellers/{seller_id}/is-following
+- FollowSeller component on product detail page
+
+#### 5. Shared Shopping Lists
+- Route: /shopping-lists
+- APIs: GET/POST /api/shared-lists
+- POST /api/shared-lists/{id}/products
+
+#### 6. Enhanced Reviews
+- API: POST /api/reviews/{review_id}/helpful
+- API: GET /api/products/{product_id}/reviews/summary
 
 ### Test Scenarios:
-1. Login with valid credentials -> Should redirect to homepage
-2. Register new user -> Should redirect to homepage
-3. Browse products -> Should display product list
-4. Add to cart (logged in) -> Should add item
-5. View wishlist (logged in) -> Should show wishlist
+1. Change language to Turkish - verify translations
+2. Change language to Chinese - verify translations
+3. Login and add products to compare list
+4. View comparison page with products
+5. View product detail page - check seller info and follow button
+6. Click follow button - verify follower count increases
+7. Create new shopping list
+8. View shopping lists page
 
 ### Incorporate User Feedback:
-- Test login, registration, and product listing flows thoroughly
-- Verify token is stored in localStorage after auth
-- Check for any console errors
+- Test all new social features
+- Verify language switching works correctly
+- Ensure follow/unfollow seller works
+- Test product comparison flow
 
