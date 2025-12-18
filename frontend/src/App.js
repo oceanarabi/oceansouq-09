@@ -12,6 +12,12 @@ import SellerApp from './seller/SellerApp';
 // Import new pages
 import { ProductDetailPage, CartPage, CheckoutPage, WishlistPage, LoginPage, RegisterPage } from './pages';
 
+// Import new components for social & advanced features
+import ProductComparison from './components/ProductComparison';
+import RecentlyViewed from './components/RecentlyViewed';
+import FollowSeller from './components/FollowSeller';
+import SharedLists from './components/SharedLists';
+
 const API_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
 
 // Language Context
