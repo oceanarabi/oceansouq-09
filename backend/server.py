@@ -712,6 +712,429 @@ def add_browsing_history(product_id: str, current_user: dict = Depends(get_curre
     
     return {"message": "History updated"}
 
+# ==========================================
+# SOCIAL FEATURES - Follow Sellers
+# ==========================================
+
+@app.post("/api/sellers/{seller_id}/follow")
+def follow_seller(seller_id: str, current_user: dict = Depends(get_current_user)):
+    """Follow a seller"""
+    # Check if seller exists
+    seller = users_collection.find_one({"id": seller_id, "role": "seller"}, {"_id": 0})
+    if not seller:
+        raise HTTPException(status_code=404, detail="Seller not found")
+    
+    # Check if already following
+    existing = followers_collection.find_one({
+        "user_id": current_user['user_id'],
+        "seller_id": seller_id
+    })
+    
+    if existing:
+        raise HTTPException(status_code=400, detail="Already following this seller")
+    
+    follow_data = {
+        "id": str(uuid.uuid4()),
+        "user_id": current_user['user_id'],
+        "seller_id": seller_id,
+        "created_at": datetime.utcnow().isoformat()
+    }
+    followers_collection.insert_one(follow_data)
+    
+    return {"message": "Successfully followed seller", "following": True}
+
+@app.delete("/api/sellers/{seller_id}/follow")
+def unfollow_seller(seller_id: str, current_user: dict = Depends(get_current_user)):
+    """Unfollow a seller"""
+    result = followers_collection.delete_one({
+        "user_id": current_user['user_id'],
+        "seller_id": seller_id
+    })
+    
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Not following this seller")
+    
+    return {"message": "Successfully unfollowed seller", "following": False}
+
+@app.get("/api/sellers/{seller_id}/followers")
+def get_seller_followers(seller_id: str):
+    """Get follower count for a seller"""
+    count = followers_collection.count_documents({"seller_id": seller_id})
+    return {"seller_id": seller_id, "followers_count": count}
+
+@app.get("/api/user/following")
+def get_user_following(current_user: dict = Depends(get_current_user)):
+    """Get list of sellers the user is following"""
+    following = list(followers_collection.find(
+        {"user_id": current_user['user_id']},
+        {"_id": 0, "seller_id": 1}
+    ))
+    
+    seller_ids = [f['seller_id'] for f in following]
+    sellers = list(users_collection.find(
+        {"id": {"$in": seller_ids}, "role": "seller"},
+        {"_id": 0, "id": 1, "name": 1, "email": 1}
+    ))
+    
+    return {"following": sellers, "count": len(sellers)}
+
+@app.get("/api/sellers/{seller_id}/is-following")
+def check_following(seller_id: str, current_user: dict = Depends(get_current_user)):
+    """Check if user is following a seller"""
+    following = followers_collection.find_one({
+        "user_id": current_user['user_id'],
+        "seller_id": seller_id
+    })
+    return {"following": following is not None}
+
+# ==========================================
+# SOCIAL FEATURES - Shared Shopping Lists
+# ==========================================
+
+class SharedListCreate(BaseModel):
+    name: str
+    description: Optional[str] = ""
+    is_public: bool = False
+
+class SharedListAddProduct(BaseModel):
+    product_id: str
+    note: Optional[str] = ""
+
+@app.post("/api/shared-lists")
+def create_shared_list(list_data: SharedListCreate, current_user: dict = Depends(get_current_user)):
+    """Create a new shared shopping list"""
+    new_list = {
+        "id": str(uuid.uuid4()),
+        "user_id": current_user['user_id'],
+        "name": list_data.name,
+        "description": list_data.description,
+        "is_public": list_data.is_public,
+        "products": [],
+        "shared_with": [],
+        "created_at": datetime.utcnow().isoformat(),
+        "updated_at": datetime.utcnow().isoformat()
+    }
+    shared_lists_collection.insert_one(new_list)
+    del new_list['_id']
+    return new_list
+
+@app.get("/api/shared-lists")
+def get_user_shared_lists(current_user: dict = Depends(get_current_user)):
+    """Get all shared lists for the user"""
+    # Get lists owned by user or shared with user
+    lists = list(shared_lists_collection.find({
+        "$or": [
+            {"user_id": current_user['user_id']},
+            {"shared_with": current_user['user_id']}
+        ]
+    }, {"_id": 0}))
+    return lists
+
+@app.get("/api/shared-lists/{list_id}")
+def get_shared_list(list_id: str, current_user: dict = Depends(get_current_user)):
+    """Get a specific shared list with product details"""
+    shopping_list = shared_lists_collection.find_one({"id": list_id}, {"_id": 0})
+    if not shopping_list:
+        raise HTTPException(status_code=404, detail="List not found")
+    
+    # Check access
+    if not shopping_list['is_public'] and shopping_list['user_id'] != current_user['user_id'] and current_user['user_id'] not in shopping_list.get('shared_with', []):
+        raise HTTPException(status_code=403, detail="Access denied")
+    
+    # Get product details
+    product_ids = [p['product_id'] for p in shopping_list['products']]
+    products = list(products_collection.find({"id": {"$in": product_ids}}, {"_id": 0}))
+    products_dict = {p['id']: p for p in products}
+    
+    # Enrich products with full details
+    for item in shopping_list['products']:
+        if item['product_id'] in products_dict:
+            item['product'] = products_dict[item['product_id']]
+    
+    return shopping_list
+
+@app.post("/api/shared-lists/{list_id}/products")
+def add_product_to_list(list_id: str, product_data: SharedListAddProduct, current_user: dict = Depends(get_current_user)):
+    """Add a product to a shared list"""
+    shopping_list = shared_lists_collection.find_one({"id": list_id})
+    if not shopping_list:
+        raise HTTPException(status_code=404, detail="List not found")
+    
+    if shopping_list['user_id'] != current_user['user_id']:
+        raise HTTPException(status_code=403, detail="Only owner can add products")
+    
+    # Check if product already in list
+    for p in shopping_list['products']:
+        if p['product_id'] == product_data.product_id:
+            raise HTTPException(status_code=400, detail="Product already in list")
+    
+    new_product = {
+        "product_id": product_data.product_id,
+        "note": product_data.note,
+        "added_at": datetime.utcnow().isoformat()
+    }
+    
+    shared_lists_collection.update_one(
+        {"id": list_id},
+        {
+            "$push": {"products": new_product},
+            "$set": {"updated_at": datetime.utcnow().isoformat()}
+        }
+    )
+    
+    return {"message": "Product added to list"}
+
+@app.delete("/api/shared-lists/{list_id}/products/{product_id}")
+def remove_product_from_list(list_id: str, product_id: str, current_user: dict = Depends(get_current_user)):
+    """Remove a product from a shared list"""
+    shopping_list = shared_lists_collection.find_one({"id": list_id})
+    if not shopping_list:
+        raise HTTPException(status_code=404, detail="List not found")
+    
+    if shopping_list['user_id'] != current_user['user_id']:
+        raise HTTPException(status_code=403, detail="Only owner can remove products")
+    
+    shared_lists_collection.update_one(
+        {"id": list_id},
+        {
+            "$pull": {"products": {"product_id": product_id}},
+            "$set": {"updated_at": datetime.utcnow().isoformat()}
+        }
+    )
+    
+    return {"message": "Product removed from list"}
+
+# ==========================================
+# ADVANCED PRODUCT FEATURES - Compare Products
+# ==========================================
+
+@app.post("/api/compare/{product_id}")
+def add_to_compare(product_id: str, current_user: dict = Depends(get_current_user)):
+    """Add product to comparison list"""
+    # Get or create comparison list for user
+    comparison = product_comparisons_collection.find_one({"user_id": current_user['user_id']})
+    
+    if not comparison:
+        comparison = {
+            "user_id": current_user['user_id'],
+            "products": []
+        }
+    
+    # Max 4 products for comparison
+    if len(comparison['products']) >= 4:
+        raise HTTPException(status_code=400, detail="Maximum 4 products can be compared")
+    
+    if product_id in comparison['products']:
+        raise HTTPException(status_code=400, detail="Product already in comparison")
+    
+    comparison['products'].append(product_id)
+    
+    product_comparisons_collection.update_one(
+        {"user_id": current_user['user_id']},
+        {"$set": comparison},
+        upsert=True
+    )
+    
+    return {"message": "Added to comparison", "products": comparison['products']}
+
+@app.delete("/api/compare/{product_id}")
+def remove_from_compare(product_id: str, current_user: dict = Depends(get_current_user)):
+    """Remove product from comparison list"""
+    product_comparisons_collection.update_one(
+        {"user_id": current_user['user_id']},
+        {"$pull": {"products": product_id}}
+    )
+    
+    return {"message": "Removed from comparison"}
+
+@app.get("/api/compare")
+def get_comparison(current_user: dict = Depends(get_current_user)):
+    """Get comparison list with product details"""
+    comparison = product_comparisons_collection.find_one(
+        {"user_id": current_user['user_id']},
+        {"_id": 0}
+    )
+    
+    if not comparison or not comparison.get('products'):
+        return {"products": []}
+    
+    # Get full product details
+    products = list(products_collection.find(
+        {"id": {"$in": comparison['products']}},
+        {"_id": 0}
+    ))
+    
+    return {"products": products}
+
+@app.delete("/api/compare")
+def clear_comparison(current_user: dict = Depends(get_current_user)):
+    """Clear comparison list"""
+    product_comparisons_collection.delete_one({"user_id": current_user['user_id']})
+    return {"message": "Comparison cleared"}
+
+# ==========================================
+# ADVANCED PRODUCT FEATURES - Recently Viewed
+# ==========================================
+
+@app.get("/api/recently-viewed")
+def get_recently_viewed(current_user: dict = Depends(get_current_user)):
+    """Get recently viewed products"""
+    history = recently_viewed_collection.find_one(
+        {"user_id": current_user['user_id']},
+        {"_id": 0}
+    )
+    
+    if not history or not history.get('products'):
+        return {"products": []}
+    
+    # Get full product details
+    products = list(products_collection.find(
+        {"id": {"$in": history['products'][:20]}},
+        {"_id": 0}
+    ))
+    
+    # Sort by view order
+    products_dict = {p['id']: p for p in products}
+    ordered_products = [products_dict[pid] for pid in history['products'][:20] if pid in products_dict]
+    
+    return {"products": ordered_products}
+
+@app.post("/api/recently-viewed/{product_id}")
+def add_to_recently_viewed(product_id: str, current_user: dict = Depends(get_current_user)):
+    """Add product to recently viewed"""
+    history = recently_viewed_collection.find_one({"user_id": current_user['user_id']})
+    
+    if not history:
+        history = {"user_id": current_user['user_id'], "products": []}
+    
+    # Remove if already exists (to move to front)
+    if product_id in history['products']:
+        history['products'].remove(product_id)
+    
+    # Add to front
+    history['products'].insert(0, product_id)
+    
+    # Keep only last 50
+    history['products'] = history['products'][:50]
+    
+    recently_viewed_collection.update_one(
+        {"user_id": current_user['user_id']},
+        {"$set": history},
+        upsert=True
+    )
+    
+    return {"message": "Added to recently viewed"}
+
+# ==========================================
+# ENHANCED REVIEWS
+# ==========================================
+
+@app.post("/api/reviews/{review_id}/helpful")
+def mark_review_helpful(review_id: str, current_user: dict = Depends(get_current_user)):
+    """Mark a review as helpful"""
+    # Check if already voted
+    existing_vote = review_votes_collection.find_one({
+        "user_id": current_user['user_id'],
+        "review_id": review_id
+    })
+    
+    if existing_vote:
+        raise HTTPException(status_code=400, detail="Already voted on this review")
+    
+    # Add vote
+    vote = {
+        "id": str(uuid.uuid4()),
+        "user_id": current_user['user_id'],
+        "review_id": review_id,
+        "created_at": datetime.utcnow().isoformat()
+    }
+    review_votes_collection.insert_one(vote)
+    
+    # Increment helpful count on review
+    reviews_collection.update_one(
+        {"id": review_id},
+        {"$inc": {"helpful_count": 1}}
+    )
+    
+    return {"message": "Marked as helpful"}
+
+@app.get("/api/products/{product_id}/reviews/summary")
+def get_reviews_summary(product_id: str):
+    """Get review summary with rating distribution"""
+    reviews = list(reviews_collection.find({"product_id": product_id}, {"_id": 0}))
+    
+    if not reviews:
+        return {
+            "total_reviews": 0,
+            "average_rating": 0,
+            "rating_distribution": {1: 0, 2: 0, 3: 0, 4: 0, 5: 0}
+        }
+    
+    total = len(reviews)
+    avg = sum(r.get('rating', 0) for r in reviews) / total
+    
+    distribution = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0}
+    for r in reviews:
+        rating = r.get('rating', 0)
+        if 1 <= rating <= 5:
+            distribution[rating] += 1
+    
+    return {
+        "total_reviews": total,
+        "average_rating": round(avg, 1),
+        "rating_distribution": distribution,
+        "reviews": reviews[:10]  # Latest 10 reviews
+    }
+
+# ==========================================
+# SELLER PROFILE
+# ==========================================
+
+@app.get("/api/sellers/{seller_id}/profile")
+def get_seller_profile(seller_id: str):
+    """Get public seller profile"""
+    seller = users_collection.find_one(
+        {"id": seller_id, "role": "seller"},
+        {"_id": 0, "password": 0}
+    )
+    
+    if not seller:
+        raise HTTPException(status_code=404, detail="Seller not found")
+    
+    # Get seller stats
+    products_count = products_collection.count_documents({"seller_id": seller_id})
+    followers_count = followers_collection.count_documents({"seller_id": seller_id})
+    
+    # Get total orders for this seller
+    total_sales = orders_collection.count_documents({"seller_id": seller_id})
+    
+    # Get average rating
+    seller_products = list(products_collection.find({"seller_id": seller_id}, {"id": 1}))
+    product_ids = [p['id'] for p in seller_products]
+    reviews = list(reviews_collection.find({"product_id": {"$in": product_ids}}, {"rating": 1}))
+    avg_rating = sum(r.get('rating', 0) for r in reviews) / len(reviews) if reviews else 0
+    
+    return {
+        **seller,
+        "products_count": products_count,
+        "followers_count": followers_count,
+        "total_sales": total_sales,
+        "average_rating": round(avg_rating, 1),
+        "total_reviews": len(reviews)
+    }
+
+@app.get("/api/sellers/{seller_id}/products")
+def get_seller_products(seller_id: str, limit: int = 20, skip: int = 0):
+    """Get products from a specific seller"""
+    products = list(products_collection.find(
+        {"seller_id": seller_id},
+        {"_id": 0}
+    ).skip(skip).limit(limit))
+    
+    total = products_collection.count_documents({"seller_id": seller_id})
+    
+    return {"products": products, "total": total}
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8001)
