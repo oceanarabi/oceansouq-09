@@ -551,12 +551,12 @@ const Header = () => {
             {user ? (
               <>
                 {/* Compare Link */}
-                <Link to="/compare" className="relative hover:text-ocean-600 hidden md:block" title={t('compareProducts')} data-testid="compare-link">
-                  <span className="text-2xl">📊</span>
+                <Link to="/compare" className="relative hover:text-ocean-600" title={t('compareProducts')} data-testid="compare-link">
+                  <span className="text-xl md:text-2xl">📊</span>
                 </Link>
                 {/* Shopping Lists Link */}
-                <Link to="/shopping-lists" className="relative hover:text-ocean-600 hidden md:block" title={t('sharedLists')} data-testid="lists-link">
-                  <span className="text-2xl">📋</span>
+                <Link to="/shopping-lists" className="relative hover:text-ocean-600" title={t('sharedLists')} data-testid="lists-link">
+                  <span className="text-xl md:text-2xl">📋</span>
                 </Link>
                 <Link to="/wishlist" className="relative hover:text-ocean-600" data-testid="wishlist-link">
                   <span className="text-2xl">❤️</span>
