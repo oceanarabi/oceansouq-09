@@ -302,6 +302,185 @@ async def get_analytics_overview(user = Depends(verify_command_token)):
     
     return stats
 
+@router.get("/live-map")
+async def get_live_map_data(user = Depends(verify_command_token)):
+    """Get live map data for all active operations"""
+    if db is None:
+        raise HTTPException(status_code=500, detail="Database not initialized")
+    
+    import random
+    
+    # Riyadh center coordinates
+    riyadh_lat, riyadh_lng = 24.7136, 46.6753
+    
+    def random_offset():
+        return (random.random() - 0.5) * 0.1
+    
+    # Get real drivers from database
+    drivers_cursor = db.drivers.find({"status": {"$ne": "suspended"}}, {"_id": 0})
+    drivers = []
+    for i, driver in enumerate(drivers_cursor):
+        drivers.append({
+            "id": driver.get("id", f"driver-{i}"),
+            "name": f"سائق {i + 1}",
+            "lat": riyadh_lat + random_offset(),
+            "lng": riyadh_lng + random_offset(),
+            "status": "available" if random.random() > 0.4 else "busy",
+            "vehicle": driver.get("vehicle_type", "سيارة"),
+            "rating": driver.get("rating", 4.5),
+            "deliveries": driver.get("total_deliveries", 0)
+        })
+    
+    # Add demo drivers if none exist
+    if len(drivers) < 5:
+        for i in range(12):
+            drivers.append({
+                "id": f"demo-driver-{i}",
+                "name": f"سائق {i + 1}",
+                "lat": riyadh_lat + random_offset(),
+                "lng": riyadh_lng + random_offset(),
+                "status": "available" if random.random() > 0.3 else "busy",
+                "vehicle": ["سيارة", "دراجة نارية", "فان"][random.randint(0, 2)],
+                "rating": round(4 + random.random(), 1),
+                "deliveries": random.randint(50, 500)
+            })
+    
+    # Get real captains
+    captains_cursor = db.captains.find({"status": {"$ne": "suspended"}}, {"_id": 0})
+    captains = []
+    for i, captain in enumerate(captains_cursor):
+        captains.append({
+            "id": captain.get("id", f"captain-{i}"),
+            "name": f"كابتن {i + 1}",
+            "lat": riyadh_lat + random_offset(),
+            "lng": riyadh_lng + random_offset(),
+            "status": "available" if random.random() > 0.5 else "in_ride",
+            "vehicle": captain.get("vehicle_model", "كامري"),
+            "rating": captain.get("rating", 4.8),
+            "rides": captain.get("total_rides", 0)
+        })
+    
+    # Add demo captains if none exist
+    if len(captains) < 3:
+        for i in range(8):
+            captains.append({
+                "id": f"demo-captain-{i}",
+                "name": f"كابتن {i + 1}",
+                "lat": riyadh_lat + random_offset(),
+                "lng": riyadh_lng + random_offset(),
+                "status": "available" if random.random() > 0.4 else "in_ride",
+                "vehicle": ["كامري", "اكورد", "سوناتا", "النترا"][random.randint(0, 3)],
+                "rating": round(4.5 + random.random() * 0.5, 1),
+                "rides": random.randint(100, 1000)
+            })
+    
+    # Get restaurants
+    restaurants_cursor = db.restaurants.find({"status": "active"}, {"_id": 0, "id": 1, "name": 1, "name_ar": 1})
+    restaurants = []
+    for i, rest in enumerate(restaurants_cursor):
+        restaurants.append({
+            "id": rest.get("id"),
+            "name": rest.get("name_ar", rest.get("name")),
+            "lat": riyadh_lat + random_offset() * 0.5,
+            "lng": riyadh_lng + random_offset() * 0.5,
+            "orders": random.randint(5, 20),
+            "rating": round(4.3 + random.random() * 0.7, 1)
+        })
+    
+    # Get hotels
+    hotels_cursor = db.hotels.find({"status": "active"}, {"_id": 0, "id": 1, "name": 1, "name_ar": 1})
+    hotels = []
+    for i, hotel in enumerate(hotels_cursor):
+        hotels.append({
+            "id": hotel.get("id"),
+            "name": hotel.get("name_ar", hotel.get("name")),
+            "lat": riyadh_lat + random_offset() * 0.4,
+            "lng": riyadh_lng + random_offset() * 0.4,
+            "bookings": random.randint(20, 60),
+            "occupancy": random.randint(60, 95)
+        })
+    
+    # Get active food orders
+    active_orders_cursor = db.food_orders.find(
+        {"status": {"$in": ["pending", "confirmed", "preparing", "ready", "delivering"]}},
+        {"_id": 0}
+    ).limit(20)
+    active_orders = []
+    for order in active_orders_cursor:
+        active_orders.append({
+            "id": order.get("id"),
+            "orderNumber": order.get("order_number", "N/A"),
+            "lat": riyadh_lat + random_offset() * 0.3,
+            "lng": riyadh_lng + random_offset() * 0.3,
+            "status": order.get("status", "preparing"),
+            "restaurant": order.get("restaurant_name", "مطعم"),
+            "amount": order.get("total", 0)
+        })
+    
+    # Add demo orders if none
+    if len(active_orders) < 5:
+        for i in range(15):
+            active_orders.append({
+                "id": f"demo-order-{i}",
+                "orderNumber": f"FO-DEMO-{i}",
+                "lat": riyadh_lat + random_offset() * 0.4,
+                "lng": riyadh_lng + random_offset() * 0.4,
+                "status": ["preparing", "ready", "delivering"][random.randint(0, 2)],
+                "restaurant": ["البيك", "كودو", "ماما نورة", "هرفي"][random.randint(0, 3)],
+                "amount": random.randint(50, 200)
+            })
+    
+    # Get active rides
+    active_rides_cursor = db.rides.find(
+        {"status": {"$in": ["searching", "accepted", "arriving", "started"]}},
+        {"_id": 0}
+    ).limit(10)
+    active_rides = []
+    for ride in active_rides_cursor:
+        pickup = ride.get("pickup", {})
+        active_rides.append({
+            "id": ride.get("id"),
+            "rideNumber": ride.get("ride_number", "N/A"),
+            "pickupLat": pickup.get("lat", riyadh_lat + random_offset()),
+            "pickupLng": pickup.get("lng", riyadh_lng + random_offset()),
+            "status": ride.get("status", "searching"),
+            "fare": ride.get("estimated_fare", 0)
+        })
+    
+    # Service providers
+    service_providers = []
+    for i in range(5):
+        service_providers.append({
+            "id": f"sp-{i}",
+            "name": f"مقدم خدمة {i + 1}",
+            "lat": riyadh_lat + random_offset(),
+            "lng": riyadh_lng + random_offset(),
+            "service": ["تنظيف", "صيانة مكيفات", "سباكة", "كهرباء"][random.randint(0, 3)],
+            "status": "available" if random.random() > 0.4 else "busy"
+        })
+    
+    # Calculate stats
+    online_drivers = len([d for d in drivers if d["status"] == "available"])
+    online_captains = len([c for c in captains if c["status"] == "available"])
+    
+    return {
+        "markers": {
+            "drivers": drivers,
+            "captains": captains,
+            "restaurants": restaurants,
+            "hotels": hotels,
+            "activeOrders": active_orders,
+            "activeRides": active_rides,
+            "serviceProviders": service_providers
+        },
+        "stats": {
+            "onlineDrivers": online_drivers,
+            "onlineCaptains": online_captains,
+            "activeOrders": len(active_orders),
+            "activeRides": len(active_rides)
+        }
+    }
+
 @router.get("/analytics/services")
 async def get_services_analytics(user = Depends(verify_command_token)):
     """Get analytics per service"""
