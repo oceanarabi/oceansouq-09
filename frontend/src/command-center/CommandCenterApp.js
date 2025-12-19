@@ -115,8 +115,30 @@ const Sidebar = ({ services, collapsed, setCollapsed }) => {
         </div>
       )}
 
-      {/* User & Logout */}
-      <div className="absolute bottom-0 right-0 left-0 p-4 border-t border-gray-800">
+      {/* Theme Toggle & Logout */}
+      <div className="absolute bottom-0 right-0 left-0 p-4 border-t border-gray-800 space-y-3">
+        {/* Theme Toggle */}
+        <div className={`flex items-center ${collapsed ? 'justify-center' : 'justify-between px-2'}`}>
+          {!collapsed && <span className="text-sm text-gray-400">الوضع الداكن</span>}
+          <button
+            onClick={() => {
+              const isDark = document.documentElement.classList.contains('dark');
+              if (isDark) {
+                document.documentElement.classList.remove('dark');
+                localStorage.setItem('darkMode', 'false');
+              } else {
+                document.documentElement.classList.add('dark');
+                localStorage.setItem('darkMode', 'true');
+              }
+            }}
+            className="p-2 rounded-lg bg-gray-800 hover:bg-gray-700 transition"
+            title="تبديل الوضع"
+          >
+            <span className="text-lg">🌓</span>
+          </button>
+        </div>
+        
+        {/* User Info */}
         <div className={`flex items-center ${collapsed ? 'justify-center' : 'gap-3'}`}>
           <div className="w-10 h-10 bg-ocean-600 rounded-full flex items-center justify-center">
             <span>👤</span>
@@ -128,6 +150,21 @@ const Sidebar = ({ services, collapsed, setCollapsed }) => {
             </div>
           )}
         </div>
+        
+        {/* Logout Button */}
+        {!collapsed && (
+          <button
+            onClick={() => {
+              localStorage.removeItem('commandToken');
+              localStorage.removeItem('commandUser');
+              navigate('/command/login');
+            }}
+            className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-red-600/20 hover:bg-red-600/30 text-red-400 rounded-lg transition"
+          >
+            <span>🚪</span>
+            <span className="text-sm">تسجيل الخروج</span>
+          </button>
+        )}
       </div>
     </aside>
   );
