@@ -304,8 +304,7 @@ class SuperAppAPITester:
         success, status_response = self.run_test(
             "POST /api/driver/status",
             "POST", "api/driver/status", 200,
-            data={"status": "online"},
-            headers={"Authorization": f"Bearer {driver_token}"}
+            data={"status": "online"}
         )
         if success:
             print(f"   Status updated to: {status_response.get('status', 'unknown')}")
@@ -313,8 +312,7 @@ class SuperAppAPITester:
         # Test driver deliveries history
         success, deliveries = self.run_test(
             "GET /api/driver/deliveries",
-            "GET", "api/driver/deliveries", 200,
-            headers={"Authorization": f"Bearer {driver_token}"}
+            "GET", "api/driver/deliveries", 200
         )
         if success:
             deliveries_list = deliveries.get('deliveries', [])
@@ -326,14 +324,16 @@ class SuperAppAPITester:
         # Test driver earnings
         success, earnings = self.run_test(
             "GET /api/driver/earnings",
-            "GET", "api/driver/earnings", 200,
-            headers={"Authorization": f"Bearer {driver_token}"}
+            "GET", "api/driver/earnings", 200
         )
         if success:
             print(f"   Earnings - Deliveries: {earnings.get('deliveries', 0)}")
             print(f"   Earnings - Base: {earnings.get('base', 0)} SAR")
             print(f"   Earnings - Tips: {earnings.get('tips', 0)} SAR")
             print(f"   Earnings - Total: {earnings.get('total', 0)} SAR")
+        
+        # Restore original token
+        self.token = old_token
 
     def test_restaurant_dashboard_apis(self):
         """Test Restaurant Dashboard APIs"""
