@@ -13,6 +13,18 @@ import CommandCenterApp from './command-center/CommandCenterApp';
 // Import new pages
 import { ProductDetailPage, CartPage, CheckoutPage, WishlistPage, LoginPage, RegisterPage } from './pages';
 
+// Import Join pages for provider registration
+import { 
+  JoinPage, 
+  JoinSellerPage, 
+  JoinDriverPage, 
+  JoinRestaurantPage, 
+  JoinCaptainPage, 
+  JoinHotelPage, 
+  JoinServiceProviderPage, 
+  JoinExperiencePage 
+} from './pages/JoinPage';
+
 // Import new components for social & advanced features
 import ProductComparison from './components/ProductComparison';
 import RecentlyViewed from './components/RecentlyViewed';
