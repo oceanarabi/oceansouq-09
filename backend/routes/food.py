@@ -163,7 +163,8 @@ async def create_restaurant(restaurant: RestaurantCreate, user = Depends(verify_
     }
     
     db.restaurants.insert_one(restaurant_data)
-    del restaurant_data["_id"] if "_id" in restaurant_data else None
+    if "_id" in restaurant_data:
+        del restaurant_data["_id"]
     
     return {"message": "Restaurant created successfully", "restaurant": restaurant_data}
 
