@@ -180,6 +180,88 @@ class SuperAppAPITester:
                 for service in disabled_services:
                     print(f"   ❌ {service.get('name', 'Unknown')} ({service.get('service_id', 'no-id')})")
 
+    def test_experiences_apis(self):
+        """Test Experiences Service APIs"""
+        print("\n🎭 === TESTING EXPERIENCES SERVICE APIS ===")
+        
+        # Test experience types
+        success, types = self.run_test(
+            "GET /api/experiences/types",
+            "GET", "api/experiences/types", 200
+        )
+        if success:
+            print(f"   Found {len(types)} experience types")
+            for exp_type in types:
+                print(f"   - {exp_type.get('name', 'Unknown')} {exp_type.get('icon', '')}")
+        
+        # Test experiences list
+        success, experiences = self.run_test(
+            "GET /api/experiences/",
+            "GET", "api/experiences/", 200
+        )
+        if success:
+            print(f"   Found {len(experiences)} experiences")
+            if experiences:
+                print(f"   Sample: {experiences[0].get('name_ar', 'Unknown')}")
+        
+        # Test experiences with filters
+        self.run_test(
+            "GET /api/experiences/?type=tours",
+            "GET", "api/experiences/", 200,
+            data={"type": "tours"}
+        )
+        
+        self.run_test(
+            "GET /api/experiences/?featured=true",
+            "GET", "api/experiences/", 200,
+            data={"featured": "true"}
+        )
+
+    def test_services_apis(self):
+        """Test On-Demand Services APIs"""
+        print("\n🔧 === TESTING ON-DEMAND SERVICES APIS ===")
+        
+        # Test service types
+        success, types = self.run_test(
+            "GET /api/services/types",
+            "GET", "api/services/types", 200
+        )
+        if success:
+            print(f"   Found {len(types)} service types")
+            for service_type in types:
+                print(f"   - {service_type.get('name', 'Unknown')} {service_type.get('icon', '')}")
+        
+        # Test services list
+        success, services = self.run_test(
+            "GET /api/services/",
+            "GET", "api/services/", 200
+        )
+        if success:
+            print(f"   Found {len(services)} on-demand services")
+            if services:
+                print(f"   Sample: {services[0].get('name_ar', 'Unknown')}")
+        
+        # Test services with filters
+        self.run_test(
+            "GET /api/services/?type=cleaning",
+            "GET", "api/services/", 200,
+            data={"type": "cleaning"}
+        )
+
+    def test_subscriptions_apis(self):
+        """Test Subscriptions APIs"""
+        print("\n⭐ === TESTING SUBSCRIPTIONS APIS ===")
+        
+        # Test subscription plans
+        success, plans = self.run_test(
+            "GET /api/subscriptions/plans",
+            "GET", "api/subscriptions/plans", 200
+        )
+        if success:
+            print(f"   Found {len(plans)} subscription plans")
+            for plan in plans:
+                print(f"   - {plan.get('name_ar', 'Unknown')}: {plan.get('price_monthly', 0)} SAR/month")
+
     def test_authenticated_apis(self):
         """Test APIs that require authentication"""
         print("\n🔐 === TESTING AUTHENTICATED APIS ===")
@@ -210,6 +292,42 @@ class SuperAppAPITester:
         self.run_test(
             "GET /api/rides/active",
             "GET", "api/rides/active", 200
+        )
+        
+        # Test user's experience bookings
+        self.run_test(
+            "GET /api/experiences/bookings/my",
+            "GET", "api/experiences/bookings/my", 200
+        )
+        
+        # Test user's service bookings
+        self.run_test(
+            "GET /api/services/bookings/my",
+            "GET", "api/services/bookings/my", 200
+        )
+        
+        # Test user's subscription
+        self.run_test(
+            "GET /api/subscriptions/my",
+            "GET", "api/subscriptions/my", 200
+        )
+        
+        # Test notifications
+        self.run_test(
+            "GET /api/notifications/",
+            "GET", "api/notifications/", 200
+        )
+        
+        # Test unread notifications count
+        self.run_test(
+            "GET /api/notifications/unread-count",
+            "GET", "api/notifications/unread-count", 200
+        )
+        
+        # Test notification settings
+        self.run_test(
+            "GET /api/notifications/settings",
+            "GET", "api/notifications/settings", 200
         )
 
     def test_error_handling(self):
