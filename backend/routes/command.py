@@ -303,15 +303,20 @@ async def get_analytics_overview(user = Depends(verify_command_token)):
     return stats
 
 @router.get("/live-map")
-async def get_live_map_data(user = Depends(verify_command_token)):
+async def get_live_map_data(
+    user = Depends(verify_command_token),
+    lat: Optional[float] = None,
+    lng: Optional[float] = None
+):
     """Get live map data for all active operations"""
     if db is None:
         raise HTTPException(status_code=500, detail="Database not initialized")
     
     import random
     
-    # Riyadh center coordinates
-    riyadh_lat, riyadh_lng = 24.7136, 46.6753
+    # Use provided coordinates or default to Riyadh
+    center_lat = lat if lat else 24.7136
+    center_lng = lng if lng else 46.6753
     
     def random_offset():
         return (random.random() - 0.5) * 0.1
@@ -323,8 +328,8 @@ async def get_live_map_data(user = Depends(verify_command_token)):
         drivers.append({
             "id": driver.get("id", f"driver-{i}"),
             "name": f"سائق {i + 1}",
-            "lat": riyadh_lat + random_offset(),
-            "lng": riyadh_lng + random_offset(),
+            "lat": center_lat + random_offset(),
+            "lng": center_lng + random_offset(),
             "status": "available" if random.random() > 0.4 else "busy",
             "vehicle": driver.get("vehicle_type", "سيارة"),
             "rating": driver.get("rating", 4.5),
@@ -337,8 +342,8 @@ async def get_live_map_data(user = Depends(verify_command_token)):
             drivers.append({
                 "id": f"demo-driver-{i}",
                 "name": f"سائق {i + 1}",
-                "lat": riyadh_lat + random_offset(),
-                "lng": riyadh_lng + random_offset(),
+                "lat": center_lat + random_offset(),
+                "lng": center_lng + random_offset(),
                 "status": "available" if random.random() > 0.3 else "busy",
                 "vehicle": ["سيارة", "دراجة نارية", "فان"][random.randint(0, 2)],
                 "rating": round(4 + random.random(), 1),
