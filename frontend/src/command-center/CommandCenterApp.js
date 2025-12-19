@@ -18,6 +18,7 @@ import Analytics from './pages/Analytics';
 import Users from './pages/Users';
 import Settings from './pages/Settings';
 import Login from './pages/Login';
+import LiveMap from './pages/LiveMap';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
 
@@ -49,6 +50,7 @@ const Sidebar = ({ services, collapsed, setCollapsed }) => {
   
   const menuItems = [
     { path: '/command', icon: '🏠', label: 'الرئيسية', labelEn: 'Dashboard' },
+    { path: '/command/live-map', icon: '🗺️', label: 'الخريطة الحية', labelEn: 'Live Map' },
     { path: '/command/services', icon: '⚙️', label: 'إدارة الخدمات', labelEn: 'Services' },
     { path: '/command/ai', icon: '🤖', label: 'مركز AI', labelEn: 'AI Center' },
     { path: '/command/analytics', icon: '📊', label: 'التحليلات', labelEn: 'Analytics' },
@@ -238,6 +240,7 @@ const CommandCenterApp = () => {
     <Routes>
       <Route path="/login" element={<Login />} />
       <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+      <Route path="/live-map" element={<ProtectedRoute><LiveMap /></ProtectedRoute>} />
       <Route path="/services" element={<ProtectedRoute><ServicesManager /></ProtectedRoute>} />
       <Route path="/shopping/*" element={<ProtectedRoute><ShoppingService /></ProtectedRoute>} />
       <Route path="/delivery/*" element={<ProtectedRoute><DeliveryService /></ProtectedRoute>} />
