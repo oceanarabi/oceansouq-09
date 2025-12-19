@@ -485,10 +485,13 @@ def main():
     
     tester = SuperAppAPITester()
     
-    # Try to login first
-    tester.test_login()
+    # Try to login first (Command Center login for admin access)
+    tester.test_command_login()
     
-    # Run all test suites
+    # Run Command Center specific tests
+    tester.test_command_center_apis()
+    
+    # Run other test suites
     tester.test_food_apis()
     tester.test_rides_apis() 
     tester.test_hotels_apis()
