@@ -9,6 +9,8 @@ import { getTranslation } from './i18n';
 import AdminApp from './admin/AdminApp';
 import SellerApp from './seller/SellerApp';
 import CommandCenterApp from './command-center/CommandCenterApp';
+import DriverApp from './driver-dashboard/DriverApp';
+import RestaurantApp from './restaurant-dashboard/RestaurantApp';
 
 // Import new pages
 import { ProductDetailPage, CartPage, CheckoutPage, WishlistPage, LoginPage, RegisterPage } from './pages';
