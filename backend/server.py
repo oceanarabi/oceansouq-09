@@ -97,6 +97,12 @@ set_subscriptions_db(db)
 # Set database for notifications routes
 set_notifications_db(db)
 
+# Set database for driver dashboard routes
+set_driver_db(db)
+
+# Set database for restaurant dashboard routes
+set_restaurant_dashboard_db(db)
+
 # Include admin router
 app.include_router(admin_router)
 
