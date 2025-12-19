@@ -32,7 +32,9 @@ class MenuItem(BaseModel):
     available: bool = True
 
 # Token verification
-async def verify_restaurant_token(authorization: str = None):
+from fastapi import Header
+
+async def verify_restaurant_token(authorization: str = Header(None)):
     if not authorization:
         raise HTTPException(status_code=401, detail="Token مطلوب")
     try:
