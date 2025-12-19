@@ -262,75 +262,191 @@ class SuperAppAPITester:
             for plan in plans:
                 print(f"   - {plan.get('name_ar', 'Unknown')}: {plan.get('price_monthly', 0)} SAR/month")
 
-    def test_driver_dashboard_apis(self):
-        """Test Driver Dashboard APIs"""
-        print("\n🚚 === TESTING DRIVER DASHBOARD APIS ===")
+    def test_captain_dashboard_apis(self):
+        """Test Captain Dashboard APIs"""
+        print("\n🚗 === TESTING CAPTAIN DASHBOARD APIS ===")
         
-        # Test driver login
+        # Test captain login
         success, response = self.run_test(
-            "POST /api/driver/auth/login",
-            "POST", "api/driver/auth/login", 200,
-            data={"email": "driver@ocean.com", "password": "driver123"}
+            "POST /api/captain/auth/login",
+            "POST", "api/captain/auth/login", 200,
+            data={"email": "captain@ocean.com", "password": "captain123"}
         )
         
-        driver_token = None
+        captain_token = None
         if success and 'token' in response:
-            driver_token = response['token']
-            driver_info = response.get('driver', {})
-            print(f"✅ Driver login successful")
-            print(f"   Driver: {driver_info.get('name', 'Unknown')} ({driver_info.get('email', 'Unknown')})")
-            print(f"   Rating: {driver_info.get('rating', 'Unknown')}")
-            print(f"   Vehicle: {driver_info.get('vehicle_type', 'Unknown')}")
+            captain_token = response['token']
+            captain_info = response.get('captain', {})
+            print(f"✅ Captain login successful")
+            print(f"   Captain: {captain_info.get('name', 'Unknown')} ({captain_info.get('email', 'Unknown')})")
+            print(f"   Rating: {captain_info.get('rating', 'Unknown')}")
+            print(f"   Vehicle: {captain_info.get('vehicle', 'Unknown')}")
+            print(f"   Status: {captain_info.get('status', 'Unknown')}")
         else:
-            print("❌ Driver login failed, skipping driver dashboard tests")
+            print("❌ Captain login failed, skipping captain dashboard tests")
             return
         
-        # Test driver dashboard data
+        # Test captain dashboard data
         # Temporarily store the token and use it for authenticated requests
         old_token = self.token
-        self.token = driver_token
+        self.token = captain_token
         success, dashboard_data = self.run_test(
-            "GET /api/driver/dashboard",
-            "GET", "api/driver/dashboard", 200
+            "GET /api/captain/dashboard",
+            "GET", "api/captain/dashboard", 200
         )
         if success:
-            print(f"   Today Deliveries: {dashboard_data.get('todayDeliveries', 0)}")
+            print(f"   Today Rides: {dashboard_data.get('todayRides', 0)}")
             print(f"   Today Earnings: {dashboard_data.get('todayEarnings', 0)} SAR")
             print(f"   Week Earnings: {dashboard_data.get('weekEarnings', 0)} SAR")
             print(f"   Rating: {dashboard_data.get('rating', 0)}")
-            print(f"   Pending Orders: {len(dashboard_data.get('pendingOrders', []))}")
+            print(f"   Pending Rides: {len(dashboard_data.get('pendingRides', []))}")
         
-        # Test driver status update
+        # Test captain status update
         success, status_response = self.run_test(
-            "POST /api/driver/status",
-            "POST", "api/driver/status", 200,
+            "POST /api/captain/status",
+            "POST", "api/captain/status", 200,
             data={"status": "online"}
         )
         if success:
             print(f"   Status updated to: {status_response.get('status', 'unknown')}")
         
-        # Test driver deliveries history
-        success, deliveries = self.run_test(
-            "GET /api/driver/deliveries",
-            "GET", "api/driver/deliveries", 200
+        # Test captain rides history
+        success, rides = self.run_test(
+            "GET /api/captain/rides",
+            "GET", "api/captain/rides", 200
         )
         if success:
-            deliveries_list = deliveries.get('deliveries', [])
-            print(f"   Delivery History: {len(deliveries_list)} records")
-            if deliveries_list:
-                completed = len([d for d in deliveries_list if d.get('status') == 'delivered'])
-                print(f"   Completed Deliveries: {completed}")
+            rides_list = rides.get('rides', [])
+            print(f"   Rides History: {len(rides_list)} records")
+            if rides_list:
+                completed = len([r for r in rides_list if r.get('status') == 'completed'])
+                print(f"   Completed Rides: {completed}")
         
-        # Test driver earnings
+        # Test captain earnings
         success, earnings = self.run_test(
-            "GET /api/driver/earnings",
-            "GET", "api/driver/earnings", 200
+            "GET /api/captain/earnings",
+            "GET", "api/captain/earnings", 200
         )
         if success:
-            print(f"   Earnings - Deliveries: {earnings.get('deliveries', 0)}")
+            print(f"   Earnings - Rides: {earnings.get('rides', 0)}")
             print(f"   Earnings - Base: {earnings.get('base', 0)} SAR")
             print(f"   Earnings - Tips: {earnings.get('tips', 0)} SAR")
             print(f"   Earnings - Total: {earnings.get('total', 0)} SAR")
+        
+        # Test captain ratings
+        success, ratings = self.run_test(
+            "GET /api/captain/ratings",
+            "GET", "api/captain/ratings", 200
+        )
+        if success:
+            print(f"   Overall Rating: {ratings.get('overallRating', 0)}")
+            print(f"   Total Ratings: {ratings.get('totalRatings', 0)}")
+            reviews_list = ratings.get('reviews', [])
+            print(f"   Recent Reviews: {len(reviews_list)}")
+        
+        # Restore original token
+        self.token = old_token
+
+    def test_hotel_dashboard_apis(self):
+        """Test Hotel Dashboard APIs"""
+        print("\n🏨 === TESTING HOTEL DASHBOARD APIS ===")
+        
+        # Test hotel login
+        success, response = self.run_test(
+            "POST /api/hotel/auth/login",
+            "POST", "api/hotel/auth/login", 200,
+            data={"email": "hotel@ocean.com", "password": "hotel123"}
+        )
+        
+        hotel_token = None
+        if success and 'token' in response:
+            hotel_token = response['token']
+            hotel_info = response.get('hotel', {})
+            print(f"✅ Hotel login successful")
+            print(f"   Hotel: {hotel_info.get('name', 'Unknown')} ({hotel_info.get('email', 'Unknown')})")
+            print(f"   Rating: {hotel_info.get('rating', 'Unknown')}")
+            print(f"   Stars: {hotel_info.get('stars', 'Unknown')}")
+            print(f"   City: {hotel_info.get('city', 'Unknown')}")
+            print(f"   Rooms Count: {hotel_info.get('rooms_count', 'Unknown')}")
+            print(f"   Available: {'Yes' if hotel_info.get('is_available') else 'No'}")
+        else:
+            print("❌ Hotel login failed, skipping hotel dashboard tests")
+            return
+        
+        # Test hotel dashboard data
+        # Temporarily store the token and use it for authenticated requests
+        old_token = self.token
+        self.token = hotel_token
+        success, dashboard_data = self.run_test(
+            "GET /api/hotel/dashboard",
+            "GET", "api/hotel/dashboard", 200
+        )
+        if success:
+            print(f"   Today Bookings: {dashboard_data.get('todayBookings', 0)}")
+            print(f"   Today Revenue: {dashboard_data.get('todayRevenue', 0)} SAR")
+            print(f"   Occupancy Rate: {dashboard_data.get('occupancyRate', 0)}%")
+            print(f"   Rating: {dashboard_data.get('rating', 0)}")
+            print(f"   Available Rooms: {dashboard_data.get('availableRooms', 0)}")
+            print(f"   Total Rooms: {dashboard_data.get('totalRooms', 0)}")
+            print(f"   Pending Bookings: {len(dashboard_data.get('pendingBookings', []))}")
+            print(f"   Today Check-ins: {len(dashboard_data.get('todayCheckIns', []))}")
+            print(f"   Today Check-outs: {len(dashboard_data.get('todayCheckOuts', []))}")
+        
+        # Test hotel status update
+        success, status_response = self.run_test(
+            "POST /api/hotel/status",
+            "POST", "api/hotel/status", 200,
+            data={"is_available": True}
+        )
+        if success:
+            print(f"   Availability updated: {'Available' if status_response.get('is_available') else 'Not Available'}")
+        
+        # Test hotel bookings
+        success, bookings = self.run_test(
+            "GET /api/hotel/bookings",
+            "GET", "api/hotel/bookings", 200
+        )
+        if success:
+            bookings_list = bookings.get('bookings', [])
+            print(f"   Bookings History: {len(bookings_list)} records")
+            if bookings_list:
+                confirmed = len([b for b in bookings_list if b.get('status') == 'confirmed'])
+                pending = len([b for b in bookings_list if b.get('status') == 'pending'])
+                print(f"   Confirmed: {confirmed}, Pending: {pending}")
+        
+        # Test hotel rooms
+        success, rooms = self.run_test(
+            "GET /api/hotel/rooms",
+            "GET", "api/hotel/rooms", 200
+        )
+        if success:
+            rooms_list = rooms.get('rooms', [])
+            print(f"   Room Types: {len(rooms_list)}")
+            if rooms_list:
+                total_available = sum(room.get('available', 0) for room in rooms_list)
+                print(f"   Total Available Rooms: {total_available}")
+        
+        # Test hotel analytics
+        success, analytics = self.run_test(
+            "GET /api/hotel/analytics",
+            "GET", "api/hotel/analytics", 200
+        )
+        if success:
+            print(f"   Analytics - Total Bookings: {analytics.get('totalBookings', 0)}")
+            print(f"   Analytics - Total Revenue: {analytics.get('totalRevenue', 0)} SAR")
+            print(f"   Analytics - Avg Occupancy: {analytics.get('avgOccupancy', 0)}%")
+            print(f"   Analytics - Avg Daily Rate: {analytics.get('avgDailyRate', 0)} SAR")
+        
+        # Test hotel reviews
+        success, reviews = self.run_test(
+            "GET /api/hotel/reviews",
+            "GET", "api/hotel/reviews", 200
+        )
+        if success:
+            print(f"   Overall Rating: {reviews.get('overallRating', 0)}")
+            print(f"   Total Reviews: {reviews.get('totalReviews', 0)}")
+            reviews_list = reviews.get('reviews', [])
+            print(f"   Recent Reviews: {len(reviews_list)}")
         
         # Restore original token
         self.token = old_token
