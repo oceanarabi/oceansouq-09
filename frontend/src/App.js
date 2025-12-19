@@ -8,6 +8,7 @@ import './App.css';
 import { getTranslation } from './i18n';
 import AdminApp from './admin/AdminApp';
 import SellerApp from './seller/SellerApp';
+import CommandCenterApp from './command-center/CommandCenterApp';
 
 // Import new pages
 import { ProductDetailPage, CartPage, CheckoutPage, WishlistPage, LoginPage, RegisterPage } from './pages';
@@ -1820,6 +1821,8 @@ function App() {
       <LanguageProvider>
         <DarkModeProvider>
           <Routes>
+            {/* Command Center - Super Admin Dashboard */}
+            <Route path="/command/*" element={<CommandCenterApp />} />
             {/* Admin Dashboard */}
             <Route path="/admin/*" element={<AdminApp />} />
             {/* Seller Dashboard */}
