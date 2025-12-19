@@ -34,6 +34,11 @@ import { RidesPage } from './pages/RidesPage';
 // Import Hotels Service pages
 import { HotelsPage, HotelDetailPage } from './pages/HotelsPage';
 
+// Import Experiences, Services, Subscriptions pages
+import ExperiencesPage from './pages/ExperiencesPage';
+import ServicesPage from './pages/ServicesPage';
+import SubscriptionsPage from './pages/SubscriptionsPage';
+
 // Import new components for social & advanced features
 import ProductComparison from './components/ProductComparison';
 import RecentlyViewed from './components/RecentlyViewed';
@@ -1840,6 +1845,12 @@ function StoreLayout() {
                     {/* Hotels Service Routes */}
                     <Route path="/hotels" element={<HotelsPage />} />
                     <Route path="/hotels/:hotelId" element={<HotelDetailPage />} />
+                    {/* Experiences Service Routes */}
+                    <Route path="/experiences" element={<ExperiencesPage />} />
+                    {/* On-Demand Services Routes */}
+                    <Route path="/services" element={<ServicesPage />} />
+                    {/* Subscriptions Routes */}
+                    <Route path="/subscriptions" element={<SubscriptionsPage />} />
                   </Routes>
                 </main>
                 <Footer />
