@@ -22,6 +22,8 @@ from routes.seller import router as seller_router, set_db as set_seller_db
 from routes.command import router as command_router, set_db as set_command_db
 from routes.food import router as food_router, set_db as set_food_db
 from routes.provider_registration import router as provider_router, set_db as set_provider_db
+from routes.rides import router as rides_router, set_db as set_rides_db
+from routes.hotels import router as hotels_router, set_db as set_hotels_db
 
 # CORS Configuration
 app.add_middleware(
@@ -71,6 +73,12 @@ set_food_db(db)
 # Set database for provider registration routes
 set_provider_db(db)
 
+# Set database for rides service routes
+set_rides_db(db)
+
+# Set database for hotels service routes
+set_hotels_db(db)
+
 # Include admin router
 app.include_router(admin_router)
 
@@ -85,6 +93,12 @@ app.include_router(food_router)
 
 # Include provider registration router
 app.include_router(provider_router)
+
+# Include rides service router
+app.include_router(rides_router)
+
+# Include hotels service router
+app.include_router(hotels_router)
 
 # JWT Configuration
 JWT_SECRET = os.environ.get('JWT_SECRET', 'oceansouq-secret-key-change-in-production')
