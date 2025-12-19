@@ -352,11 +352,33 @@ class SuperAppAPITester:
             "GET", "api/hotels/invalid-id", 404
         )
 
+    def test_login(self):
+        """Test login to get authentication token"""
+        print("\n🔑 === TESTING LOGIN ===")
+        
+        # Try to login with admin credentials
+        success, response = self.run_test(
+            "POST /api/auth/login",
+            "POST", "api/auth/login", 200,
+            data={"email": "admin@ocean.com", "password": "admin123"}
+        )
+        
+        if success and 'token' in response:
+            self.token = response['token']
+            print("✅ Login successful, token obtained")
+            return True
+        else:
+            print("❌ Login failed, will skip authenticated tests")
+            return False
+
 def main():
     print("🚀 Starting Super App API Testing...")
     print("=" * 50)
     
     tester = SuperAppAPITester()
+    
+    # Try to login first
+    tester.test_login()
     
     # Run all test suites
     tester.test_food_apis()
