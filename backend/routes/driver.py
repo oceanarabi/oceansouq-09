@@ -54,7 +54,7 @@ async def driver_login(data: DriverLogin):
     if not driver:
         # Check in database
         if db is not None:
-            db_driver = await db.drivers.find_one({"email": data.email}, {"_id": 0})
+            db_driver = db.drivers.find_one({"email": data.email}, {"_id": 0})
             if db_driver and db_driver.get("password") == data.password:
                 driver = db_driver
     
