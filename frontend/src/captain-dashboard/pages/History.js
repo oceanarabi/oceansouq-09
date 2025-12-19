@@ -1,86 +1,88 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { useCaptain } from '../contexts/CaptainContext';
+import axios from 'axios';
 
 const History = () => {
-  const history = [
-    { date: '2024-01-15', rides: 6, earnings: 320, hours: 5.5, distance: 85 },
-    { date: '2024-01-14', rides: 7, earnings: 385, hours: 6.0, distance: 102 },
-    { date: '2024-01-13', rides: 5, earnings: 275, hours: 4.5, distance: 68 },
-    { date: '2024-01-12', rides: 8, earnings: 420, hours: 7.0, distance: 125 },
-    { date: '2024-01-11', rides: 4, earnings: 180, hours: 3.5, distance: 45 },
-    { date: '2024-01-10', rides: 6, earnings: 320, hours: 5.0, distance: 78 },
-    { date: '2024-01-09', rides: 5, earnings: 250, hours: 4.0, distance: 62 },
-  ];
+  const { API_URL } = useCaptain();
+  const [history, setHistory] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const totalRides = history.reduce((sum, d) => sum + d.rides, 0);
-  const totalEarnings = history.reduce((sum, d) => sum + d.earnings, 0);
-  const totalHours = history.reduce((sum, d) => sum + d.hours, 0);
-  const totalDistance = history.reduce((sum, d) => sum + d.distance, 0);
+  useEffect(() => {
+    fetchHistory();
+  }, []);
+
+  const fetchHistory = async () => {
+    try {
+      const token = localStorage.getItem('captainToken');
+      const res = await axios.get(`${API_URL}/api/captain/history`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setHistory(res.data.history);
+    } catch (err) {
+      // Demo data
+      setHistory([
+        { id: '1', type: 'ride_completed', description: 'رحلة مكتملة - حي الملقا → مطار الرياض', amount: 85, date: '2024-01-15', time: '14:30' },
+        { id: '2', type: 'tip_received', description: 'إكرامية من العميل', amount: 15, date: '2024-01-15', time: '14:35' },
+        { id: '3', type: 'ride_completed', description: 'رحلة مكتملة - جامعة الملك سعود → حي النخيل', amount: 45, date: '2024-01-15', time: '13:15' },
+        { id: '4', type: 'bonus_earned', description: 'مكافأة ساعات الذروة', amount: 30, date: '2024-01-15', time: '12:00' },
+        { id: '5', type: 'ride_cancelled', description: 'رحلة ملغية - حي العليا', amount: -5, date: '2024-01-15', time: '11:45' },
+        { id: '6', type: 'ride_completed', description: 'رحلة مكتملة - مركز المملكة → حي الربوة', amount: 55, date: '2024-01-14', time: '20:45' },
+        { id: '7', type: 'ride_completed', description: 'رحلة مكتملة - حي السليمانية → مطار الرياض', amount: 95, date: '2024-01-14', time: '19:30' },
+        { id: '8', type: 'tip_received', description: 'إكرامية من العميل', amount: 20, date: '2024-01-14', time: '19:35' },
+      ]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getTypeStyle = (type) => {
+    switch (type) {
+      case 'ride_completed': return { icon: '✅', bg: 'bg-green-100 dark:bg-green-900/30', text: 'text-green-700 dark:text-green-400' };
+      case 'ride_cancelled': return { icon: '❌', bg: 'bg-red-100 dark:bg-red-900/30', text: 'text-red-700 dark:text-red-400' };
+      case 'tip_received': return { icon: '🎁', bg: 'bg-yellow-100 dark:bg-yellow-900/30', text: 'text-yellow-700 dark:text-yellow-400' };
+      case 'bonus_earned': return { icon: '🏆', bg: 'bg-purple-100 dark:bg-purple-900/30', text: 'text-purple-700 dark:text-purple-400' };
+      default: return { icon: '📝', bg: 'bg-gray-100 dark:bg-gray-700', text: 'text-gray-700 dark:text-gray-300' };
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="p-6 flex items-center justify-center h-96">
+        <div className="animate-spin w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-gray-800 dark:text-white">السجل</h1>
-        <p className="text-gray-500">سجل عملك اليومي</p>
+        <p className="text-gray-500">تاريخ جميع نشاطاتك</p>
       </div>
 
-      {/* Summary Cards */}
-      <div className="grid md:grid-cols-4 gap-4">
-        <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg">
-          <p className="text-gray-500">إجمالي الرحلات (7 أيام)</p>
-          <p className="text-3xl font-bold text-gray-800 dark:text-white mt-2">{totalRides}</p>
-        </div>
-        <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg">
-          <p className="text-gray-500">إجمالي الأرباح</p>
-          <p className="text-3xl font-bold text-green-600 mt-2">{totalEarnings} ر.س</p>
-        </div>
-        <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg">
-          <p className="text-gray-500">ساعات العمل</p>
-          <p className="text-3xl font-bold text-blue-600 mt-2">{totalHours.toFixed(1)} ساعة</p>
-        </div>
-        <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg">
-          <p className="text-gray-500">المسافة المقطوعة</p>
-          <p className="text-3xl font-bold text-purple-600 mt-2">{totalDistance} كم</p>
-        </div>
-      </div>
-
-      {/* Daily History */}
       <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden">
-        <div className="p-6 border-b dark:border-gray-700">
-          <h2 className="text-xl font-bold text-gray-800 dark:text-white">السجل اليومي</h2>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-50 dark:bg-gray-700">
-              <tr>
-                <th className="px-6 py-4 text-right text-sm font-semibold text-gray-600 dark:text-gray-300">التاريخ</th>
-                <th className="px-6 py-4 text-right text-sm font-semibold text-gray-600 dark:text-gray-300">الرحلات</th>
-                <th className="px-6 py-4 text-right text-sm font-semibold text-gray-600 dark:text-gray-300">المسافة</th>
-                <th className="px-6 py-4 text-right text-sm font-semibold text-gray-600 dark:text-gray-300">ساعات العمل</th>
-                <th className="px-6 py-4 text-right text-sm font-semibold text-gray-600 dark:text-gray-300">الأرباح</th>
-                <th className="px-6 py-4 text-right text-sm font-semibold text-gray-600 dark:text-gray-300">المتوسط/رحلة</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
-              {history.map((day, index) => (
-                <tr key={index} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                  <td className="px-6 py-4 font-medium text-gray-800 dark:text-white">
-                    {new Date(day.date).toLocaleDateString('ar-SA', { weekday: 'long', day: 'numeric', month: 'short' })}
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className="px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 rounded-full">
-                      {day.rides} رحلة
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-gray-600 dark:text-gray-300">{day.distance} كم</td>
-                  <td className="px-6 py-4 text-gray-600 dark:text-gray-300">{day.hours} ساعة</td>
-                  <td className="px-6 py-4 font-bold text-green-600">{day.earnings} ر.س</td>
-                  <td className="px-6 py-4 text-gray-600 dark:text-gray-300">
-                    {(day.earnings / day.rides).toFixed(0)} ر.س/رحلة
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="divide-y divide-gray-100 dark:divide-gray-700">
+          {history.map((item) => {
+            const style = getTypeStyle(item.type);
+            return (
+              <div key={item.id} className="p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className={`w-12 h-12 ${style.bg} rounded-xl flex items-center justify-center text-2xl`}>
+                      {style.icon}
+                    </div>
+                    <div>
+                      <p className="font-medium text-gray-800 dark:text-white">{item.description}</p>
+                      <p className="text-sm text-gray-500">{item.date} - {item.time}</p>
+                    </div>
+                  </div>
+                  <div className={`text-xl font-bold ${item.amount >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    {item.amount >= 0 ? '+' : ''}{item.amount} ر.س
+                  </div>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>

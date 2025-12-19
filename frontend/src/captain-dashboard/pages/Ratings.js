@@ -1,107 +1,122 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { useCaptain } from '../contexts/CaptainContext';
+import axios from 'axios';
 
 const Ratings = () => {
-  const overallRating = 4.92;
-  const totalRatings = 428;
+  const { API_URL } = useCaptain();
+  const [data, setData] = useState({
+    overallRating: 4.8,
+    totalRatings: 256,
+    ratingDistribution: { 5: 200, 4: 40, 3: 10, 2: 4, 1: 2 },
+    reviews: []
+  });
 
-  const ratingBreakdown = [
-    { stars: 5, count: 380, percentage: 89 },
-    { stars: 4, count: 35, percentage: 8 },
-    { stars: 3, count: 8, percentage: 2 },
-    { stars: 2, count: 3, percentage: 0.5 },
-    { stars: 1, count: 2, percentage: 0.5 },
-  ];
+  useEffect(() => {
+    fetchRatings();
+  }, []);
 
-  const recentReviews = [
-    { id: 1, passenger: 'أحمد محمد', rating: 5, comment: 'كابتن ممتاز وسيارة نظيفة!', date: '2024-01-15' },
-    { id: 2, passenger: 'سارة علي', rating: 5, comment: 'وصلت في الوقت المحدد، شكراً', date: '2024-01-14' },
-    { id: 3, passenger: 'محمد خالد', rating: 4, comment: 'رحلة جيدة', date: '2024-01-14' },
-    { id: 4, passenger: 'فاطمة أحمد', rating: 5, comment: 'قيادة آمنة ومريحة', date: '2024-01-13' },
-    { id: 5, passenger: 'عبدالله سعود', rating: 5, comment: 'أفضل كابتن!', date: '2024-01-12' },
-  ];
+  const fetchRatings = async () => {
+    try {
+      const token = localStorage.getItem('captainToken');
+      const res = await axios.get(`${API_URL}/api/captain/ratings`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setData(res.data);
+    } catch (err) {
+      // Keep demo data
+      setData({
+        overallRating: 4.8,
+        totalRatings: 256,
+        ratingDistribution: { 5: 200, 4: 40, 3: 10, 2: 4, 1: 2 },
+        reviews: [
+          { id: 1, passenger: 'أحمد محمد', rating: 5, comment: 'كابتن ممتاز وملتزم بالمواعيد!', date: '2024-01-15', ride_id: 'RIDE-001' },
+          { id: 2, passenger: 'سارة علي', rating: 5, comment: 'سيارة نظيفة وقيادة آمنة', date: '2024-01-14', ride_id: 'RIDE-002' },
+          { id: 3, passenger: 'محمد خالد', rating: 4, comment: 'خدمة جيدة', date: '2024-01-14', ride_id: 'RIDE-003' },
+          { id: 4, passenger: 'فاطمة أحمد', rating: 5, comment: 'شكراً كابتن، رحلة مريحة جداً', date: '2024-01-13', ride_id: 'RIDE-004' },
+          { id: 5, passenger: 'عبدالله سعود', rating: 4, comment: 'جيد', date: '2024-01-13', ride_id: 'RIDE-005' },
+        ]
+      });
+    }
+  };
 
-  const badges = [
-    { icon: '⚡', title: 'سريع البرق', description: 'أكملت 100+ رحلة في وقت قياسي' },
-    { icon: '⭐', title: 'خمس نجوم', description: 'حافظت على تقييم 5 نجوم لمدة شهر' },
-    { icon: '🏆', title: 'كابتن الشهر', description: 'أفضل كابتن في ديسمبر 2024' },
-    { icon: '🛡️', title: 'قيادة آمنة', description: 'صفر حوادث خلال 6 أشهر' },
-  ];
+  const totalRatings = Object.values(data.ratingDistribution).reduce((a, b) => a + b, 0);
 
   return (
     <div className="p-6 space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-800 dark:text-white">التقييمات والمراجعات</h1>
-        <p className="text-gray-500">شاهد آراء الركاب عنك</p>
+        <h1 className="text-2xl font-bold text-gray-800 dark:text-white">التقييمات</h1>
+        <p className="text-gray-500">تقييمات الركاب وآراؤهم</p>
       </div>
 
       {/* Overall Rating */}
       <div className="bg-gradient-to-br from-yellow-500 to-orange-500 rounded-3xl p-8 text-white">
         <div className="flex items-center gap-8">
           <div className="text-center">
-            <p className="text-6xl font-bold">{overallRating}</p>
-            <div className="flex gap-1 justify-center mt-2">
+            <p className="text-6xl font-bold">{data.overallRating}</p>
+            <div className="flex gap-1 mt-2 justify-center">
               {[1, 2, 3, 4, 5].map((star) => (
-                <span key={star} className="text-2xl">{star <= Math.round(overallRating) ? '⭐' : '☆'}</span>
+                <span key={star} className="text-2xl">
+                  {star <= Math.round(data.overallRating) ? '⭐' : '☆'}
+                </span>
               ))}
             </div>
-            <p className="text-yellow-100 mt-2">{totalRatings} تقييم</p>
+            <p className="text-yellow-100 mt-2">{data.totalRatings} تقييم</p>
           </div>
           <div className="flex-1 space-y-2">
-            {ratingBreakdown.map((item) => (
-              <div key={item.stars} className="flex items-center gap-3">
-                <span className="text-sm w-12">{item.stars} ⭐</span>
-                <div className="flex-1 h-3 bg-white/20 rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-white rounded-full"
-                    style={{ width: `${item.percentage}%` }}
-                  ></div>
+            {[5, 4, 3, 2, 1].map((star) => {
+              const count = data.ratingDistribution[star] || 0;
+              const percentage = totalRatings > 0 ? (count / totalRatings) * 100 : 0;
+              return (
+                <div key={star} className="flex items-center gap-3">
+                  <span className="w-8 text-sm">{star} ⭐</span>
+                  <div className="flex-1 h-3 bg-white/30 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-white rounded-full transition-all"
+                      style={{ width: `${percentage}%` }}
+                    ></div>
+                  </div>
+                  <span className="w-12 text-sm text-left">{count}</span>
                 </div>
-                <span className="text-sm w-12 text-left">{item.percentage}%</span>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </div>
 
-      {/* Badges */}
-      <div>
-        <h2 className="text-xl font-bold text-gray-800 dark:text-white mb-4">الشارات والإنجازات</h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {badges.map((badge, index) => (
-            <div key={index} className="bg-white dark:bg-gray-800 rounded-2xl p-4 text-center shadow-lg hover:scale-105 transition">
-              <span className="text-4xl">{badge.icon}</span>
-              <h3 className="font-bold text-gray-800 dark:text-white mt-2">{badge.title}</h3>
-              <p className="text-xs text-gray-500 mt-1">{badge.description}</p>
-            </div>
-          ))}
+      {/* Reviews */}
+      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg">
+        <div className="p-6 border-b border-gray-100 dark:border-gray-700">
+          <h2 className="text-xl font-bold text-gray-800 dark:text-white">آخر التقييمات</h2>
         </div>
-      </div>
-
-      {/* Recent Reviews */}
-      <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg">
-        <h2 className="text-xl font-bold text-gray-800 dark:text-white mb-4">آخر المراجعات</h2>
-        <div className="space-y-4">
-          {recentReviews.map((review) => (
-            <div key={review.id} className="border-b border-gray-100 dark:border-gray-700 pb-4 last:border-0">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center">
-                    <span className="text-lg">👤</span>
+        <div className="divide-y divide-gray-100 dark:divide-gray-700">
+          {data.reviews.map((review) => (
+            <div key={review.id} className="p-6">
+              <div className="flex items-start justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center text-xl">
+                    👤
                   </div>
                   <div>
-                    <p className="font-semibold text-gray-800 dark:text-white">{review.passenger}</p>
-                    <div className="flex gap-0.5">
-                      {[1, 2, 3, 4, 5].map((star) => (
-                        <span key={star} className="text-sm">{star <= review.rating ? '⭐' : '☆'}</span>
-                      ))}
+                    <p className="font-bold text-gray-800 dark:text-white">{review.passenger}</p>
+                    <div className="flex items-center gap-2 mt-1">
+                      <div className="flex">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <span key={star} className="text-sm">
+                            {star <= review.rating ? '⭐' : '☆'}
+                          </span>
+                        ))}
+                      </div>
+                      <span className="text-sm text-gray-500">• {review.date}</span>
                     </div>
                   </div>
                 </div>
-                <span className="text-sm text-gray-500">{review.date}</span>
+                <span className="text-sm text-gray-500 bg-gray-100 dark:bg-gray-700 px-3 py-1 rounded-full">
+                  {review.ride_id}
+                </span>
               </div>
-              {review.comment && (
-                <p className="text-gray-600 dark:text-gray-300 mt-2 mr-13">"{review.comment}"</p>
-              )}
+              <p className="mt-4 text-gray-600 dark:text-gray-300 bg-gray-50 dark:bg-gray-700/50 p-4 rounded-xl">
+                "{review.comment}"
+              </p>
             </div>
           ))}
         </div>
