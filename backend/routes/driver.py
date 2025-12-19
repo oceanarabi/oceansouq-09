@@ -53,7 +53,7 @@ async def driver_login(data: DriverLogin):
     
     if not driver:
         # Check in database
-        if db:
+        if db is not None:
             db_driver = await db.drivers.find_one({"email": data.email}, {"_id": 0})
             if db_driver and db_driver.get("password") == data.password:
                 driver = db_driver
@@ -83,7 +83,7 @@ async def driver_login(data: DriverLogin):
 @router.post("/status")
 async def update_driver_status(data: StatusUpdate, user = Depends(verify_driver_token)):
     """Update driver online/offline status"""
-    if db:
+    if db is not None:
         await db.drivers.update_one(
             {"id": user["driver_id"]},
             {"$set": {"status": data.status, "updated_at": datetime.now(timezone.utc).isoformat()}}

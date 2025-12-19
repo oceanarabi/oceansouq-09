@@ -59,7 +59,7 @@ async def restaurant_login(data: RestaurantLogin):
     
     if not restaurant:
         # Check in database
-        if db:
+        if db is not None:
             db_restaurant = await db.restaurants.find_one({"email": data.email}, {"_id": 0})
             if db_restaurant and db_restaurant.get("password") == data.password:
                 restaurant = db_restaurant
@@ -89,7 +89,7 @@ async def restaurant_login(data: RestaurantLogin):
 @router.post("/status")
 async def update_restaurant_status(data: StatusUpdate, user = Depends(verify_restaurant_token)):
     """Update restaurant open/close status"""
-    if db:
+    if db is not None:
         await db.restaurants.update_one(
             {"id": user["restaurant_id"]},
             {"$set": {"is_open": data.is_open, "updated_at": datetime.now(timezone.utc).isoformat()}}
@@ -178,7 +178,7 @@ async def add_menu_item(item: MenuItem, user = Depends(verify_restaurant_token))
         "created_at": datetime.now(timezone.utc).isoformat()
     }
     
-    if db:
+    if db is not None:
         await db.menu_items.insert_one(new_item)
     
     return {"success": True, "item": {k: v for k, v in new_item.items() if k != "_id"}}
@@ -186,7 +186,7 @@ async def add_menu_item(item: MenuItem, user = Depends(verify_restaurant_token))
 @router.put("/menu/{item_id}")
 async def update_menu_item(item_id: str, item: MenuItem, user = Depends(verify_restaurant_token)):
     """Update menu item"""
-    if db:
+    if db is not None:
         await db.menu_items.update_one(
             {"id": item_id, "restaurant_id": user["restaurant_id"]},
             {"$set": item.dict()}
@@ -196,7 +196,7 @@ async def update_menu_item(item_id: str, item: MenuItem, user = Depends(verify_r
 @router.delete("/menu/{item_id}")
 async def delete_menu_item(item_id: str, user = Depends(verify_restaurant_token)):
     """Delete menu item"""
-    if db:
+    if db is not None:
         await db.menu_items.delete_one({"id": item_id, "restaurant_id": user["restaurant_id"]})
     return {"success": True}
 
