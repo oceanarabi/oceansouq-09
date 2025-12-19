@@ -11,6 +11,8 @@ import SellerApp from './seller/SellerApp';
 import CommandCenterApp from './command-center/CommandCenterApp';
 import DriverApp from './driver-dashboard/DriverApp';
 import RestaurantApp from './restaurant-dashboard/RestaurantApp';
+import CaptainApp from './captain-dashboard/CaptainApp';
+import HotelApp from './hotel-dashboard/HotelApp';
 
 // Import new pages
 import { ProductDetailPage, CartPage, CheckoutPage, WishlistPage, LoginPage, RegisterPage } from './pages';
