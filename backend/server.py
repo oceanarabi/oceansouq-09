@@ -130,6 +130,12 @@ app.include_router(subscriptions_router)
 # Include notifications router
 app.include_router(notifications_router)
 
+# Include driver dashboard router
+app.include_router(driver_router)
+
+# Include restaurant dashboard router
+app.include_router(restaurant_dashboard_router)
+
 # JWT Configuration
 JWT_SECRET = os.environ.get('JWT_SECRET', 'oceansouq-secret-key-change-in-production')
 JWT_ALGORITHM = 'HS256'
