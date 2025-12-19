@@ -1825,6 +1825,10 @@ function StoreLayout() {
                     <Route path="/join/hotel" element={<JoinHotelPage />} />
                     <Route path="/join/service-provider" element={<JoinServiceProviderPage />} />
                     <Route path="/join/experience" element={<JoinExperiencePage />} />
+                    {/* Food Service Routes */}
+                    <Route path="/food" element={<FoodPage />} />
+                    <Route path="/food/restaurant/:restaurantId" element={<RestaurantDetailPage />} />
+                    <Route path="/food/checkout" element={<FoodCheckoutPage />} />
                   </Routes>
                 </main>
                 <Footer />
