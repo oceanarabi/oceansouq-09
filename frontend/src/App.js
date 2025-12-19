@@ -28,6 +28,12 @@ import {
 // Import Food Service pages
 import { FoodPage, RestaurantDetailPage, FoodCheckoutPage } from './pages/FoodPage';
 
+// Import Rides Service pages
+import { RidesPage } from './pages/RidesPage';
+
+// Import Hotels Service pages
+import { HotelsPage, HotelDetailPage } from './pages/HotelsPage';
+
 // Import new components for social & advanced features
 import ProductComparison from './components/ProductComparison';
 import RecentlyViewed from './components/RecentlyViewed';
@@ -1829,6 +1835,11 @@ function StoreLayout() {
                     <Route path="/food" element={<FoodPage />} />
                     <Route path="/food/restaurant/:restaurantId" element={<RestaurantDetailPage />} />
                     <Route path="/food/checkout" element={<FoodCheckoutPage />} />
+                    {/* Rides Service Routes */}
+                    <Route path="/rides" element={<RidesPage />} />
+                    {/* Hotels Service Routes */}
+                    <Route path="/hotels" element={<HotelsPage />} />
+                    <Route path="/hotels/:hotelId" element={<HotelDetailPage />} />
                   </Routes>
                 </main>
                 <Footer />
