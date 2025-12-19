@@ -2,45 +2,44 @@
 
 ## Test Configuration
 - **Test Date:** 2024-12-19
-- **Test Type:** Food Service & Provider Registration Testing
+- **Test Type:** Full Super App Services Testing
 
 ### Test Credentials:
 - **Admin:** admin@ocean.com / admin123
 
-### New APIs to Test:
+### Services to Test:
 
-#### Food Service APIs
-- GET /api/food/restaurants - List restaurants
-- GET /api/food/restaurants/{id} - Restaurant details with menu
-- POST /api/food/restaurants - Create restaurant (auth required)
-- GET /api/food/cuisines - Get cuisine types
-- POST /api/food/orders - Create food order (auth required)
-- GET /api/food/orders - User's food orders
+#### 1. Food Service (/food)
+- GET /api/food/cuisines
+- GET /api/food/restaurants
+- POST /api/food/orders (auth required)
 
-#### Provider Registration APIs
-- GET /api/join/available-services - Get services available for registration
-- POST /api/join/seller - Register as seller
-- POST /api/join/driver - Register as driver
-- POST /api/join/restaurant - Register restaurant
-- POST /api/join/captain - Register as ride captain
-- POST /api/join/hotel - Register hotel
+#### 2. Rides Service (/rides)
+- GET /api/rides/types
+- POST /api/rides/estimate
+- POST /api/rides/request (auth required)
 
-### Frontend Routes to Test
-- /join - Main registration page
-- /join/seller - Seller registration form
-- /join/driver - Driver registration form
-- /join/restaurant - Restaurant registration form
-- /join/captain - Captain registration form
-- /join/hotel - Hotel registration form
+#### 3. Hotels Service (/hotels)
+- GET /api/hotels/cities
+- GET /api/hotels/search
+- POST /api/hotels/bookings (auth required)
 
-### Test Scenarios:
-1. Check available services API (should return enabled services only)
-2. Test seller registration form
-3. Test driver registration form
-4. Test restaurant registration form
-5. Verify dynamic services based on Command Center settings
+#### 4. Provider Registration (/join)
+- GET /api/join/available-services
+- POST /api/join/seller
+- POST /api/join/driver
+- POST /api/join/restaurant
+- POST /api/join/captain
+- POST /api/join/hotel
+
+### Frontend Pages to Test:
+- /food - Food ordering page
+- /rides - Rides booking page
+- /hotels - Hotels booking page
+- /join - Provider registration
+- /command/services - Command Center services management
 
 ### Incorporate User Feedback:
-- Verify dynamic service activation/deactivation
-- Test all registration forms
-- Verify Arabic RTL support in forms
+- Test all new service pages
+- Verify RTL Arabic support
+- Test registration forms
