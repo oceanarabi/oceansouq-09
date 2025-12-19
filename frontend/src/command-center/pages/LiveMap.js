@@ -307,7 +307,8 @@ const LiveMap = () => {
     setIsRefreshing(true);
     try {
       const token = localStorage.getItem('commandToken');
-      const res = await axios.get(`${API_URL}/api/command/live-map`, {
+      const coords = cityCoords || mapCenter;
+      const res = await axios.get(`${API_URL}/api/command/live-map?lat=${coords[0]}&lng=${coords[1]}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setMapData(res.data.markers || {});
@@ -318,7 +319,7 @@ const LiveMap = () => {
     }
     setLoading(false);
     setIsRefreshing(false);
-  }, []);
+  }, [mapCenter]);
 
   useEffect(() => {
     fetchMapData();
