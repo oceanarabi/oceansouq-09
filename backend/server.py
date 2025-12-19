@@ -30,6 +30,8 @@ from routes.subscriptions import router as subscriptions_router, set_db as set_s
 from routes.notifications import router as notifications_router, set_db as set_notifications_db
 from routes.driver import router as driver_router, set_db as set_driver_db
 from routes.restaurant_dashboard import router as restaurant_dashboard_router, set_db as set_restaurant_dashboard_db
+from routes.captain import router as captain_router, set_db as set_captain_db
+from routes.hotel_dashboard import router as hotel_dashboard_router, set_db as set_hotel_dashboard_db
 
 # CORS Configuration
 app.add_middleware(
@@ -103,6 +105,12 @@ set_driver_db(db)
 # Set database for restaurant dashboard routes
 set_restaurant_dashboard_db(db)
 
+# Set database for captain dashboard routes
+set_captain_db(db)
+
+# Set database for hotel dashboard routes
+set_hotel_dashboard_db(db)
+
 # Include admin router
 app.include_router(admin_router)
 
@@ -141,6 +149,12 @@ app.include_router(driver_router)
 
 # Include restaurant dashboard router
 app.include_router(restaurant_dashboard_router)
+
+# Include captain dashboard router
+app.include_router(captain_router)
+
+# Include hotel dashboard router
+app.include_router(hotel_dashboard_router)
 
 # JWT Configuration
 JWT_SECRET = os.environ.get('JWT_SECRET', 'oceansouq-secret-key-change-in-production')
