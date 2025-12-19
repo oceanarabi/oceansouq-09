@@ -25,6 +25,9 @@ import {
   JoinExperiencePage 
 } from './pages/JoinPage';
 
+// Import Food Service pages
+import { FoodPage, RestaurantDetailPage, FoodCheckoutPage } from './pages/FoodPage';
+
 // Import new components for social & advanced features
 import ProductComparison from './components/ProductComparison';
 import RecentlyViewed from './components/RecentlyViewed';
