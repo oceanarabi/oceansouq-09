@@ -1942,6 +1942,10 @@ function App() {
             <Route path="/admin/*" element={<AdminApp />} />
             {/* Seller Dashboard */}
             <Route path="/seller/*" element={<SellerApp />} />
+            {/* Driver Dashboard */}
+            <Route path="/driver/*" element={<DriverApp />} />
+            {/* Restaurant Dashboard */}
+            <Route path="/restaurant/*" element={<RestaurantApp />} />
             {/* Store */}
             <Route path="/*" element={<StoreLayout />} />
           </Routes>
