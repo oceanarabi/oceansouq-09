@@ -28,6 +28,8 @@ from routes.experiences import router as experiences_router, set_db as set_exper
 from routes.ondemand import router as ondemand_router, set_db as set_ondemand_db
 from routes.subscriptions import router as subscriptions_router, set_db as set_subscriptions_db
 from routes.notifications import router as notifications_router, set_db as set_notifications_db
+from routes.driver import router as driver_router, set_db as set_driver_db
+from routes.restaurant_dashboard import router as restaurant_dashboard_router, set_db as set_restaurant_dashboard_db
 
 # CORS Configuration
 app.add_middleware(
