@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, Circle, useMap } from 'react-leaflet';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import axios from 'axios';
@@ -14,22 +14,38 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
 });
 
-// Custom icons
-const createIcon = (emoji, color = '#3b82f6') => {
+// Shopify-style custom icons with pulse animation
+const createIcon = (emoji, color = '#3b82f6', isActive = false) => {
   return L.divIcon({
     className: 'custom-marker',
-    html: `<div style="
-      background: ${color};
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 20px;
-      border: 3px solid white;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-    ">${emoji}</div>`,
+    html: `
+      <div style="position: relative;">
+        ${isActive ? `<div style="
+          position: absolute;
+          width: 50px;
+          height: 50px;
+          background: ${color}40;
+          border-radius: 50%;
+          top: -5px;
+          left: -5px;
+          animation: pulse 2s infinite;
+        "></div>` : ''}
+        <div style="
+          background: ${color};
+          width: 40px;
+          height: 40px;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 18px;
+          border: 3px solid white;
+          box-shadow: 0 4px 15px ${color}60;
+          position: relative;
+          z-index: 1;
+        ">${emoji}</div>
+      </div>
+    `,
     iconSize: [40, 40],
     iconAnchor: [20, 20],
     popupAnchor: [0, -20]
@@ -37,27 +53,224 @@ const createIcon = (emoji, color = '#3b82f6') => {
 };
 
 const icons = {
-  driver: createIcon('🚚', '#22c55e'),
-  captain: createIcon('🚗', '#3b82f6'),
-  restaurant: createIcon('🍔', '#f97316'),
-  hotel: createIcon('🏨', '#a855f7'),
-  order: createIcon('📦', '#ef4444'),
-  service: createIcon('🔧', '#eab308'),
+  driver: (status) => createIcon('🚚', status === 'available' ? '#22c55e' : '#ef4444', status === 'busy'),
+  captain: (status) => createIcon('🚗', status === 'available' ? '#3b82f6' : '#f97316', status === 'in_ride'),
+  restaurant: () => createIcon('🍔', '#f97316', true),
+  hotel: () => createIcon('🏨', '#a855f7', false),
+  order: (status) => createIcon('📦', status === 'delivering' ? '#22c55e' : '#ef4444', true),
+  service: (status) => createIcon('🔧', status === 'available' ? '#eab308' : '#6b7280', false),
 };
 
-// Map Center Controller
-const MapCenterController = ({ center }) => {
+// Map auto-center controller
+const MapController = ({ center, zoom }) => {
   const map = useMap();
   useEffect(() => {
     if (center) {
-      map.setView(center, map.getZoom());
+      map.flyTo(center, zoom || map.getZoom(), { duration: 1 });
     }
-  }, [center, map]);
+  }, [center, zoom, map]);
   return null;
 };
 
+// Animated stats card component
+const StatCard = ({ icon, value, label, trend, color, onClick, isActive }) => (
+  <button
+    onClick={onClick}
+    className={`relative overflow-hidden rounded-2xl p-4 transition-all duration-300 hover:scale-105 hover:shadow-xl ${
+      isActive ? 'ring-2 ring-white ring-offset-2 ring-offset-gray-900' : ''
+    }`}
+    style={{ background: `linear-gradient(135deg, ${color}20 0%, ${color}40 100%)` }}
+  >
+    <div className="flex items-center justify-between">
+      <div>
+        <p className="text-3xl font-bold text-white">{value}</p>
+        <p className="text-sm text-gray-300 mt-1">{label}</p>
+      </div>
+      <div className="text-4xl opacity-80">{icon}</div>
+    </div>
+    {trend && (
+      <div className={`absolute top-2 left-2 text-xs px-2 py-1 rounded-full ${
+        trend > 0 ? 'bg-green-500/30 text-green-300' : 'bg-red-500/30 text-red-300'
+      }`}>
+        {trend > 0 ? '↑' : '↓'} {Math.abs(trend)}%
+      </div>
+    )}
+    <div 
+      className="absolute inset-0 opacity-10"
+      style={{ background: `radial-gradient(circle at top right, ${color}, transparent)` }}
+    />
+  </button>
+);
+
+// Live indicator component
+const LiveIndicator = ({ lastUpdate, isRefreshing }) => (
+  <div className="flex items-center gap-2 bg-gray-800/80 backdrop-blur rounded-full px-4 py-2">
+    <span className={`w-3 h-3 rounded-full ${isRefreshing ? 'bg-yellow-500 animate-pulse' : 'bg-green-500'}`}></span>
+    <span className="text-sm text-gray-300">
+      {isRefreshing ? 'جارٍ التحديث...' : `مباشر • آخر تحديث: ${lastUpdate}`}
+    </span>
+  </div>
+);
+
+// Details panel component (Shopify-style slide-out)
+const DetailsPanel = ({ item, onClose }) => {
+  if (!item) return null;
+
+  const statusColors = {
+    available: '#22c55e',
+    busy: '#ef4444',
+    in_ride: '#f97316',
+    preparing: '#eab308',
+    ready: '#22c55e',
+    delivering: '#3b82f6',
+  };
+
+  const statusLabels = {
+    available: 'متاح',
+    busy: 'مشغول',
+    in_ride: 'في رحلة',
+    preparing: 'قيد التحضير',
+    ready: 'جاهز',
+    delivering: 'قيد التوصيل',
+  };
+
+  return (
+    <div className="absolute top-0 left-0 h-full w-80 bg-gray-900/95 backdrop-blur-xl border-l border-gray-800 z-[1000] animate-slide-in">
+      {/* Header */}
+      <div className="p-4 border-b border-gray-800 flex items-center justify-between">
+        <h3 className="text-lg font-bold text-white">التفاصيل</h3>
+        <button 
+          onClick={onClose}
+          className="w-8 h-8 flex items-center justify-center rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-400 hover:text-white transition"
+        >
+          ✕
+        </button>
+      </div>
+
+      {/* Content */}
+      <div className="p-4 space-y-4">
+        {/* Avatar/Icon */}
+        <div className="flex items-center gap-4">
+          <div 
+            className="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl"
+            style={{ background: `${statusColors[item.data?.status] || '#3b82f6'}30` }}
+          >
+            {item.type === 'driver' && '🚚'}
+            {item.type === 'captain' && '🚗'}
+            {item.type === 'restaurant' && '🍔'}
+            {item.type === 'hotel' && '🏨'}
+            {item.type === 'order' && '📦'}
+            {item.type === 'service' && '🔧'}
+          </div>
+          <div>
+            <h4 className="text-xl font-bold text-white">{item.data?.name || item.data?.orderNumber}</h4>
+            {item.data?.status && (
+              <span 
+                className="inline-block mt-1 px-3 py-1 rounded-full text-xs text-white"
+                style={{ backgroundColor: statusColors[item.data.status] }}
+              >
+                {statusLabels[item.data.status] || item.data.status}
+              </span>
+            )}
+          </div>
+        </div>
+
+        {/* Details Grid */}
+        <div className="grid grid-cols-2 gap-3">
+          {item.type === 'driver' && (
+            <>
+              <div className="bg-gray-800/50 rounded-xl p-3">
+                <p className="text-xs text-gray-400">المركبة</p>
+                <p className="text-white font-medium">{item.data?.vehicle}</p>
+              </div>
+              <div className="bg-gray-800/50 rounded-xl p-3">
+                <p className="text-xs text-gray-400">التقييم</p>
+                <p className="text-white font-medium">⭐ {item.data?.rating}</p>
+              </div>
+              <div className="bg-gray-800/50 rounded-xl p-3 col-span-2">
+                <p className="text-xs text-gray-400">إجمالي التوصيلات</p>
+                <p className="text-2xl font-bold text-white">{item.data?.deliveries}</p>
+              </div>
+            </>
+          )}
+          {item.type === 'captain' && (
+            <>
+              <div className="bg-gray-800/50 rounded-xl p-3">
+                <p className="text-xs text-gray-400">السيارة</p>
+                <p className="text-white font-medium">{item.data?.vehicle}</p>
+              </div>
+              <div className="bg-gray-800/50 rounded-xl p-3">
+                <p className="text-xs text-gray-400">التقييم</p>
+                <p className="text-white font-medium">⭐ {item.data?.rating}</p>
+              </div>
+              <div className="bg-gray-800/50 rounded-xl p-3 col-span-2">
+                <p className="text-xs text-gray-400">إجمالي الرحلات</p>
+                <p className="text-2xl font-bold text-white">{item.data?.rides}</p>
+              </div>
+            </>
+          )}
+          {item.type === 'restaurant' && (
+            <>
+              <div className="bg-gray-800/50 rounded-xl p-3">
+                <p className="text-xs text-gray-400">التقييم</p>
+                <p className="text-white font-medium">⭐ {item.data?.rating}</p>
+              </div>
+              <div className="bg-gray-800/50 rounded-xl p-3">
+                <p className="text-xs text-gray-400">طلبات نشطة</p>
+                <p className="text-white font-medium text-orange-400">{item.data?.orders}</p>
+              </div>
+            </>
+          )}
+          {item.type === 'hotel' && (
+            <>
+              <div className="bg-gray-800/50 rounded-xl p-3 col-span-2">
+                <p className="text-xs text-gray-400 mb-2">نسبة الإشغال</p>
+                <div className="relative h-3 bg-gray-700 rounded-full overflow-hidden">
+                  <div 
+                    className="absolute top-0 left-0 h-full bg-gradient-to-r from-purple-500 to-purple-400 rounded-full transition-all"
+                    style={{ width: `${item.data?.occupancy}%` }}
+                  />
+                </div>
+                <p className="text-white font-bold mt-1">{item.data?.occupancy}%</p>
+              </div>
+              <div className="bg-gray-800/50 rounded-xl p-3 col-span-2">
+                <p className="text-xs text-gray-400">الحجوزات</p>
+                <p className="text-2xl font-bold text-purple-400">{item.data?.bookings}</p>
+              </div>
+            </>
+          )}
+          {item.type === 'order' && (
+            <>
+              <div className="bg-gray-800/50 rounded-xl p-3 col-span-2">
+                <p className="text-xs text-gray-400">المطعم</p>
+                <p className="text-white font-medium">{item.data?.restaurant}</p>
+              </div>
+              <div className="bg-gray-800/50 rounded-xl p-3 col-span-2">
+                <p className="text-xs text-gray-400">المبلغ</p>
+                <p className="text-2xl font-bold text-green-400">{item.data?.amount} ر.س</p>
+              </div>
+            </>
+          )}
+        </div>
+
+        {/* Action Buttons */}
+        <div className="space-y-2 pt-4">
+          <button className="w-full bg-ocean-600 hover:bg-ocean-700 text-white py-3 rounded-xl font-medium transition flex items-center justify-center gap-2">
+            <span>📞</span>
+            تواصل
+          </button>
+          <button className="w-full bg-gray-800 hover:bg-gray-700 text-white py-3 rounded-xl font-medium transition flex items-center justify-center gap-2">
+            <span>📍</span>
+            تتبع الموقع
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const LiveMap = () => {
-  const [activeTab, setActiveTab] = useState('all');
+  const [activeFilter, setActiveFilter] = useState('all');
   const [mapData, setMapData] = useState({
     drivers: [],
     captains: [],
@@ -75,17 +288,14 @@ const LiveMap = () => {
   });
   const [selectedItem, setSelectedItem] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [mapCenter, setMapCenter] = useState([24.7136, 46.6753]); // Riyadh
-  const mapRef = useRef(null);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [lastUpdate, setLastUpdate] = useState('--:--');
+  const [mapCenter, setMapCenter] = useState([24.7136, 46.6753]);
+  const [mapZoom, setMapZoom] = useState(12);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
-  useEffect(() => {
-    fetchMapData();
-    // Refresh every 10 seconds
-    const interval = setInterval(fetchMapData, 10000);
-    return () => clearInterval(interval);
-  }, []);
-
-  const fetchMapData = async () => {
+  const fetchMapData = useCallback(async () => {
+    setIsRefreshing(true);
     try {
       const token = localStorage.getItem('commandToken');
       const res = await axios.get(`${API_URL}/api/command/live-map`, {
@@ -93,101 +303,34 @@ const LiveMap = () => {
       });
       setMapData(res.data.markers || {});
       setStats(res.data.stats || {});
+      setLastUpdate(new Date().toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' }));
     } catch (err) {
       console.error('Error fetching map data:', err);
-      // Use demo data if API fails
-      setMapData(generateDemoData());
-      setStats({
-        onlineDrivers: 12,
-        onlineCaptains: 8,
-        activeOrders: 45,
-        activeRides: 23
-      });
     }
     setLoading(false);
-  };
+    setIsRefreshing(false);
+  }, []);
 
-  // Generate demo data for visualization
-  const generateDemoData = () => {
-    const riyadhCenter = { lat: 24.7136, lng: 46.6753 };
-    const jeddahCenter = { lat: 21.4858, lng: 39.1925 };
-    
-    const randomOffset = () => (Math.random() - 0.5) * 0.1;
-    
-    return {
-      drivers: Array.from({ length: 12 }, (_, i) => ({
-        id: `driver-${i}`,
-        name: `سائق ${i + 1}`,
-        lat: riyadhCenter.lat + randomOffset(),
-        lng: riyadhCenter.lng + randomOffset(),
-        status: Math.random() > 0.3 ? 'available' : 'busy',
-        vehicle: ['سيارة', 'دراجة نارية', 'فان'][Math.floor(Math.random() * 3)],
-        rating: (4 + Math.random()).toFixed(1),
-        deliveries: Math.floor(Math.random() * 500)
-      })),
-      captains: Array.from({ length: 8 }, (_, i) => ({
-        id: `captain-${i}`,
-        name: `كابتن ${i + 1}`,
-        lat: riyadhCenter.lat + randomOffset(),
-        lng: riyadhCenter.lng + randomOffset(),
-        status: Math.random() > 0.4 ? 'available' : 'in_ride',
-        vehicle: ['كامري', 'اكورد', 'سوناتا'][Math.floor(Math.random() * 3)],
-        rating: (4.5 + Math.random() * 0.5).toFixed(1),
-        rides: Math.floor(Math.random() * 1000)
-      })),
-      restaurants: [
-        { id: 'r1', name: 'البيك', lat: 24.7236, lng: 46.6853, orders: 15, rating: 4.8 },
-        { id: 'r2', name: 'كودو', lat: 24.7036, lng: 46.6653, orders: 8, rating: 4.6 },
-        { id: 'r3', name: 'ماما نورة', lat: 24.7336, lng: 46.6553, orders: 12, rating: 4.7 },
-        { id: 'r4', name: 'هرفي', lat: 24.6936, lng: 46.6953, orders: 6, rating: 4.5 },
-      ],
-      hotels: [
-        { id: 'h1', name: 'ريتز كارلتون', lat: 24.7436, lng: 46.6453, bookings: 45, occupancy: 85 },
-        { id: 'h2', name: 'فور سيزونز', lat: 24.7536, lng: 46.6353, bookings: 38, occupancy: 78 },
-        { id: 'h3', name: 'ماريوت', lat: 24.6836, lng: 46.7053, bookings: 52, occupancy: 92 },
-      ],
-      activeOrders: Array.from({ length: 15 }, (_, i) => ({
-        id: `order-${i}`,
-        orderNumber: `FO-${Date.now()}-${i}`,
-        lat: riyadhCenter.lat + randomOffset() * 0.5,
-        lng: riyadhCenter.lng + randomOffset() * 0.5,
-        status: ['preparing', 'ready', 'delivering'][Math.floor(Math.random() * 3)],
-        restaurant: ['البيك', 'كودو', 'ماما نورة'][Math.floor(Math.random() * 3)],
-        amount: Math.floor(50 + Math.random() * 150)
-      })),
-      activeRides: Array.from({ length: 8 }, (_, i) => ({
-        id: `ride-${i}`,
-        rideNumber: `R-${Date.now()}-${i}`,
-        pickupLat: riyadhCenter.lat + randomOffset() * 0.3,
-        pickupLng: riyadhCenter.lng + randomOffset() * 0.3,
-        dropoffLat: riyadhCenter.lat + randomOffset() * 0.5,
-        dropoffLng: riyadhCenter.lng + randomOffset() * 0.5,
-        status: ['searching', 'accepted', 'in_progress'][Math.floor(Math.random() * 3)],
-        fare: Math.floor(20 + Math.random() * 80)
-      })),
-      serviceProviders: Array.from({ length: 5 }, (_, i) => ({
-        id: `sp-${i}`,
-        name: `مقدم خدمة ${i + 1}`,
-        lat: riyadhCenter.lat + randomOffset(),
-        lng: riyadhCenter.lng + randomOffset(),
-        service: ['تنظيف', 'صيانة', 'سباكة'][Math.floor(Math.random() * 3)],
-        status: Math.random() > 0.5 ? 'available' : 'busy'
-      }))
-    };
-  };
+  useEffect(() => {
+    fetchMapData();
+    const interval = setInterval(fetchMapData, 15000);
+    return () => clearInterval(interval);
+  }, [fetchMapData]);
 
   const getFilteredMarkers = () => {
-    switch (activeTab) {
+    switch (activeFilter) {
       case 'drivers':
         return { drivers: mapData.drivers, activeOrders: mapData.activeOrders };
       case 'captains':
-        return { captains: mapData.captains, activeRides: mapData.activeRides };
+        return { captains: mapData.captains };
       case 'restaurants':
         return { restaurants: mapData.restaurants };
       case 'hotels':
         return { hotels: mapData.hotels };
       case 'services':
         return { serviceProviders: mapData.serviceProviders };
+      case 'orders':
+        return { activeOrders: mapData.activeOrders };
       default:
         return mapData;
     }
@@ -195,133 +338,254 @@ const LiveMap = () => {
 
   const filteredData = getFilteredMarkers();
 
-  const statusColors = {
-    available: '#22c55e',
-    busy: '#ef4444',
-    in_ride: '#f97316',
-    preparing: '#eab308',
-    ready: '#22c55e',
-    delivering: '#3b82f6',
-    searching: '#a855f7',
-    accepted: '#22c55e',
-    in_progress: '#3b82f6'
-  };
+  const cities = [
+    { name: 'الرياض', coords: [24.7136, 46.6753], icon: '🏛️' },
+    { name: 'جدة', coords: [21.4858, 39.1925], icon: '🌊' },
+    { name: 'مكة', coords: [21.4225, 39.8262], icon: '🕋' },
+    { name: 'الدمام', coords: [26.4207, 50.0888], icon: '🏭' },
+    { name: 'المدينة', coords: [24.5247, 39.5692], icon: '🕌' },
+  ];
 
-  const statusLabels = {
-    available: 'متاح',
-    busy: 'مشغول',
-    in_ride: 'في رحلة',
-    preparing: 'قيد التحضير',
-    ready: 'جاهز',
-    delivering: 'قيد التوصيل',
-    searching: 'يبحث عن كابتن',
-    accepted: 'تم القبول',
-    in_progress: 'جارية'
-  };
+  const filters = [
+    { id: 'all', label: 'الكل', icon: '🌐', count: Object.values(mapData).flat().length },
+    { id: 'drivers', label: 'السائقين', icon: '🚚', count: mapData.drivers?.length || 0 },
+    { id: 'captains', label: 'الكباتن', icon: '🚗', count: mapData.captains?.length || 0 },
+    { id: 'orders', label: 'الطلبات', icon: '📦', count: mapData.activeOrders?.length || 0 },
+    { id: 'restaurants', label: 'المطاعم', icon: '🍔', count: mapData.restaurants?.length || 0 },
+    { id: 'hotels', label: 'الفنادق', icon: '🏨', count: mapData.hotels?.length || 0 },
+    { id: 'services', label: 'الخدمات', icon: '🔧', count: mapData.serviceProviders?.length || 0 },
+  ];
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-96">
+      <div className="flex items-center justify-center h-screen bg-gray-950">
         <div className="text-center">
-          <div className="animate-spin text-6xl mb-4">🗺️</div>
-          <p className="text-gray-400">جارٍ تحميل الخريطة...</p>
+          <div className="relative">
+            <div className="w-24 h-24 border-4 border-ocean-600/30 rounded-full animate-spin"></div>
+            <div className="absolute top-0 left-0 w-24 h-24 border-4 border-transparent border-t-ocean-600 rounded-full animate-spin"></div>
+            <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-4xl">🗺️</span>
+          </div>
+          <p className="text-gray-400 mt-6 text-lg">جارٍ تحميل الخريطة الحية...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
+    <div className="h-screen bg-gray-950 flex flex-col overflow-hidden">
+      {/* CSS for animations */}
+      <style>{`
+        @keyframes pulse {
+          0%, 100% { transform: scale(1); opacity: 0.5; }
+          50% { transform: scale(1.5); opacity: 0; }
+        }
+        @keyframes slide-in {
+          from { transform: translateX(-100%); opacity: 0; }
+          to { transform: translateX(0); opacity: 1; }
+        }
+        .animate-slide-in {
+          animation: slide-in 0.3s ease-out forwards;
+        }
+        .leaflet-container {
+          background: #0f172a;
+        }
+      `}</style>
+
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-white flex items-center gap-3">
-            <span className="text-3xl">🗺️</span>
-            الخريطة الحية
-          </h1>
-          <p className="text-gray-400 mt-1">تتبع جميع العمليات في الوقت الفعلي</p>
+      <div className="p-4 md:p-6 border-b border-gray-800 bg-gray-900/80 backdrop-blur-xl">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 bg-gradient-to-br from-ocean-500 to-ocean-700 rounded-2xl flex items-center justify-center shadow-lg shadow-ocean-600/30">
+              <span className="text-2xl">🗺️</span>
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold text-white">الخريطة الحية</h1>
+              <p className="text-gray-400 text-sm">تتبع جميع العمليات في الوقت الفعلي</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <LiveIndicator lastUpdate={lastUpdate} isRefreshing={isRefreshing} />
+            <button 
+              onClick={fetchMapData}
+              disabled={isRefreshing}
+              className="bg-gray-800 hover:bg-gray-700 text-white px-4 py-2 rounded-xl transition flex items-center gap-2 disabled:opacity-50"
+            >
+              <span className={isRefreshing ? 'animate-spin' : ''}>🔄</span>
+              تحديث
+            </button>
+          </div>
         </div>
-        
-        {/* Quick Stats */}
-        <div className="flex gap-3">
-          <div className="bg-green-500/20 border border-green-500/30 rounded-xl px-4 py-2 text-center">
-            <p className="text-2xl font-bold text-green-400">{stats.onlineDrivers}</p>
-            <p className="text-xs text-gray-400">سائق متصل</p>
-          </div>
-          <div className="bg-blue-500/20 border border-blue-500/30 rounded-xl px-4 py-2 text-center">
-            <p className="text-2xl font-bold text-blue-400">{stats.onlineCaptains}</p>
-            <p className="text-xs text-gray-400">كابتن متصل</p>
-          </div>
-          <div className="bg-orange-500/20 border border-orange-500/30 rounded-xl px-4 py-2 text-center">
-            <p className="text-2xl font-bold text-orange-400">{stats.activeOrders}</p>
-            <p className="text-xs text-gray-400">طلب نشط</p>
-          </div>
-          <div className="bg-purple-500/20 border border-purple-500/30 rounded-xl px-4 py-2 text-center">
-            <p className="text-2xl font-bold text-purple-400">{stats.activeRides}</p>
-            <p className="text-xs text-gray-400">رحلة نشطة</p>
-          </div>
+
+        {/* Stats Cards */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
+          <StatCard 
+            icon="🚚" 
+            value={stats.onlineDrivers} 
+            label="سائق متصل" 
+            trend={12}
+            color="#22c55e"
+            onClick={() => setActiveFilter('drivers')}
+            isActive={activeFilter === 'drivers'}
+          />
+          <StatCard 
+            icon="🚗" 
+            value={stats.onlineCaptains} 
+            label="كابتن متصل" 
+            trend={8}
+            color="#3b82f6"
+            onClick={() => setActiveFilter('captains')}
+            isActive={activeFilter === 'captains'}
+          />
+          <StatCard 
+            icon="📦" 
+            value={stats.activeOrders} 
+            label="طلب نشط" 
+            trend={-3}
+            color="#f97316"
+            onClick={() => setActiveFilter('orders')}
+            isActive={activeFilter === 'orders'}
+          />
+          <StatCard 
+            icon="🚀" 
+            value={stats.activeRides} 
+            label="رحلة جارية" 
+            trend={15}
+            color="#a855f7"
+            onClick={() => setActiveFilter('captains')}
+            isActive={false}
+          />
         </div>
       </div>
 
-      {/* Filter Tabs */}
-      <div className="flex gap-2 overflow-x-auto pb-2">
-        {[
-          { id: 'all', label: 'الكل', icon: '🌐' },
-          { id: 'drivers', label: 'سائقي التوصيل', icon: '🚚' },
-          { id: 'captains', label: 'الكباتن', icon: '🚗' },
-          { id: 'restaurants', label: 'المطاعم', icon: '🍔' },
-          { id: 'hotels', label: 'الفنادق', icon: '🏨' },
-          { id: 'services', label: 'مقدمي الخدمات', icon: '🔧' },
-        ].map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl font-medium whitespace-nowrap transition
-              ${activeTab === tab.id 
-                ? 'bg-ocean-600 text-white' 
-                : 'bg-gray-800 text-gray-300 hover:bg-gray-700'}`}
+      {/* Main Content */}
+      <div className="flex-1 flex relative overflow-hidden">
+        {/* Sidebar */}
+        <div className={`${sidebarCollapsed ? 'w-16' : 'w-72'} bg-gray-900/95 backdrop-blur border-l border-gray-800 transition-all duration-300 flex flex-col z-10`}>
+          {/* Collapse Toggle */}
+          <button 
+            onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+            className="absolute -left-3 top-4 w-6 h-6 bg-gray-800 rounded-full flex items-center justify-center text-gray-400 hover:text-white hover:bg-gray-700 transition z-20"
           >
-            <span>{tab.icon}</span>
-            {tab.label}
+            {sidebarCollapsed ? '←' : '→'}
           </button>
-        ))}
-      </div>
 
-      {/* Map Container */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          {/* Filters */}
+          <div className="p-4 border-b border-gray-800">
+            {!sidebarCollapsed && <p className="text-xs text-gray-500 mb-3">فلتر العرض</p>}
+            <div className="space-y-1">
+              {filters.map((filter) => (
+                <button
+                  key={filter.id}
+                  onClick={() => setActiveFilter(filter.id)}
+                  className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl transition ${
+                    activeFilter === filter.id 
+                      ? 'bg-ocean-600 text-white' 
+                      : 'text-gray-400 hover:bg-gray-800 hover:text-white'
+                  }`}
+                >
+                  <span className="text-lg">{filter.icon}</span>
+                  {!sidebarCollapsed && (
+                    <>
+                      <span className="flex-1 text-right text-sm">{filter.label}</span>
+                      <span className="text-xs bg-gray-700/50 px-2 py-0.5 rounded-full">{filter.count}</span>
+                    </>
+                  )}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Cities */}
+          {!sidebarCollapsed && (
+            <div className="p-4 border-b border-gray-800">
+              <p className="text-xs text-gray-500 mb-3">المدن</p>
+              <div className="grid grid-cols-2 gap-2">
+                {cities.map((city) => (
+                  <button
+                    key={city.name}
+                    onClick={() => {
+                      setMapCenter(city.coords);
+                      setMapZoom(12);
+                    }}
+                    className="flex items-center gap-2 px-3 py-2 bg-gray-800 hover:bg-gray-700 rounded-xl text-white text-sm transition"
+                  >
+                    <span>{city.icon}</span>
+                    <span>{city.name}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Legend */}
+          {!sidebarCollapsed && (
+            <div className="p-4 flex-1">
+              <p className="text-xs text-gray-500 mb-3">دليل الألوان</p>
+              <div className="space-y-2">
+                <div className="flex items-center gap-3">
+                  <span className="w-3 h-3 rounded-full bg-green-500"></span>
+                  <span className="text-sm text-gray-400">متاح</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="w-3 h-3 rounded-full bg-orange-500"></span>
+                  <span className="text-sm text-gray-400">مشغول</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="w-3 h-3 rounded-full bg-red-500"></span>
+                  <span className="text-sm text-gray-400">غير متاح</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="w-3 h-3 rounded-full bg-blue-500 animate-pulse"></span>
+                  <span className="text-sm text-gray-400">في رحلة/توصيل</span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Quick Actions */}
+          {!sidebarCollapsed && (
+            <div className="p-4 border-t border-gray-800">
+              <button className="w-full bg-gradient-to-r from-green-600 to-green-500 hover:from-green-500 hover:to-green-400 text-white py-3 rounded-xl font-medium transition flex items-center justify-center gap-2 mb-2">
+                <span>📢</span>
+                إرسال إشعار
+              </button>
+              <button className="w-full bg-gray-800 hover:bg-gray-700 text-white py-3 rounded-xl font-medium transition flex items-center justify-center gap-2">
+                <span>📊</span>
+                تصدير تقرير
+              </button>
+            </div>
+          )}
+        </div>
+
         {/* Map */}
-        <div className="lg:col-span-3 bg-gray-800 rounded-2xl overflow-hidden h-[600px]">
+        <div className="flex-1 relative">
           <MapContainer
-            ref={mapRef}
             center={mapCenter}
-            zoom={12}
+            zoom={mapZoom}
             style={{ height: '100%', width: '100%' }}
             className="z-0"
           >
             <TileLayer
-              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              attribution='&copy; <a href="https://carto.com/">CARTO</a>'
+              url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
             />
-            <MapCenterController center={mapCenter} />
+            <MapController center={mapCenter} zoom={mapZoom} />
 
             {/* Drivers */}
             {filteredData.drivers?.map((driver) => (
               <Marker
                 key={driver.id}
                 position={[driver.lat, driver.lng]}
-                icon={icons.driver}
+                icon={icons.driver(driver.status)}
                 eventHandlers={{
                   click: () => setSelectedItem({ type: 'driver', data: driver })
                 }}
               >
-                <Popup>
-                  <div className="text-center p-2">
-                    <p className="font-bold">{driver.name}</p>
+                <Popup className="custom-popup">
+                  <div className="text-center p-1">
+                    <p className="font-bold text-gray-900">{driver.name}</p>
                     <p className="text-sm text-gray-600">{driver.vehicle}</p>
-                    <span className={`inline-block px-2 py-1 rounded-full text-xs text-white mt-1`}
-                      style={{ backgroundColor: statusColors[driver.status] }}>
-                      {statusLabels[driver.status]}
-                    </span>
+                    <p className="text-xs text-gray-500">⭐ {driver.rating}</p>
                   </div>
                 </Popup>
               </Marker>
@@ -332,19 +596,16 @@ const LiveMap = () => {
               <Marker
                 key={captain.id}
                 position={[captain.lat, captain.lng]}
-                icon={icons.captain}
+                icon={icons.captain(captain.status)}
                 eventHandlers={{
                   click: () => setSelectedItem({ type: 'captain', data: captain })
                 }}
               >
                 <Popup>
-                  <div className="text-center p-2">
-                    <p className="font-bold">{captain.name}</p>
+                  <div className="text-center p-1">
+                    <p className="font-bold text-gray-900">{captain.name}</p>
                     <p className="text-sm text-gray-600">{captain.vehicle}</p>
-                    <span className={`inline-block px-2 py-1 rounded-full text-xs text-white mt-1`}
-                      style={{ backgroundColor: statusColors[captain.status] }}>
-                      {statusLabels[captain.status]}
-                    </span>
+                    <p className="text-xs text-gray-500">⭐ {captain.rating}</p>
                   </div>
                 </Popup>
               </Marker>
@@ -355,15 +616,14 @@ const LiveMap = () => {
               <Marker
                 key={restaurant.id}
                 position={[restaurant.lat, restaurant.lng]}
-                icon={icons.restaurant}
+                icon={icons.restaurant()}
                 eventHandlers={{
                   click: () => setSelectedItem({ type: 'restaurant', data: restaurant })
                 }}
               >
                 <Popup>
-                  <div className="text-center p-2">
-                    <p className="font-bold">{restaurant.name}</p>
-                    <p className="text-sm">⭐ {restaurant.rating}</p>
+                  <div className="text-center p-1">
+                    <p className="font-bold text-gray-900">{restaurant.name}</p>
                     <p className="text-sm text-orange-600">{restaurant.orders} طلب نشط</p>
                   </div>
                 </Popup>
@@ -375,16 +635,15 @@ const LiveMap = () => {
               <Marker
                 key={hotel.id}
                 position={[hotel.lat, hotel.lng]}
-                icon={icons.hotel}
+                icon={icons.hotel()}
                 eventHandlers={{
                   click: () => setSelectedItem({ type: 'hotel', data: hotel })
                 }}
               >
                 <Popup>
-                  <div className="text-center p-2">
-                    <p className="font-bold">{hotel.name}</p>
-                    <p className="text-sm">الإشغال: {hotel.occupancy}%</p>
-                    <p className="text-sm text-purple-600">{hotel.bookings} حجز</p>
+                  <div className="text-center p-1">
+                    <p className="font-bold text-gray-900">{hotel.name}</p>
+                    <p className="text-sm text-purple-600">إشغال: {hotel.occupancy}%</p>
                   </div>
                 </Popup>
               </Marker>
@@ -395,19 +654,16 @@ const LiveMap = () => {
               <Marker
                 key={order.id}
                 position={[order.lat, order.lng]}
-                icon={icons.order}
+                icon={icons.order(order.status)}
                 eventHandlers={{
                   click: () => setSelectedItem({ type: 'order', data: order })
                 }}
               >
                 <Popup>
-                  <div className="text-center p-2">
-                    <p className="font-bold text-sm">{order.orderNumber}</p>
-                    <p className="text-sm">{order.restaurant}</p>
-                    <span className={`inline-block px-2 py-1 rounded-full text-xs text-white mt-1`}
-                      style={{ backgroundColor: statusColors[order.status] }}>
-                      {statusLabels[order.status]}
-                    </span>
+                  <div className="text-center p-1">
+                    <p className="font-bold text-gray-900 text-sm">{order.orderNumber}</p>
+                    <p className="text-sm text-gray-600">{order.restaurant}</p>
+                    <p className="text-xs text-green-600">{order.amount} ر.س</p>
                   </div>
                 </Popup>
               </Marker>
@@ -418,174 +674,38 @@ const LiveMap = () => {
               <Marker
                 key={sp.id}
                 position={[sp.lat, sp.lng]}
-                icon={icons.service}
+                icon={icons.service(sp.status)}
                 eventHandlers={{
                   click: () => setSelectedItem({ type: 'service', data: sp })
                 }}
               >
                 <Popup>
-                  <div className="text-center p-2">
-                    <p className="font-bold">{sp.name}</p>
+                  <div className="text-center p-1">
+                    <p className="font-bold text-gray-900">{sp.name}</p>
                     <p className="text-sm text-gray-600">{sp.service}</p>
-                    <span className={`inline-block px-2 py-1 rounded-full text-xs text-white mt-1`}
-                      style={{ backgroundColor: statusColors[sp.status] }}>
-                      {statusLabels[sp.status]}
-                    </span>
                   </div>
                 </Popup>
               </Marker>
             ))}
           </MapContainer>
-        </div>
 
-        {/* Side Panel */}
-        <div className="space-y-4">
-          {/* Legend */}
-          <div className="bg-gray-800/50 backdrop-blur rounded-2xl p-4">
-            <h3 className="font-bold text-white mb-3">دليل الرموز</h3>
-            <div className="space-y-2 text-sm">
-              <div className="flex items-center gap-2">
-                <span className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">🚚</span>
-                <span className="text-gray-300">سائق توصيل</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">🚗</span>
-                <span className="text-gray-300">كابتن</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center">🍔</span>
-                <span className="text-gray-300">مطعم</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center">🏨</span>
-                <span className="text-gray-300">فندق</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center">📦</span>
-                <span className="text-gray-300">طلب نشط</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center">🔧</span>
-                <span className="text-gray-300">مقدم خدمة</span>
-              </div>
-            </div>
-          </div>
+          {/* Details Panel */}
+          <DetailsPanel item={selectedItem} onClose={() => setSelectedItem(null)} />
 
-          {/* Selected Item Details */}
-          {selectedItem && (
-            <div className="bg-gray-800/50 backdrop-blur rounded-2xl p-4">
-              <div className="flex justify-between items-start mb-3">
-                <h3 className="font-bold text-white">التفاصيل</h3>
-                <button 
-                  onClick={() => setSelectedItem(null)}
-                  className="text-gray-400 hover:text-white"
-                >
-                  ✕
-                </button>
-              </div>
-              
-              {selectedItem.type === 'driver' && (
-                <div className="space-y-2 text-sm">
-                  <p className="text-lg font-bold text-white">{selectedItem.data.name}</p>
-                  <p className="text-gray-400">المركبة: {selectedItem.data.vehicle}</p>
-                  <p className="text-gray-400">التقييم: ⭐ {selectedItem.data.rating}</p>
-                  <p className="text-gray-400">التوصيلات: {selectedItem.data.deliveries}</p>
-                  <span className={`inline-block px-3 py-1 rounded-full text-xs text-white`}
-                    style={{ backgroundColor: statusColors[selectedItem.data.status] }}>
-                    {statusLabels[selectedItem.data.status]}
-                  </span>
-                </div>
-              )}
-
-              {selectedItem.type === 'captain' && (
-                <div className="space-y-2 text-sm">
-                  <p className="text-lg font-bold text-white">{selectedItem.data.name}</p>
-                  <p className="text-gray-400">السيارة: {selectedItem.data.vehicle}</p>
-                  <p className="text-gray-400">التقييم: ⭐ {selectedItem.data.rating}</p>
-                  <p className="text-gray-400">الرحلات: {selectedItem.data.rides}</p>
-                  <span className={`inline-block px-3 py-1 rounded-full text-xs text-white`}
-                    style={{ backgroundColor: statusColors[selectedItem.data.status] }}>
-                    {statusLabels[selectedItem.data.status]}
-                  </span>
-                </div>
-              )}
-
-              {selectedItem.type === 'restaurant' && (
-                <div className="space-y-2 text-sm">
-                  <p className="text-lg font-bold text-white">{selectedItem.data.name}</p>
-                  <p className="text-gray-400">التقييم: ⭐ {selectedItem.data.rating}</p>
-                  <p className="text-orange-400 font-semibold">{selectedItem.data.orders} طلب نشط</p>
-                </div>
-              )}
-
-              {selectedItem.type === 'hotel' && (
-                <div className="space-y-2 text-sm">
-                  <p className="text-lg font-bold text-white">{selectedItem.data.name}</p>
-                  <p className="text-gray-400">نسبة الإشغال: {selectedItem.data.occupancy}%</p>
-                  <p className="text-purple-400 font-semibold">{selectedItem.data.bookings} حجز</p>
-                  <div className="mt-2">
-                    <div className="bg-gray-700 rounded-full h-2">
-                      <div 
-                        className="bg-purple-500 rounded-full h-2"
-                        style={{ width: `${selectedItem.data.occupancy}%` }}
-                      ></div>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {selectedItem.type === 'order' && (
-                <div className="space-y-2 text-sm">
-                  <p className="text-lg font-bold text-white">{selectedItem.data.orderNumber}</p>
-                  <p className="text-gray-400">المطعم: {selectedItem.data.restaurant}</p>
-                  <p className="text-gray-400">المبلغ: {selectedItem.data.amount} ر.س</p>
-                  <span className={`inline-block px-3 py-1 rounded-full text-xs text-white`}
-                    style={{ backgroundColor: statusColors[selectedItem.data.status] }}>
-                    {statusLabels[selectedItem.data.status]}
-                  </span>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Quick Actions */}
-          <div className="bg-gray-800/50 backdrop-blur rounded-2xl p-4">
-            <h3 className="font-bold text-white mb-3">إجراءات سريعة</h3>
-            <div className="space-y-2">
-              <button className="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg text-sm transition">
-                📢 إرسال إشعار للسائقين
-              </button>
-              <button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg text-sm transition">
-                📊 تصدير تقرير
-              </button>
-              <button 
-                onClick={fetchMapData}
-                className="w-full bg-gray-700 hover:bg-gray-600 text-white py-2 rounded-lg text-sm transition"
-              >
-                🔄 تحديث البيانات
-              </button>
-            </div>
-          </div>
-
-          {/* City Selector */}
-          <div className="bg-gray-800/50 backdrop-blur rounded-2xl p-4">
-            <h3 className="font-bold text-white mb-3">تغيير المدينة</h3>
-            <div className="grid grid-cols-2 gap-2">
-              {[
-                { name: 'الرياض', coords: [24.7136, 46.6753] },
-                { name: 'جدة', coords: [21.4858, 39.1925] },
-                { name: 'مكة', coords: [21.4225, 39.8262] },
-                { name: 'الدمام', coords: [26.4207, 50.0888] },
-              ].map((city) => (
-                <button
-                  key={city.name}
-                  onClick={() => setMapCenter(city.coords)}
-                  className="bg-gray-700 hover:bg-gray-600 text-white py-2 rounded-lg text-sm transition"
-                >
-                  {city.name}
-                </button>
-              ))}
-            </div>
+          {/* Zoom Controls */}
+          <div className="absolute bottom-6 right-6 flex flex-col gap-2 z-10">
+            <button 
+              onClick={() => setMapZoom(prev => Math.min(prev + 1, 18))}
+              className="w-10 h-10 bg-gray-800/90 hover:bg-gray-700 rounded-xl flex items-center justify-center text-white transition shadow-lg"
+            >
+              +
+            </button>
+            <button 
+              onClick={() => setMapZoom(prev => Math.max(prev - 1, 5))}
+              className="w-10 h-10 bg-gray-800/90 hover:bg-gray-700 rounded-xl flex items-center justify-center text-white transition shadow-lg"
+            >
+              −
+            </button>
           </div>
         </div>
       </div>
