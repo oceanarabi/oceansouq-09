@@ -262,6 +262,92 @@ class SuperAppAPITester:
             for plan in plans:
                 print(f"   - {plan.get('name_ar', 'Unknown')}: {plan.get('price_monthly', 0)} SAR/month")
 
+    def test_command_center_apis(self):
+        """Test Command Center APIs"""
+        print("\n🗺️ === TESTING COMMAND CENTER APIS ===")
+        
+        if not self.token:
+            print("⚠️  No authentication token available, skipping command center tests")
+            return
+        
+        # Test live map data
+        success, map_data = self.run_test(
+            "GET /api/command/live-map",
+            "GET", "api/command/live-map", 200
+        )
+        if success:
+            markers = map_data.get('markers', {})
+            stats = map_data.get('stats', {})
+            print(f"   Drivers: {len(markers.get('drivers', []))}")
+            print(f"   Captains: {len(markers.get('captains', []))}")
+            print(f"   Restaurants: {len(markers.get('restaurants', []))}")
+            print(f"   Hotels: {len(markers.get('hotels', []))}")
+            print(f"   Active Orders: {len(markers.get('activeOrders', []))}")
+            print(f"   Service Providers: {len(markers.get('serviceProviders', []))}")
+            print(f"   Stats - Online Drivers: {stats.get('onlineDrivers', 0)}")
+            print(f"   Stats - Online Captains: {stats.get('onlineCaptains', 0)}")
+            print(f"   Stats - Active Orders: {stats.get('activeOrders', 0)}")
+            print(f"   Stats - Active Rides: {stats.get('activeRides', 0)}")
+        
+        # Test services management
+        success, services_data = self.run_test(
+            "GET /api/command/services",
+            "GET", "api/command/services", 200
+        )
+        if success:
+            services = services_data.get('services', [])
+            enabled_services = [s for s in services if s.get('enabled')]
+            print(f"   Total services: {len(services)}")
+            print(f"   Enabled services: {len(enabled_services)}")
+        
+        # Test dashboard stats
+        success, dashboard_data = self.run_test(
+            "GET /api/command/dashboard/stats",
+            "GET", "api/command/dashboard/stats", 200
+        )
+        if success:
+            stats = dashboard_data.get('stats', {})
+            activity = dashboard_data.get('activity', [])
+            print(f"   Total Revenue: {stats.get('totalRevenue', 0)}")
+            print(f"   Total Orders: {stats.get('totalOrders', 0)}")
+            print(f"   Total Users: {stats.get('totalUsers', 0)}")
+            print(f"   Recent Activities: {len(activity)}")
+        
+        # Test users management
+        self.run_test(
+            "GET /api/command/users",
+            "GET", "api/command/users", 200
+        )
+        
+        # Test users stats
+        success, users_stats = self.run_test(
+            "GET /api/command/users/stats",
+            "GET", "api/command/users/stats", 200
+        )
+        if success:
+            print(f"   Total Users: {users_stats.get('total', 0)}")
+            print(f"   Buyers: {users_stats.get('buyers', 0)}")
+            print(f"   Sellers: {users_stats.get('sellers', 0)}")
+            print(f"   Admins: {users_stats.get('admins', 0)}")
+        
+        # Test analytics
+        success, analytics = self.run_test(
+            "GET /api/command/analytics/overview",
+            "GET", "api/command/analytics/overview", 200
+        )
+        if success:
+            print(f"   Analytics - Total Revenue: {analytics.get('totalRevenue', 0)}")
+            print(f"   Analytics - Conversion Rate: {analytics.get('conversionRate', 0)}%")
+        
+        # Test AI chat
+        success, ai_response = self.run_test(
+            "POST /api/command/ai/chat",
+            "POST", "api/command/ai/chat", 200,
+            data={"message": "ملخص الأداء", "context": "admin_dashboard"}
+        )
+        if success:
+            print(f"   AI Response received: {len(ai_response.get('response', ''))} characters")
+
     def test_authenticated_apis(self):
         """Test APIs that require authentication"""
         print("\n🔐 === TESTING AUTHENTICATED APIS ===")
