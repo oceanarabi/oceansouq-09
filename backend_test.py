@@ -262,6 +262,176 @@ class SuperAppAPITester:
             for plan in plans:
                 print(f"   - {plan.get('name_ar', 'Unknown')}: {plan.get('price_monthly', 0)} SAR/month")
 
+    def test_driver_dashboard_apis(self):
+        """Test Driver Dashboard APIs"""
+        print("\n🚚 === TESTING DRIVER DASHBOARD APIS ===")
+        
+        # Test driver login
+        success, response = self.run_test(
+            "POST /api/driver/auth/login",
+            "POST", "api/driver/auth/login", 200,
+            data={"email": "driver@ocean.com", "password": "driver123"}
+        )
+        
+        driver_token = None
+        if success and 'token' in response:
+            driver_token = response['token']
+            driver_info = response.get('driver', {})
+            print(f"✅ Driver login successful")
+            print(f"   Driver: {driver_info.get('name', 'Unknown')} ({driver_info.get('email', 'Unknown')})")
+            print(f"   Rating: {driver_info.get('rating', 'Unknown')}")
+            print(f"   Vehicle: {driver_info.get('vehicle_type', 'Unknown')}")
+        else:
+            print("❌ Driver login failed, skipping driver dashboard tests")
+            return
+        
+        # Test driver dashboard data
+        success, dashboard_data = self.run_test(
+            "GET /api/driver/dashboard",
+            "GET", "api/driver/dashboard", 200,
+            headers={"Authorization": f"Bearer {driver_token}"}
+        )
+        if success:
+            print(f"   Today Deliveries: {dashboard_data.get('todayDeliveries', 0)}")
+            print(f"   Today Earnings: {dashboard_data.get('todayEarnings', 0)} SAR")
+            print(f"   Week Earnings: {dashboard_data.get('weekEarnings', 0)} SAR")
+            print(f"   Rating: {dashboard_data.get('rating', 0)}")
+            print(f"   Pending Orders: {len(dashboard_data.get('pendingOrders', []))}")
+        
+        # Test driver status update
+        success, status_response = self.run_test(
+            "POST /api/driver/status",
+            "POST", "api/driver/status", 200,
+            data={"status": "online"},
+            headers={"Authorization": f"Bearer {driver_token}"}
+        )
+        if success:
+            print(f"   Status updated to: {status_response.get('status', 'unknown')}")
+        
+        # Test driver deliveries history
+        success, deliveries = self.run_test(
+            "GET /api/driver/deliveries",
+            "GET", "api/driver/deliveries", 200,
+            headers={"Authorization": f"Bearer {driver_token}"}
+        )
+        if success:
+            deliveries_list = deliveries.get('deliveries', [])
+            print(f"   Delivery History: {len(deliveries_list)} records")
+            if deliveries_list:
+                completed = len([d for d in deliveries_list if d.get('status') == 'delivered'])
+                print(f"   Completed Deliveries: {completed}")
+        
+        # Test driver earnings
+        success, earnings = self.run_test(
+            "GET /api/driver/earnings",
+            "GET", "api/driver/earnings", 200,
+            headers={"Authorization": f"Bearer {driver_token}"}
+        )
+        if success:
+            print(f"   Earnings - Deliveries: {earnings.get('deliveries', 0)}")
+            print(f"   Earnings - Base: {earnings.get('base', 0)} SAR")
+            print(f"   Earnings - Tips: {earnings.get('tips', 0)} SAR")
+            print(f"   Earnings - Total: {earnings.get('total', 0)} SAR")
+
+    def test_restaurant_dashboard_apis(self):
+        """Test Restaurant Dashboard APIs"""
+        print("\n🍔 === TESTING RESTAURANT DASHBOARD APIS ===")
+        
+        # Test restaurant login
+        success, response = self.run_test(
+            "POST /api/restaurant/auth/login",
+            "POST", "api/restaurant/auth/login", 200,
+            data={"email": "restaurant@ocean.com", "password": "restaurant123"}
+        )
+        
+        restaurant_token = None
+        if success and 'token' in response:
+            restaurant_token = response['token']
+            restaurant_info = response.get('restaurant', {})
+            print(f"✅ Restaurant login successful")
+            print(f"   Restaurant: {restaurant_info.get('name', 'Unknown')} ({restaurant_info.get('email', 'Unknown')})")
+            print(f"   Rating: {restaurant_info.get('rating', 'Unknown')}")
+            print(f"   Cuisine: {restaurant_info.get('cuisine', 'Unknown')}")
+            print(f"   Status: {'Open' if restaurant_info.get('is_open') else 'Closed'}")
+        else:
+            print("❌ Restaurant login failed, skipping restaurant dashboard tests")
+            return
+        
+        # Test restaurant dashboard data
+        success, dashboard_data = self.run_test(
+            "GET /api/restaurant/dashboard",
+            "GET", "api/restaurant/dashboard", 200,
+            headers={"Authorization": f"Bearer {restaurant_token}"}
+        )
+        if success:
+            print(f"   Today Orders: {dashboard_data.get('todayOrders', 0)}")
+            print(f"   Today Revenue: {dashboard_data.get('todayRevenue', 0)} SAR")
+            print(f"   Avg Prep Time: {dashboard_data.get('avgPrepTime', 0)} minutes")
+            print(f"   Rating: {dashboard_data.get('rating', 0)}")
+            print(f"   Pending Orders: {len(dashboard_data.get('pendingOrders', []))}")
+            print(f"   Preparing Orders: {len(dashboard_data.get('preparingOrders', []))}")
+        
+        # Test restaurant status update
+        success, status_response = self.run_test(
+            "POST /api/restaurant/status",
+            "POST", "api/restaurant/status", 200,
+            data={"is_open": True},
+            headers={"Authorization": f"Bearer {restaurant_token}"}
+        )
+        if success:
+            print(f"   Restaurant status: {'Open' if status_response.get('is_open') else 'Closed'}")
+        
+        # Test restaurant orders
+        success, orders = self.run_test(
+            "GET /api/restaurant/orders",
+            "GET", "api/restaurant/orders", 200,
+            headers={"Authorization": f"Bearer {restaurant_token}"}
+        )
+        if success:
+            orders_list = orders.get('orders', [])
+            print(f"   Orders History: {len(orders_list)} records")
+            if orders_list:
+                pending = len([o for o in orders_list if o.get('status') == 'pending'])
+                completed = len([o for o in orders_list if o.get('status') == 'completed'])
+                print(f"   Pending: {pending}, Completed: {completed}")
+        
+        # Test restaurant menu
+        success, menu = self.run_test(
+            "GET /api/restaurant/menu",
+            "GET", "api/restaurant/menu", 200,
+            headers={"Authorization": f"Bearer {restaurant_token}"}
+        )
+        if success:
+            menu_items = menu.get('menu', [])
+            print(f"   Menu Items: {len(menu_items)}")
+            if menu_items:
+                available = len([item for item in menu_items if item.get('available')])
+                print(f"   Available Items: {available}")
+        
+        # Test restaurant analytics
+        success, analytics = self.run_test(
+            "GET /api/restaurant/analytics",
+            "GET", "api/restaurant/analytics", 200,
+            headers={"Authorization": f"Bearer {restaurant_token}"}
+        )
+        if success:
+            print(f"   Analytics - Total Orders: {analytics.get('totalOrders', 0)}")
+            print(f"   Analytics - Total Revenue: {analytics.get('totalRevenue', 0)} SAR")
+            print(f"   Analytics - Avg Order Value: {analytics.get('avgOrderValue', 0)} SAR")
+            print(f"   Analytics - Cancel Rate: {analytics.get('cancelRate', 0)}%")
+        
+        # Test restaurant reviews
+        success, reviews = self.run_test(
+            "GET /api/restaurant/reviews",
+            "GET", "api/restaurant/reviews", 200,
+            headers={"Authorization": f"Bearer {restaurant_token}"}
+        )
+        if success:
+            print(f"   Overall Rating: {reviews.get('overallRating', 0)}")
+            print(f"   Total Reviews: {reviews.get('totalReviews', 0)}")
+            reviews_list = reviews.get('reviews', [])
+            print(f"   Recent Reviews: {len(reviews_list)}")
+
     def test_command_center_apis(self):
         """Test Command Center APIs"""
         print("\n🗺️ === TESTING COMMAND CENTER APIS ===")
