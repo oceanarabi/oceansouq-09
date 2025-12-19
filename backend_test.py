@@ -438,9 +438,31 @@ class SuperAppAPITester:
             "GET", "api/hotels/invalid-id", 404
         )
 
+    def test_command_login(self):
+        """Test Command Center login to get authentication token"""
+        print("\n🔑 === TESTING COMMAND CENTER LOGIN ===")
+        
+        # Try to login with admin credentials for command center
+        success, response = self.run_test(
+            "POST /api/command/auth/login",
+            "POST", "api/command/auth/login", 200,
+            data={"email": "admin@ocean.com", "password": "admin123"}
+        )
+        
+        if success and 'token' in response:
+            self.token = response['token']
+            user = response.get('user', {})
+            print(f"✅ Command Center login successful")
+            print(f"   User: {user.get('name', 'Unknown')} ({user.get('email', 'Unknown')})")
+            print(f"   Role: {user.get('role', 'Unknown')}")
+            return True
+        else:
+            print("❌ Command Center login failed, will skip authenticated tests")
+            return False
+
     def test_login(self):
-        """Test login to get authentication token"""
-        print("\n🔑 === TESTING LOGIN ===")
+        """Test regular login to get authentication token"""
+        print("\n🔑 === TESTING REGULAR LOGIN ===")
         
         # Try to login with admin credentials
         success, response = self.run_test(
