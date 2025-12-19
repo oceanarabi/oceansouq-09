@@ -2,176 +2,142 @@ import React, { useState } from 'react';
 import { useHotel } from '../contexts/HotelContext';
 
 const Settings = () => {
-  const { hotel } = useHotel();
-  const [activeTab, setActiveTab] = useState('info');
-
-  const tabs = [
-    { id: 'info', label: 'معلومات الفندق', icon: '🏨' },
-    { id: 'rooms', label: 'إعدادات الغرف', icon: '🛏️' },
-    { id: 'pricing', label: 'التسعير', icon: '💰' },
-    { id: 'policies', label: 'السياسات', icon: '📄' },
-    { id: 'bank', label: 'الحساب البنكي', icon: '🏦' },
-  ];
+  const { hotel, logout } = useHotel();
+  const [notifications, setNotifications] = useState({
+    newBookings: true,
+    cancellations: true,
+    reviews: true,
+    reports: false
+  });
 
   return (
     <div className="p-6 space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-gray-800 dark:text-white">الإعدادات</h1>
-        <p className="text-gray-500">إدارة إعدادات الفندق</p>
+        <p className="text-gray-500">إدارة حساب الفندق والتفضيلات</p>
       </div>
 
-      <div className="flex gap-6">
-        {/* Sidebar */}
-        <div className="w-64 space-y-2">
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-right transition ${
-                activeTab === tab.id
-                  ? 'bg-purple-600 text-white'
-                  : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
-              }`}
-            >
-              <span className="text-xl">{tab.icon}</span>
-              <span>{tab.label}</span>
-            </button>
+      {/* Hotel Profile */}
+      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden">
+        <div className="p-6 border-b border-gray-100 dark:border-gray-700">
+          <h2 className="text-lg font-bold text-gray-800 dark:text-white">معلومات الفندق</h2>
+        </div>
+        <div className="p-6">
+          <div className="flex items-center gap-6">
+            <div className="w-24 h-24 bg-gradient-to-br from-purple-500 to-indigo-500 rounded-2xl flex items-center justify-center text-4xl text-white">
+              🏨
+            </div>
+            <div>
+              <h3 className="text-xl font-bold text-gray-800 dark:text-white">{hotel?.name || 'فندق Ocean'}</h3>
+              <p className="text-gray-500">{hotel?.email}</p>
+              <div className="flex items-center gap-4 mt-2">
+                <span className="text-sm bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 px-3 py-1 rounded-full">⭐ {hotel?.rating || '4.6'}</span>
+                <span className="text-sm bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 px-3 py-1 rounded-full">🏨 {hotel?.stars || 5} نجوم</span>
+                <span className="text-sm bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 px-3 py-1 rounded-full">📍 {hotel?.city || 'الرياض'}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Hotel Details */}
+      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden">
+        <div className="p-6 border-b border-gray-100 dark:border-gray-700">
+          <h2 className="text-lg font-bold text-gray-800 dark:text-white">تفاصيل الفندق</h2>
+        </div>
+        <div className="p-6 grid md:grid-cols-2 gap-6">
+          <div>
+            <label className="block text-sm text-gray-500 mb-2">اسم الفندق</label>
+            <input
+              type="text"
+              value={hotel?.name || 'فندق Ocean الرياض'}
+              readOnly
+              className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-gray-800 dark:text-white"
+            />
+          </div>
+          <div>
+            <label className="block text-sm text-gray-500 mb-2">المدينة</label>
+            <input
+              type="text"
+              value={hotel?.city || 'الرياض'}
+              readOnly
+              className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-gray-800 dark:text-white"
+            />
+          </div>
+          <div>
+            <label className="block text-sm text-gray-500 mb-2">عدد الغرف</label>
+            <input
+              type="text"
+              value={hotel?.rooms_count || '120'}
+              readOnly
+              className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-gray-800 dark:text-white"
+            />
+          </div>
+          <div>
+            <label className="block text-sm text-gray-500 mb-2">التصنيف</label>
+            <input
+              type="text"
+              value={`${hotel?.stars || 5} نجوم`}
+              readOnly
+              className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-gray-800 dark:text-white"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Notifications */}
+      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden">
+        <div className="p-6 border-b border-gray-100 dark:border-gray-700">
+          <h2 className="text-lg font-bold text-gray-800 dark:text-white">الإشعارات</h2>
+        </div>
+        <div className="p-6 space-y-4">
+          {[
+            { key: 'newBookings', label: 'حجوزات جديدة', desc: 'تنبيه عند وصول حجز جديد' },
+            { key: 'cancellations', label: 'إلغاءات', desc: 'تنبيه عند إلغاء حجز' },
+            { key: 'reviews', label: 'تقييمات جديدة', desc: 'تنبيه عند وصول تقييم جديد' },
+            { key: 'reports', label: 'التقارير', desc: 'تقارير يومية وأسبوعية' },
+          ].map((item) => (
+            <div key={item.key} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
+              <div>
+                <p className="font-medium text-gray-800 dark:text-white">{item.label}</p>
+                <p className="text-sm text-gray-500">{item.desc}</p>
+              </div>
+              <button
+                onClick={() => setNotifications(prev => ({ ...prev, [item.key]: !prev[item.key] }))}
+                className={`w-14 h-8 rounded-full transition-all relative ${
+                  notifications[item.key] ? 'bg-purple-600' : 'bg-gray-300 dark:bg-gray-600'
+                }`}
+              >
+                <span
+                  className={`absolute top-1 w-6 h-6 bg-white rounded-full transition-all shadow ${
+                    notifications[item.key] ? 'right-1' : 'left-1'
+                  }`}
+                ></span>
+              </button>
+            </div>
           ))}
         </div>
+      </div>
 
-        {/* Content */}
-        <div className="flex-1 bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg">
-          {activeTab === 'info' && (
-            <div className="space-y-6">
-              <h2 className="text-xl font-bold text-gray-800 dark:text-white">معلومات الفندق</h2>
-              <div className="flex items-center gap-6">
-                <div className="w-24 h-24 bg-purple-100 dark:bg-purple-900/30 rounded-2xl flex items-center justify-center">
-                  <span className="text-4xl">🏨</span>
-                </div>
-                <button className="px-4 py-2 bg-purple-600 text-white rounded-lg">تغيير الشعار</button>
-              </div>
-              <div className="grid md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm text-gray-500 mb-2">اسم الفندق</label>
-                  <input type="text" defaultValue={hotel?.name || 'فندق Ocean'} className="w-full px-4 py-3 border rounded-xl dark:bg-gray-700 dark:border-gray-600" />
-                </div>
-                <div>
-                  <label className="block text-sm text-gray-500 mb-2">عدد النجوم</label>
-                  <select className="w-full px-4 py-3 border rounded-xl dark:bg-gray-700 dark:border-gray-600">
-                    <option>5 نجوم</option>
-                    <option>4 نجوم</option>
-                    <option>3 نجوم</option>
-                  </select>
-                </div>
-                <div className="col-span-2">
-                  <label className="block text-sm text-gray-500 mb-2">العنوان</label>
-                  <input type="text" defaultValue="شارع الكورنيش، جدة" className="w-full px-4 py-3 border rounded-xl dark:bg-gray-700 dark:border-gray-600" />
-                </div>
-                <div className="col-span-2">
-                  <label className="block text-sm text-gray-500 mb-2">وصف الفندق</label>
-                  <textarea rows="3" defaultValue="فندق 5 نجوم على البحر مباشرة مع إطلالات خلابة" className="w-full px-4 py-3 border rounded-xl dark:bg-gray-700 dark:border-gray-600" />
-                </div>
-              </div>
-              <button className="px-6 py-3 bg-purple-600 text-white font-bold rounded-xl">حفظ التغييرات</button>
-            </div>
-          )}
-
-          {activeTab === 'rooms' && (
-            <div className="space-y-6">
-              <h2 className="text-xl font-bold text-gray-800 dark:text-white">إعدادات الغرف</h2>
-              <div className="grid md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm text-gray-500 mb-2">وقت تسجيل الدخول</label>
-                  <input type="time" defaultValue="14:00" className="w-full px-4 py-3 border rounded-xl dark:bg-gray-700 dark:border-gray-600" />
-                </div>
-                <div>
-                  <label className="block text-sm text-gray-500 mb-2">وقت تسجيل الخروج</label>
-                  <input type="time" defaultValue="12:00" className="w-full px-4 py-3 border rounded-xl dark:bg-gray-700 dark:border-gray-600" />
-                </div>
-                <div>
-                  <label className="block text-sm text-gray-500 mb-2">الحد الأقصى للضيوف</label>
-                  <input type="number" defaultValue="4" className="w-full px-4 py-3 border rounded-xl dark:bg-gray-700 dark:border-gray-600" />
-                </div>
-                <div>
-                  <label className="block text-sm text-gray-500 mb-2">عمر الطفل (مجاني)</label>
-                  <input type="number" defaultValue="6" className="w-full px-4 py-3 border rounded-xl dark:bg-gray-700 dark:border-gray-600" />
-                </div>
-              </div>
-              <button className="px-6 py-3 bg-purple-600 text-white font-bold rounded-xl">حفظ التغييرات</button>
-            </div>
-          )}
-
-          {activeTab === 'pricing' && (
-            <div className="space-y-6">
-              <h2 className="text-xl font-bold text-gray-800 dark:text-white">إعدادات التسعير</h2>
-              <div className="space-y-4">
-                {[
-                  { type: 'قياسية', basePrice: 400 },
-                  { type: 'مزدوجة', basePrice: 600 },
-                  { type: 'جناح', basePrice: 1200 },
-                  { type: 'جناح ملكي', basePrice: 2500 },
-                ].map((room, index) => (
-                  <div key={index} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-xl">
-                    <span className="font-medium text-gray-800 dark:text-white">{room.type}</span>
-                    <div className="flex items-center gap-2">
-                      <input type="number" defaultValue={room.basePrice} className="w-32 px-3 py-2 border rounded-lg dark:bg-gray-600 dark:border-gray-500" />
-                      <span className="text-gray-500">ر.س / ليلة</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <button className="px-6 py-3 bg-purple-600 text-white font-bold rounded-xl">حفظ الأسعار</button>
-            </div>
-          )}
-
-          {activeTab === 'policies' && (
-            <div className="space-y-6">
-              <h2 className="text-xl font-bold text-gray-800 dark:text-white">سياسات الفندق</h2>
-              <div className="space-y-4">
-                {[
-                  { label: 'سياسة الإلغاء', options: ['مرنة', 'متوسطة', 'صارمة'] },
-                  { label: 'الدفع المسبق', options: ['كامل', '50%', 'عند الوصول'] },
-                  { label: 'الحيوانات الأليفة', options: ['مسموح', 'غير مسموح'] },
-                  { label: 'التدخين', options: ['مسموح', 'غير مسموح', 'غرف مخصصة'] },
-                ].map((policy, index) => (
-                  <div key={index} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-xl">
-                    <span className="font-medium text-gray-800 dark:text-white">{policy.label}</span>
-                    <select className="px-4 py-2 border rounded-lg dark:bg-gray-600 dark:border-gray-500">
-                      {policy.options.map((opt) => (
-                        <option key={opt}>{opt}</option>
-                      ))}
-                    </select>
-                  </div>
-                ))}
-              </div>
-              <button className="px-6 py-3 bg-purple-600 text-white font-bold rounded-xl">حفظ السياسات</button>
-            </div>
-          )}
-
-          {activeTab === 'bank' && (
-            <div className="space-y-6">
-              <h2 className="text-xl font-bold text-gray-800 dark:text-white">الحساب البنكي</h2>
-              <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-200 dark:border-blue-800">
-                <p className="text-blue-800 dark:text-blue-300">💡 سيتم تحويل إيراداتك أسبوعياً إلى هذا الحساب</p>
-              </div>
-              <div className="grid md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm text-gray-500 mb-2">اسم البنك</label>
-                  <select className="w-full px-4 py-3 border rounded-xl dark:bg-gray-700 dark:border-gray-600">
-                    <option>الراجحي</option>
-                    <option>الأهلي</option>
-                    <option>الرياض</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm text-gray-500 mb-2">رقم الآيبان</label>
-                  <input type="text" placeholder="SA00 0000 0000 0000 0000 0000" className="w-full px-4 py-3 border rounded-xl dark:bg-gray-700 dark:border-gray-600" />
-                </div>
-              </div>
-              <button className="px-6 py-3 bg-purple-600 text-white font-bold rounded-xl">حفظ الحساب</button>
-            </div>
-          )}
-        </div>
+      {/* Support & Logout */}
+      <div className="grid md:grid-cols-2 gap-4">
+        <button className="p-6 bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-xl transition flex items-center gap-4">
+          <span className="text-3xl">📞</span>
+          <div className="text-right">
+            <p className="font-bold text-gray-800 dark:text-white">الدعم الفني</p>
+            <p className="text-sm text-gray-500">تواصل معنا للمساعدة</p>
+          </div>
+        </button>
+        <button
+          onClick={logout}
+          className="p-6 bg-red-50 dark:bg-red-900/20 rounded-2xl shadow-lg hover:shadow-xl transition flex items-center gap-4 border border-red-200 dark:border-red-800"
+        >
+          <span className="text-3xl">🚪</span>
+          <div className="text-right">
+            <p className="font-bold text-red-600">تسجيل الخروج</p>
+            <p className="text-sm text-red-400">الخروج من الحساب</p>
+          </div>
+        </button>
       </div>
     </div>
   );

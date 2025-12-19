@@ -3,21 +3,20 @@ import { Link, useLocation } from 'react-router-dom';
 import { useHotel } from '../contexts/HotelContext';
 
 const Sidebar = () => {
-  const { hotel, logout, sidebarOpen, setSidebarOpen, isAcceptingBookings, toggleBookings } = useHotel();
+  const { hotel, logout, sidebarOpen, setSidebarOpen, isAvailable, toggleAvailability } = useHotel();
   const location = useLocation();
 
   const menuItems = [
     { path: '/hotel', icon: '🏠', label: 'الرئيسية' },
-    { path: '/hotel/bookings', icon: '📅', label: 'الحجوزات' },
+    { path: '/hotel/bookings', icon: '📋', label: 'الحجوزات' },
     { path: '/hotel/rooms', icon: '🛏️', label: 'الغرف' },
-    { path: '/hotel/guests', icon: '👥', label: 'النزلاء' },
     { path: '/hotel/analytics', icon: '📊', label: 'التحليلات' },
-    { path: '/hotel/reviews', icon: '⭐', label: 'المراجعات' },
+    { path: '/hotel/reviews', icon: '⭐', label: 'التقييمات' },
     { path: '/hotel/settings', icon: '⚙️', label: 'الإعدادات' },
   ];
 
   return (
-    <aside className={`fixed right-0 top-0 h-full bg-gradient-to-b from-purple-800 to-purple-900 text-white transition-all duration-300 z-50 ${sidebarOpen ? 'w-64' : 'w-20'}`}>
+    <aside className={`fixed right-0 top-0 h-full bg-gradient-to-b from-purple-800 to-indigo-900 text-white transition-all duration-300 z-50 ${sidebarOpen ? 'w-64' : 'w-20'}`}>
       {/* Header */}
       <div className="p-4 border-b border-purple-700">
         <div className="flex items-center justify-between">
@@ -36,18 +35,18 @@ const Sidebar = () => {
         </div>
       </div>
 
-      {/* Booking Toggle */}
+      {/* Availability Toggle */}
       <div className="p-4 border-b border-purple-700">
         <button
-          onClick={toggleBookings}
+          onClick={toggleAvailability}
           className={`w-full py-3 rounded-xl font-bold transition-all flex items-center justify-center gap-2 ${
-            isAcceptingBookings 
+            isAvailable 
               ? 'bg-green-500 text-white shadow-lg shadow-green-500/30' 
               : 'bg-gray-600 text-gray-300'
           }`}
         >
-          <span className={`w-3 h-3 rounded-full ${isAcceptingBookings ? 'bg-white animate-pulse' : 'bg-gray-400'}`}></span>
-          {sidebarOpen && (isAcceptingBookings ? 'نستقبل الحجوزات' : 'الحجز مغلق')}
+          <span className={`w-3 h-3 rounded-full ${isAvailable ? 'bg-white animate-pulse' : 'bg-gray-400'}`}></span>
+          {sidebarOpen && (isAvailable ? 'متاح للحجز' : 'غير متاح')}
         </button>
       </div>
 
@@ -74,10 +73,10 @@ const Sidebar = () => {
         {sidebarOpen && hotel && (
           <div className="mb-3 flex items-center gap-3">
             <div className="w-10 h-10 bg-purple-600 rounded-full flex items-center justify-center">
-              <span className="text-xl">🏨</span>
+              🏨
             </div>
             <div>
-              <p className="font-semibold text-sm">{hotel.name || 'الفندق'}</p>
+              <p className="font-semibold text-sm truncate">{hotel.name}</p>
               <p className="text-xs text-purple-300">⭐ {hotel.rating || '4.5'} • {hotel.stars || 5} نجوم</p>
             </div>
           </div>

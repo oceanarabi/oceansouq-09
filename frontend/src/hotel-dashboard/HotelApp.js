@@ -5,7 +5,6 @@ import Sidebar from './components/Sidebar';
 import Dashboard from './pages/Dashboard';
 import Bookings from './pages/Bookings';
 import Rooms from './pages/Rooms';
-import Guests from './pages/Guests';
 import Analytics from './pages/Analytics';
 import Reviews from './pages/Reviews';
 import Settings from './pages/Settings';
@@ -48,7 +47,6 @@ const HotelRoutes = () => {
       <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
       <Route path="bookings" element={<ProtectedRoute><Bookings /></ProtectedRoute>} />
       <Route path="rooms" element={<ProtectedRoute><Rooms /></ProtectedRoute>} />
-      <Route path="guests" element={<ProtectedRoute><Guests /></ProtectedRoute>} />
       <Route path="analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />
       <Route path="reviews" element={<ProtectedRoute><Reviews /></ProtectedRoute>} />
       <Route path="settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />

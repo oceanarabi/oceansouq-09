@@ -15,7 +15,7 @@ export const HotelProvider = ({ children }) => {
   const [hotel, setHotel] = useState(null);
   const [loading, setLoading] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [isAcceptingBookings, setIsAcceptingBookings] = useState(true);
+  const [isAvailable, setIsAvailable] = useState(true);
 
   useEffect(() => {
     const token = localStorage.getItem('hotelToken');
@@ -23,18 +23,18 @@ export const HotelProvider = ({ children }) => {
     if (token && savedHotel) {
       const data = JSON.parse(savedHotel);
       setHotel(data);
-      setIsAcceptingBookings(data.accepting_bookings !== false);
+      setIsAvailable(data.is_available !== false);
     }
     setLoading(false);
   }, []);
 
   const login = async (email, password) => {
     try {
-      const res = await axios.post(`${API_URL}/api/hotel-dashboard/auth/login`, { email, password });
+      const res = await axios.post(`${API_URL}/api/hotel/auth/login`, { email, password });
       localStorage.setItem('hotelToken', res.data.token);
       localStorage.setItem('hotelData', JSON.stringify(res.data.hotel));
       setHotel(res.data.hotel);
-      setIsAcceptingBookings(res.data.hotel.accepting_bookings !== false);
+      setIsAvailable(res.data.hotel.is_available !== false);
       return { success: true };
     } catch (err) {
       return { success: false, error: err.response?.data?.detail || 'خطأ في تسجيل الدخول' };
@@ -47,17 +47,18 @@ export const HotelProvider = ({ children }) => {
     setHotel(null);
   };
 
-  const toggleBookings = async () => {
+  const toggleAvailability = async () => {
     try {
       const token = localStorage.getItem('hotelToken');
-      await axios.post(`${API_URL}/api/hotel-dashboard/status`, 
-        { accepting_bookings: !isAcceptingBookings },
+      const newStatus = !isAvailable;
+      await axios.post(`${API_URL}/api/hotel/status`, 
+        { is_available: newStatus },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      setIsAcceptingBookings(!isAcceptingBookings);
-      setHotel(prev => ({ ...prev, accepting_bookings: !isAcceptingBookings }));
+      setIsAvailable(newStatus);
+      setHotel(prev => ({ ...prev, is_available: newStatus }));
     } catch (err) {
-      console.error('Error toggling status:', err);
+      console.error('Error toggling availability:', err);
     }
   };
 
@@ -68,8 +69,8 @@ export const HotelProvider = ({ children }) => {
     logout,
     sidebarOpen,
     setSidebarOpen,
-    isAcceptingBookings,
-    toggleBookings,
+    isAvailable,
+    toggleAvailability,
     API_URL
   };
 
