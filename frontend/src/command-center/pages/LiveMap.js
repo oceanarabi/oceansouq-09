@@ -293,8 +293,17 @@ const LiveMap = () => {
   const [mapCenter, setMapCenter] = useState([24.7136, 46.6753]);
   const [mapZoom, setMapZoom] = useState(12);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [selectedCity, setSelectedCity] = useState('الرياض');
 
-  const fetchMapData = useCallback(async () => {
+  // Handle city change - update map center and refetch data
+  const handleCityChange = (city) => {
+    setSelectedCity(city.name);
+    setMapCenter(city.coords);
+    setMapZoom(12);
+    fetchMapData(city.coords);
+  };
+
+  const fetchMapData = useCallback(async (cityCoords = null) => {
     setIsRefreshing(true);
     try {
       const token = localStorage.getItem('commandToken');
