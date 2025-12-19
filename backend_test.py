@@ -360,10 +360,12 @@ class SuperAppAPITester:
             return
         
         # Test restaurant dashboard data
+        # Temporarily store the token and use it for authenticated requests
+        old_token = self.token
+        self.token = restaurant_token
         success, dashboard_data = self.run_test(
             "GET /api/restaurant/dashboard",
-            "GET", "api/restaurant/dashboard", 200,
-            headers={"Authorization": f"Bearer {restaurant_token}"}
+            "GET", "api/restaurant/dashboard", 200
         )
         if success:
             print(f"   Today Orders: {dashboard_data.get('todayOrders', 0)}")
