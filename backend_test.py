@@ -658,6 +658,10 @@ def main():
     # Try to login first (Command Center login for admin access)
     tester.test_command_login()
     
+    # Run Provider Dashboard tests first
+    tester.test_driver_dashboard_apis()
+    tester.test_restaurant_dashboard_apis()
+    
     # Run Command Center specific tests
     tester.test_command_center_apis()
     
