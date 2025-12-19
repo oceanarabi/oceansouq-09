@@ -379,8 +379,7 @@ class SuperAppAPITester:
         success, status_response = self.run_test(
             "POST /api/restaurant/status",
             "POST", "api/restaurant/status", 200,
-            data={"is_open": True},
-            headers={"Authorization": f"Bearer {restaurant_token}"}
+            data={"is_open": True}
         )
         if success:
             print(f"   Restaurant status: {'Open' if status_response.get('is_open') else 'Closed'}")
@@ -388,8 +387,7 @@ class SuperAppAPITester:
         # Test restaurant orders
         success, orders = self.run_test(
             "GET /api/restaurant/orders",
-            "GET", "api/restaurant/orders", 200,
-            headers={"Authorization": f"Bearer {restaurant_token}"}
+            "GET", "api/restaurant/orders", 200
         )
         if success:
             orders_list = orders.get('orders', [])
@@ -402,8 +400,7 @@ class SuperAppAPITester:
         # Test restaurant menu
         success, menu = self.run_test(
             "GET /api/restaurant/menu",
-            "GET", "api/restaurant/menu", 200,
-            headers={"Authorization": f"Bearer {restaurant_token}"}
+            "GET", "api/restaurant/menu", 200
         )
         if success:
             menu_items = menu.get('menu', [])
@@ -415,8 +412,7 @@ class SuperAppAPITester:
         # Test restaurant analytics
         success, analytics = self.run_test(
             "GET /api/restaurant/analytics",
-            "GET", "api/restaurant/analytics", 200,
-            headers={"Authorization": f"Bearer {restaurant_token}"}
+            "GET", "api/restaurant/analytics", 200
         )
         if success:
             print(f"   Analytics - Total Orders: {analytics.get('totalOrders', 0)}")
@@ -427,14 +423,16 @@ class SuperAppAPITester:
         # Test restaurant reviews
         success, reviews = self.run_test(
             "GET /api/restaurant/reviews",
-            "GET", "api/restaurant/reviews", 200,
-            headers={"Authorization": f"Bearer {restaurant_token}"}
+            "GET", "api/restaurant/reviews", 200
         )
         if success:
             print(f"   Overall Rating: {reviews.get('overallRating', 0)}")
             print(f"   Total Reviews: {reviews.get('totalReviews', 0)}")
             reviews_list = reviews.get('reviews', [])
             print(f"   Recent Reviews: {len(reviews_list)}")
+        
+        # Restore original token
+        self.token = old_token
 
     def test_command_center_apis(self):
         """Test Command Center APIs"""
