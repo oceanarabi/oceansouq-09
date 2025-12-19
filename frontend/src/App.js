@@ -1813,6 +1813,15 @@ function StoreLayout() {
                     <Route path="/compare" element={<ProductComparison />} />
                     <Route path="/shopping-lists" element={<SharedLists />} />
                     <Route path="/shared-list/:listId" element={<SharedLists />} />
+                    {/* Join/Registration Routes */}
+                    <Route path="/join" element={<JoinPage />} />
+                    <Route path="/join/seller" element={<JoinSellerPage />} />
+                    <Route path="/join/driver" element={<JoinDriverPage />} />
+                    <Route path="/join/restaurant" element={<JoinRestaurantPage />} />
+                    <Route path="/join/captain" element={<JoinCaptainPage />} />
+                    <Route path="/join/hotel" element={<JoinHotelPage />} />
+                    <Route path="/join/service-provider" element={<JoinServiceProviderPage />} />
+                    <Route path="/join/experience" element={<JoinExperiencePage />} />
                   </Routes>
                 </main>
                 <Footer />
