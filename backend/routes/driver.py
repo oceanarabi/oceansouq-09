@@ -84,7 +84,7 @@ async def driver_login(data: DriverLogin):
 async def update_driver_status(data: StatusUpdate, user = Depends(verify_driver_token)):
     """Update driver online/offline status"""
     if db is not None:
-        await db.drivers.update_one(
+        db.drivers.update_one(
             {"id": user["driver_id"]},
             {"$set": {"status": data.status, "updated_at": datetime.now(timezone.utc).isoformat()}}
         )
