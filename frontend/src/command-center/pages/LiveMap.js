@@ -513,11 +513,12 @@ const LiveMap = () => {
                 {cities.map((city) => (
                   <button
                     key={city.name}
-                    onClick={() => {
-                      setMapCenter(city.coords);
-                      setMapZoom(12);
-                    }}
-                    className="flex items-center gap-2 px-3 py-2 bg-gray-800 hover:bg-gray-700 rounded-xl text-white text-sm transition"
+                    onClick={() => handleCityChange(city)}
+                    className={`flex items-center gap-2 px-3 py-2 rounded-xl text-white text-sm transition ${
+                      selectedCity === city.name 
+                        ? 'bg-ocean-600' 
+                        : 'bg-gray-800 hover:bg-gray-700'
+                    }`}
                   >
                     <span>{city.icon}</span>
                     <span>{city.name}</span>
