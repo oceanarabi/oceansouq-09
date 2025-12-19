@@ -762,6 +762,69 @@ const Header = () => {
                 </div>
               )}
             </div>
+
+            {/* Services Menu */}
+            <div className="relative hidden lg:block group">
+              <button className="flex items-center gap-2 px-4 py-2 hover:text-ocean-600 font-medium text-ocean-600 dark:text-ocean-400">
+                <span>🚀 SERVICES</span>
+                <span>▼</span>
+              </button>
+              
+              <div className="absolute top-full right-0 mt-1 w-64 bg-white dark:bg-gray-800 rounded-xl shadow-2xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all">
+                <div className="p-3 grid grid-cols-1 gap-1">
+                  <Link to="/food" className="flex items-center gap-3 p-3 hover:bg-orange-50 dark:hover:bg-orange-900/20 rounded-lg transition">
+                    <span className="text-2xl">🍔</span>
+                    <div>
+                      <span className="font-medium text-gray-900 dark:text-white block">طلب الطعام</span>
+                      <span className="text-xs text-gray-500">مطاعم ومقاهي</span>
+                    </div>
+                  </Link>
+                  <Link to="/rides" className="flex items-center gap-3 p-3 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition">
+                    <span className="text-2xl">🚗</span>
+                    <div>
+                      <span className="font-medium text-gray-900 dark:text-white block">المشاوير</span>
+                      <span className="text-xs text-gray-500">توصيل وتنقل</span>
+                    </div>
+                  </Link>
+                  <Link to="/hotels" className="flex items-center gap-3 p-3 hover:bg-purple-50 dark:hover:bg-purple-900/20 rounded-lg transition">
+                    <span className="text-2xl">🏨</span>
+                    <div>
+                      <span className="font-medium text-gray-900 dark:text-white block">الفنادق</span>
+                      <span className="text-xs text-gray-500">حجز إقامات</span>
+                    </div>
+                  </Link>
+                  <Link to="/experiences" className="flex items-center gap-3 p-3 hover:bg-pink-50 dark:hover:bg-pink-900/20 rounded-lg transition">
+                    <span className="text-2xl">🎭</span>
+                    <div>
+                      <span className="font-medium text-gray-900 dark:text-white block">التجارب</span>
+                      <span className="text-xs text-gray-500">أنشطة ومغامرات</span>
+                    </div>
+                  </Link>
+                  <Link to="/services" className="flex items-center gap-3 p-3 hover:bg-amber-50 dark:hover:bg-amber-900/20 rounded-lg transition">
+                    <span className="text-2xl">🔧</span>
+                    <div>
+                      <span className="font-medium text-gray-900 dark:text-white block">خدمات منزلية</span>
+                      <span className="text-xs text-gray-500">صيانة وتنظيف</span>
+                    </div>
+                  </Link>
+                  <div className="border-t dark:border-gray-700 my-2"></div>
+                  <Link to="/subscriptions" className="flex items-center gap-3 p-3 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-lg transition">
+                    <span className="text-2xl">⭐</span>
+                    <div>
+                      <span className="font-medium text-gray-900 dark:text-white block">الاشتراكات</span>
+                      <span className="text-xs text-gray-500">وفر مع Ocean Plus</span>
+                    </div>
+                  </Link>
+                  <Link to="/join" className="flex items-center gap-3 p-3 bg-ocean-50 dark:bg-ocean-900/20 hover:bg-ocean-100 rounded-lg transition">
+                    <span className="text-2xl">🤝</span>
+                    <div>
+                      <span className="font-medium text-ocean-600 block">انضم إلينا</span>
+                      <span className="text-xs text-gray-500">كبائع أو سائق</span>
+                    </div>
+                  </Link>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </nav>
