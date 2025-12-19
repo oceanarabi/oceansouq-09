@@ -109,16 +109,10 @@ class SuperAppAPITester:
             for ride_type in ride_types:
                 print(f"   - {ride_type.get('name', 'Unknown')} ({ride_type.get('id', 'no-id')})")
         
-        # Test fare estimation
+        # Test fare estimation (using query parameters)
         success, estimates = self.run_test(
             "POST /api/rides/estimate",
-            "POST", "api/rides/estimate", 200,
-            data={
-                "pickup_lat": 24.7136,
-                "pickup_lng": 46.6753,
-                "dropoff_lat": 24.7250,
-                "dropoff_lng": 46.6800
-            }
+            "POST", "api/rides/estimate?pickup_lat=24.7136&pickup_lng=46.6753&dropoff_lat=24.7250&dropoff_lng=46.6800", 200
         )
         if success:
             print(f"   Got {len(estimates)} fare estimates")
