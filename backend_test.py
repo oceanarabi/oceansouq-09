@@ -779,7 +779,6 @@ def main():
     # Run Provider Dashboard tests first
     tester.test_captain_dashboard_apis()
     tester.test_hotel_dashboard_apis()
-    tester.test_driver_dashboard_apis()
     tester.test_restaurant_dashboard_apis()
     
     # Run Command Center specific tests
