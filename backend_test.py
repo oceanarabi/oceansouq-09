@@ -286,10 +286,12 @@ class SuperAppAPITester:
             return
         
         # Test driver dashboard data
+        # Temporarily store the token and use it for authenticated requests
+        old_token = self.token
+        self.token = driver_token
         success, dashboard_data = self.run_test(
             "GET /api/driver/dashboard",
-            "GET", "api/driver/dashboard", 200,
-            headers={"Authorization": f"Bearer {driver_token}"}
+            "GET", "api/driver/dashboard", 200
         )
         if success:
             print(f"   Today Deliveries: {dashboard_data.get('todayDeliveries', 0)}")
