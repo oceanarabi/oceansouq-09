@@ -38,7 +38,7 @@ class ChatMessage(BaseModel):
 def verify_command_token(credentials: HTTPAuthorizationCredentials = Depends(security)):
     try:
         payload = jwt.decode(credentials.credentials, JWT_SECRET, algorithms=[JWT_ALGORITHM])
-        if payload.get('role') not in ['admin', 'superadmin']:
+        if payload.get('role') not in ['admin', 'superadmin', 'super_admin']:
             raise HTTPException(status_code=403, detail="Admin access required")
         return payload
     except jwt.ExpiredSignatureError:
@@ -58,7 +58,7 @@ async def command_login(login_data: CommandLogin):
     if not user:
         raise HTTPException(status_code=401, detail="Invalid credentials")
     
-    if user.get('role') not in ['admin', 'superadmin']:
+    if user.get('role') not in ['admin', 'superadmin', 'super_admin']:
         raise HTTPException(status_code=403, detail="Admin access required")
     
     if not bcrypt.checkpw(login_data.password.encode('utf-8'), user['password'].encode('utf-8')):
