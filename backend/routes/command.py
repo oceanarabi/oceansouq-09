@@ -357,8 +357,8 @@ async def get_live_map_data(
         captains.append({
             "id": captain.get("id", f"captain-{i}"),
             "name": f"كابتن {i + 1}",
-            "lat": riyadh_lat + random_offset(),
-            "lng": riyadh_lng + random_offset(),
+            "lat": center_lat + random_offset(),
+            "lng": center_lng + random_offset(),
             "status": "available" if random.random() > 0.5 else "in_ride",
             "vehicle": captain.get("vehicle_model", "كامري"),
             "rating": captain.get("rating", 4.8),
@@ -371,8 +371,8 @@ async def get_live_map_data(
             captains.append({
                 "id": f"demo-captain-{i}",
                 "name": f"كابتن {i + 1}",
-                "lat": riyadh_lat + random_offset(),
-                "lng": riyadh_lng + random_offset(),
+                "lat": center_lat + random_offset(),
+                "lng": center_lng + random_offset(),
                 "status": "available" if random.random() > 0.4 else "in_ride",
                 "vehicle": ["كامري", "اكورد", "سوناتا", "النترا"][random.randint(0, 3)],
                 "rating": round(4.5 + random.random() * 0.5, 1),
@@ -386,8 +386,8 @@ async def get_live_map_data(
         restaurants.append({
             "id": rest.get("id"),
             "name": rest.get("name_ar", rest.get("name")),
-            "lat": riyadh_lat + random_offset() * 0.5,
-            "lng": riyadh_lng + random_offset() * 0.5,
+            "lat": center_lat + random_offset() * 0.5,
+            "lng": center_lng + random_offset() * 0.5,
             "orders": random.randint(5, 20),
             "rating": round(4.3 + random.random() * 0.7, 1)
         })
@@ -399,8 +399,8 @@ async def get_live_map_data(
         hotels.append({
             "id": hotel.get("id"),
             "name": hotel.get("name_ar", hotel.get("name")),
-            "lat": riyadh_lat + random_offset() * 0.4,
-            "lng": riyadh_lng + random_offset() * 0.4,
+            "lat": center_lat + random_offset() * 0.4,
+            "lng": center_lng + random_offset() * 0.4,
             "bookings": random.randint(20, 60),
             "occupancy": random.randint(60, 95)
         })
@@ -415,8 +415,8 @@ async def get_live_map_data(
         active_orders.append({
             "id": order.get("id"),
             "orderNumber": order.get("order_number", "N/A"),
-            "lat": riyadh_lat + random_offset() * 0.3,
-            "lng": riyadh_lng + random_offset() * 0.3,
+            "lat": center_lat + random_offset() * 0.3,
+            "lng": center_lng + random_offset() * 0.3,
             "status": order.get("status", "preparing"),
             "restaurant": order.get("restaurant_name", "مطعم"),
             "amount": order.get("total", 0)
@@ -428,8 +428,8 @@ async def get_live_map_data(
             active_orders.append({
                 "id": f"demo-order-{i}",
                 "orderNumber": f"FO-DEMO-{i}",
-                "lat": riyadh_lat + random_offset() * 0.4,
-                "lng": riyadh_lng + random_offset() * 0.4,
+                "lat": center_lat + random_offset() * 0.4,
+                "lng": center_lng + random_offset() * 0.4,
                 "status": ["preparing", "ready", "delivering"][random.randint(0, 2)],
                 "restaurant": ["البيك", "كودو", "ماما نورة", "هرفي"][random.randint(0, 3)],
                 "amount": random.randint(50, 200)
@@ -446,8 +446,8 @@ async def get_live_map_data(
         active_rides.append({
             "id": ride.get("id"),
             "rideNumber": ride.get("ride_number", "N/A"),
-            "pickupLat": pickup.get("lat", riyadh_lat + random_offset()),
-            "pickupLng": pickup.get("lng", riyadh_lng + random_offset()),
+            "pickupLat": pickup.get("lat", center_lat + random_offset()),
+            "pickupLng": pickup.get("lng", center_lng + random_offset()),
             "status": ride.get("status", "searching"),
             "fare": ride.get("estimated_fare", 0)
         })
@@ -458,8 +458,8 @@ async def get_live_map_data(
         service_providers.append({
             "id": f"sp-{i}",
             "name": f"مقدم خدمة {i + 1}",
-            "lat": riyadh_lat + random_offset(),
-            "lng": riyadh_lng + random_offset(),
+            "lat": center_lat + random_offset(),
+            "lng": center_lng + random_offset(),
             "service": ["تنظيف", "صيانة مكيفات", "سباكة", "كهرباء"][random.randint(0, 3)],
             "status": "available" if random.random() > 0.4 else "busy"
         })
