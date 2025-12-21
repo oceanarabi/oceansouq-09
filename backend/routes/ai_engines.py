@@ -143,6 +143,29 @@ async def get_ai_engines(user = Depends(verify_admin_token)):
         }
     }
 
+@router.get("/dashboard")
+async def get_ai_dashboard(user = Depends(verify_admin_token)):
+    """Get AI engines dashboard"""
+    return {
+        "overview": {
+            "total_requests_today": 139470,
+            "avg_accuracy": 91.4,
+            "active_engines": 8,
+            "cost_saved_today": 45000
+        },
+        "engines_status": [
+            {"engine": "التوصيات", "status": "healthy", "load": 65},
+            {"engine": "كشف الاحتيال", "status": "healthy", "load": 42},
+            {"engine": "تحسين الأسعار", "status": "healthy", "load": 38},
+            {"engine": "تحسين SEO", "status": "healthy", "load": 25},
+        ],
+        "recent_insights": [
+            {"type": "opportunity", "message": "45 منتج يمكن زيادة سعره بنسبة 10%", "impact": "high"},
+            {"type": "alert", "message": "ارتفاع محاولات الاحتيال بنسبة 15%", "impact": "medium"},
+            {"type": "success", "message": "التوصيات حققت 125K ريال اليوم", "impact": "high"},
+        ]
+    }
+
 @router.get("/{engine_id}")
 async def get_engine_details(engine_id: str, user = Depends(verify_admin_token)):
     """Get detailed info about specific engine"""
