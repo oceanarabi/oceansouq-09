@@ -202,10 +202,8 @@ class OceanPhase2APITester:
             else:
                 self.log_result("SEO Audit Structure", False, None, "Missing SEO audit fields")
         
-        # Test fraud detection
-        self.run_test("Fraud Analysis", "POST", "api/ai-engines/fraud/analyze", 200, {
-            "transaction_id": "TXN-001"
-        })
+        # Test fraud analysis with query parameter
+        self.run_test("Fraud Analysis", "POST", "api/ai-engines/fraud/analyze?transaction_id=TXN-001", 200)
         
         # Test fraud statistics
         success, fraud_stats = self.run_test("Fraud Statistics", "GET", "api/ai-engines/fraud/statistics", 200)
