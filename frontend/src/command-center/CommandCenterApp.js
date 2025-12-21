@@ -23,6 +23,9 @@ import Security from './pages/Security';
 import Finance from './pages/Finance';
 import Reports from './pages/Reports';
 import Alerts from './pages/Alerts';
+import PaymentGateways from './pages/PaymentGateways';
+import AIEngines from './pages/AIEngines';
+import AdvancedAnalytics from './pages/AdvancedAnalytics';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
 
@@ -58,10 +61,12 @@ const Sidebar = ({ services, collapsed, setCollapsed }) => {
     { path: '/command/services', icon: '⚙️', label: 'إدارة الخدمات', labelEn: 'Services' },
     { path: '/command/security', icon: '🛡️', label: 'الأمان', labelEn: 'Security' },
     { path: '/command/finance', icon: '💰', label: 'المالية', labelEn: 'Finance' },
+    { path: '/command/payment-gateways', icon: '💳', label: 'بوابات الدفع', labelEn: 'Payment Gateways' },
     { path: '/command/reports', icon: '📊', label: 'التقارير', labelEn: 'Reports' },
     { path: '/command/alerts', icon: '🔔', label: 'التنبيهات', labelEn: 'Alerts' },
-    { path: '/command/ai', icon: '🤖', label: 'مركز AI', labelEn: 'AI Center' },
-    { path: '/command/analytics', icon: '📈', label: 'التحليلات', labelEn: 'Analytics' },
+    { path: '/command/ai-engines', icon: '🧠', label: 'محركات AI', labelEn: 'AI Engines' },
+    { path: '/command/ai', icon: '🤖', label: 'مساعد AI', labelEn: 'AI Assistant' },
+    { path: '/command/advanced-analytics', icon: '📈', label: 'تحليلات متقدمة', labelEn: 'Advanced Analytics' },
     { path: '/command/users', icon: '👥', label: 'المستخدمين', labelEn: 'Users' },
     { path: '/command/settings', icon: '🔧', label: 'الإعدادات', labelEn: 'Settings' },
   ];
@@ -254,6 +259,9 @@ const CommandCenterApp = () => {
       <Route path="/finance" element={<ProtectedRoute><Finance /></ProtectedRoute>} />
       <Route path="/reports" element={<ProtectedRoute><Reports /></ProtectedRoute>} />
       <Route path="/alerts" element={<ProtectedRoute><Alerts /></ProtectedRoute>} />
+      <Route path="/payment-gateways" element={<ProtectedRoute><PaymentGateways /></ProtectedRoute>} />
+      <Route path="/ai-engines" element={<ProtectedRoute><AIEngines /></ProtectedRoute>} />
+      <Route path="/advanced-analytics" element={<ProtectedRoute><AdvancedAnalytics /></ProtectedRoute>} />
       <Route path="/shopping/*" element={<ProtectedRoute><ShoppingService /></ProtectedRoute>} />
       <Route path="/delivery/*" element={<ProtectedRoute><DeliveryService /></ProtectedRoute>} />
       <Route path="/food/*" element={<ProtectedRoute><FoodService /></ProtectedRoute>} />
