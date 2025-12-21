@@ -273,11 +273,129 @@ const AIEngines = () => {
       )}
 
       {activeTab === 'pricing' && (
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6">
-          <h2 className="text-xl font-bold text-gray-800 dark:text-white mb-6">💰 تحسين الأسعار بالذكاء الاصطناعي</h2>
-          <div className="grid md:grid-cols-3 gap-4 mb-6">
-            <div className="bg-green-50 dark:bg-green-900/20 rounded-xl p-4">
-              <p className="text-green-600 text-sm">منتجات يُنصح بزيادة سعرها</p>
+        <div className="space-y-6">
+          {/* Header with Product Selector */}
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-xl font-bold text-gray-800 dark:text-white">💰 تحسين الأسعار بالذكاء الاصطناعي</h2>
+              <select 
+                value={selectedProduct} 
+                onChange={(e) => setSelectedProduct(e.target.value)}
+                className="px-4 py-2 border rounded-lg bg-white dark:bg-gray-700"
+              >
+                <option value="iphone-15-pro">iPhone 15 Pro</option>
+                <option value="samsung-s24">Samsung Galaxy S24</option>
+                <option value="airpods-pro">AirPods Pro</option>
+                <option value="macbook-air">MacBook Air M3</option>
+                <option value="ps5">PlayStation 5</option>
+              </select>
+            </div>
+            
+            {/* Competitor Prices - Auto Fetched */}
+            <div className="mb-6">
+              <h3 className="font-bold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
+                <span>🔄</span> أسعار المنافسين (تحديث تلقائي كل ساعة)
+              </h3>
+              {competitorPrices && (
+                <div className="space-y-3">
+                  {competitorPrices.competitors?.map((comp, idx) => (
+                    <div key={idx} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
+                      <div className="flex items-center gap-3">
+                        <span className="text-2xl">{comp.icon}</span>
+                        <div>
+                          <p className="font-bold text-gray-800 dark:text-white">{comp.competitor_name}</p>
+                          <span className={`text-xs px-2 py-0.5 rounded-full ${comp.in_stock ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                            {comp.in_stock ? 'متوفر' : 'غير متوفر'}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-4">
+                        <p className="text-2xl font-bold text-gray-800 dark:text-white">{comp.price} ر.س</p>
+                        <span className={`px-2 py-1 rounded-full text-sm ${comp.price_change < 0 ? 'bg-red-100 text-red-700' : comp.price_change > 0 ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}`}>
+                          {comp.price_change > 0 ? '+' : ''}{comp.price_change}%
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                  {/* Analysis Summary */}
+                  <div className="grid grid-cols-4 gap-4 mt-4">
+                    <div className="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-3 text-center">
+                      <p className="text-blue-600 text-sm">أقل سعر</p>
+                      <p className="text-xl font-bold">{competitorPrices.analysis?.min_price} ر.س</p>
+                    </div>
+                    <div className="bg-purple-50 dark:bg-purple-900/20 rounded-xl p-3 text-center">
+                      <p className="text-purple-600 text-sm">أعلى سعر</p>
+                      <p className="text-xl font-bold">{competitorPrices.analysis?.max_price} ر.س</p>
+                    </div>
+                    <div className="bg-green-50 dark:bg-green-900/20 rounded-xl p-3 text-center">
+                      <p className="text-green-600 text-sm">المتوسط</p>
+                      <p className="text-xl font-bold">{competitorPrices.analysis?.avg_price} ر.س</p>
+                    </div>
+                    <div className="bg-yellow-50 dark:bg-yellow-900/20 rounded-xl p-3 text-center">
+                      <p className="text-yellow-600 text-sm">الأرخص</p>
+                      <p className="text-sm font-bold">{competitorPrices.analysis?.cheapest_competitor}</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Pricing Alerts */}
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6">
+            <h3 className="font-bold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
+              <span>🔔</span> تنبيهات تغير الأسعار
+            </h3>
+            <div className="space-y-3">
+              {pricingAlerts.map((alert) => (
+                <div key={alert.id} className={`p-4 rounded-xl border-r-4 ${alert.severity === 'high' ? 'bg-red-50 dark:bg-red-900/20 border-red-500' : alert.severity === 'medium' ? 'bg-yellow-50 dark:bg-yellow-900/20 border-yellow-500' : 'bg-blue-50 dark:bg-blue-900/20 border-blue-500'}`}>
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <p className="font-bold text-gray-800 dark:text-white">{alert.product}</p>
+                      <p className="text-sm text-gray-500">{alert.competitor} {alert.type === 'price_drop' ? `خفّض السعر من ${alert.old_price} إلى ${alert.new_price} ر.س` : alert.message}</p>
+                    </div>
+                    {alert.type === 'price_drop' && (
+                      <span className="px-3 py-1 bg-red-500 text-white rounded-full text-sm font-bold">{alert.change}%</span>
+                    )}
+                  </div>
+                  <div className="flex gap-2 mt-3">
+                    <button className="px-4 py-2 bg-purple-600 text-white rounded-lg text-sm hover:bg-purple-700">تطبيق السعر المقترح</button>
+                    <button className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm hover:bg-gray-300">تجاهل</button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Auto Pricing Rules */}
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="font-bold text-gray-800 dark:text-white flex items-center gap-2">
+                <span>⚙️</span> قواعد التسعير التلقائي
+              </h3>
+              <button className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700">+ قاعدة جديدة</button>
+            </div>
+            <div className="space-y-3">
+              {autoRules.map((rule) => (
+                <div key={rule.id} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
+                  <div>
+                    <p className="font-bold text-gray-800 dark:text-white">{rule.name}</p>
+                    <p className="text-sm text-gray-500">{rule.products_affected} منتج متأثر</p>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <span className={`px-3 py-1 rounded-full text-sm ${rule.auto_apply ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}`}>
+                      {rule.auto_apply ? '✓ تطبيق تلقائي' : 'يدوي'}
+                    </span>
+                    <button className={`w-12 h-6 rounded-full transition-all relative ${rule.status === 'active' ? 'bg-green-500' : 'bg-gray-300'}`}>
+                      <span className={`absolute top-0.5 w-5 h-5 bg-white rounded-full transition-all ${rule.status === 'active' ? 'right-0.5' : 'left-0.5'}`}></span>
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
               <p className="text-3xl font-bold text-gray-800 dark:text-white">45</p>
             </div>
             <div className="bg-red-50 dark:bg-red-900/20 rounded-xl p-4">
