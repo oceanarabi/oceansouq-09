@@ -85,37 +85,105 @@ class OceanPhase3AITester:
             print(f"❌ Authentication failed")
             return False
 
-    def test_security_module(self):
-        """Test Security Module APIs"""
-        print("\n🛡️ Testing Security Module...")
+    def test_ai_recommendations(self):
+        """Test AI Recommendations Engine"""
+        print("\n🎯 Testing AI Recommendations Engine...")
         
-        # Test security dashboard
-        self.run_test("Security Dashboard", "GET", "api/security/dashboard", 200)
+        # Test personalized recommendations
+        self.run_test("Personalized Recommendations", "POST", "api/ai-advanced/recommendations/personalized", 200, {
+            "user_id": "USR-001",
+            "current_page": "homepage",
+            "cart_items": [],
+            "browsing_history": []
+        })
         
-        # Test fraud alerts
-        self.run_test("Fraud Alerts", "GET", "api/security/fraud-alerts", 200)
+        # Test similar products
+        self.run_test("Similar Products", "GET", "api/ai-advanced/recommendations/similar/iphone-15-pro", 200)
         
-        # Test fraud alerts with filters
-        self.run_test("Fraud Alerts - High Severity", "GET", "api/security/fraud-alerts?severity=high", 200)
-        self.run_test("Fraud Alerts - Pending Status", "GET", "api/security/fraud-alerts?status=pending", 200)
+        # Test frequently bought together
+        self.run_test("Frequently Bought Together", "GET", "api/ai-advanced/recommendations/frequently-bought/iphone-15-pro", 200)
         
-        # Test blocked entities
-        self.run_test("Blocked Entities", "GET", "api/security/blocked-entities", 200)
+        # Test trending products
+        self.run_test("Trending Products", "GET", "api/ai-advanced/recommendations/trending", 200)
         
-        # Test risk scores
-        self.run_test("Risk Scores", "GET", "api/security/risk-scores", 200)
+        # Test trending with filters
+        self.run_test("Trending Products - Electronics", "GET", "api/ai-advanced/recommendations/trending?category=electronics", 200)
+
+    def test_ai_fraud_detection(self):
+        """Test AI Fraud Detection Engine"""
+        print("\n🛡️ Testing AI Fraud Detection Engine...")
         
-        # Test suspicious activities
-        self.run_test("Suspicious Activities", "GET", "api/security/suspicious-activities", 200)
+        # Test fraud dashboard
+        self.run_test("Fraud Dashboard", "GET", "api/ai-advanced/fraud/dashboard", 200)
+        
+        # Test fraud analysis
+        self.run_test("Fraud Analysis", "POST", "api/ai-advanced/fraud/analyze", 200, {
+            "transaction_id": "TXN-12345",
+            "amount": 1500.0,
+            "currency": "SAR",
+            "payment_method": "visa",
+            "customer_id": "CUST-001",
+            "ip_address": "192.168.1.1"
+        })
         
         # Test fraud rules
-        self.run_test("Fraud Rules", "GET", "api/security/fraud-rules", 200)
+        self.run_test("Fraud Rules", "GET", "api/ai-advanced/fraud/rules", 200)
         
-        # Test audit logs
-        self.run_test("Audit Logs", "GET", "api/security/audit-logs", 200)
+        # Test create fraud rule
+        self.run_test("Create Fraud Rule", "POST", "api/ai-advanced/fraud/rules", 200, None, {
+            "name": "Test Rule",
+            "condition": "amount > 5000",
+            "action": "review"
+        })
+
+    def test_ai_sentiment_analysis(self):
+        """Test AI Sentiment Analysis Engine"""
+        print("\n😊 Testing AI Sentiment Analysis Engine...")
         
-        # Test audit logs with pagination
-        self.run_test("Audit Logs - Paginated", "GET", "api/security/audit-logs?limit=10&offset=0", 200)
+        # Test reviews sentiment analysis
+        self.run_test("Reviews Sentiment Analysis", "GET", "api/ai-advanced/sentiment/reviews-analysis", 200)
+        
+        # Test reviews sentiment with filters
+        self.run_test("Reviews Sentiment - 30 days", "GET", "api/ai-advanced/sentiment/reviews-analysis?period=30d", 200)
+        
+        # Test single text analysis
+        self.run_test("Single Text Analysis", "POST", "api/ai-advanced/sentiment/analyze", 200, {
+            "text": "هذا المنتج ممتاز وجودته عالية",
+            "language": "ar",
+            "context": "review"
+        })
+        
+        # Test batch sentiment analysis
+        self.run_test("Batch Sentiment Analysis", "POST", "api/ai-advanced/sentiment/batch", 200, [
+            "منتج رائع وسريع التوصيل",
+            "الخدمة سيئة والمنتج معطل",
+            "جودة متوسطة والسعر مناسب"
+        ])
+
+    def test_ai_demand_forecasting(self):
+        """Test AI Demand Forecasting Engine"""
+        print("\n📈 Testing AI Demand Forecasting Engine...")
+        
+        # Test demand insights
+        self.run_test("Demand Insights", "GET", "api/ai-advanced/demand/insights", 200)
+        
+        # Test demand forecast
+        self.run_test("Demand Forecast", "POST", "api/ai-advanced/demand/forecast", 200, {
+            "product_id": "iphone-15-pro",
+            "forecast_days": 30,
+            "include_seasonality": True,
+            "include_trends": True
+        })
+
+    def test_ai_customer_segmentation(self):
+        """Test AI Customer Segmentation Engine"""
+        print("\n👥 Testing AI Customer Segmentation Engine...")
+        
+        # Test segmentation overview
+        self.run_test("Segmentation Overview", "GET", "api/ai-advanced/segmentation/overview", 200)
+        
+        # Test individual customer segment
+        self.run_test("Customer Segment Analysis", "GET", "api/ai-advanced/segmentation/customer/CUST-001", 200)
 
     def test_finance_module(self):
         """Test Finance Module APIs"""
