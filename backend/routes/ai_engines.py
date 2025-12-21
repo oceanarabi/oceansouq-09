@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, Depends, Header
 from pydantic import BaseModel
 from typing import Optional, List, Dict
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 import jwt
 import os
 from uuid import uuid4
@@ -28,16 +28,122 @@ class PricingRequest(BaseModel):
     competitor_prices: Optional[List[float]] = []
     target_margin: Optional[float] = 15.0
 
+class AutoPricingRule(BaseModel):
+    product_id: Optional[str] = None
+    category: Optional[str] = None
+    min_margin: float = 10.0
+    max_margin: float = 30.0
+    match_competitor: bool = True  # تطابق أقل سعر منافس
+    undercut_percentage: float = 0  # نسبة أقل من المنافس
+    auto_apply: bool = False  # تطبيق تلقائي
+    schedule: str = "daily"  # daily, hourly, realtime
+
+class CompetitorTrackRequest(BaseModel):
+    product_id: str
+    competitors: List[str]  # قائمة المنافسين للتتبع
+
 class SEORequest(BaseModel):
     product_id: str
     title: str
     description: str
     category: str
+    language: str = "ar"  # ar, en, fr, de, tr, ur
+
+class MultiLangSEORequest(BaseModel):
+    product_id: str
+    title: str
+    description: str
+    category: str
+    languages: List[str] = ["ar", "en"]  # اللغات المطلوبة
 
 class RecommendationRequest(BaseModel):
     user_id: str
     context: str = "homepage"  # homepage, cart, product_page
     limit: int = 10
+
+# ==================== COMPETITOR DATA SIMULATION ====================
+
+COMPETITORS_DB = {
+    "amazon.sa": {"name": "أمازون السعودية", "icon": "🛒", "reliability": 95},
+    "noon.com": {"name": "نون", "icon": "🟡", "reliability": 92},
+    "extra.com": {"name": "اكسترا", "icon": "🔵", "reliability": 90},
+    "jarir.com": {"name": "جرير", "icon": "📚", "reliability": 94},
+    "lulu.com": {"name": "لولو", "icon": "🟢", "reliability": 88},
+    "carrefour.sa": {"name": "كارفور", "icon": "🔴", "reliability": 87},
+    "panda.com.sa": {"name": "بنده", "icon": "🐼", "reliability": 85},
+}
+
+# محاكاة قاعدة بيانات أسعار المنافسين
+def get_competitor_prices(product_id: str):
+    """محاكاة جلب أسعار المنافسين من الويب"""
+    base_prices = {
+        "iphone-15-pro": 4999,
+        "samsung-s24": 3499,
+        "airpods-pro": 999,
+        "macbook-air": 5499,
+        "ps5": 2199,
+        "xbox-series-x": 2099,
+    }
+    base = base_prices.get(product_id, random.randint(100, 5000))
+    
+    prices = []
+    for comp_id, comp_info in COMPETITORS_DB.items():
+        variation = random.uniform(-0.15, 0.15)  # ±15% من السعر الأساسي
+        price = round(base * (1 + variation), 2)
+        prices.append({
+            "competitor_id": comp_id,
+            "competitor_name": comp_info["name"],
+            "icon": comp_info["icon"],
+            "price": price,
+            "currency": "SAR",
+            "in_stock": random.random() > 0.2,
+            "last_updated": datetime.now(timezone.utc).isoformat(),
+            "price_change": round(random.uniform(-5, 5), 1),  # تغير السعر %
+            "url": f"https://{comp_id}/product/{product_id}"
+        })
+    
+    return sorted(prices, key=lambda x: x["price"])
+
+# ==================== MULTILINGUAL SEO DATA ====================
+
+SEO_TEMPLATES = {
+    "ar": {
+        "suffix": "أفضل سعر في السعودية | شحن مجاني | ضمان",
+        "features": ["✓ ضمان سنتين", "✓ شحن سريع", "✓ الدفع عند الاستلام", "✓ إرجاع مجاني"],
+        "keywords": ["شراء أونلاين", "توصيل سريع", "ضمان", "أفضل سعر", "عروض"],
+        "schema_locale": "ar-SA"
+    },
+    "en": {
+        "suffix": "Best Price in Saudi Arabia | Free Shipping | Warranty",
+        "features": ["✓ 2-Year Warranty", "✓ Fast Delivery", "✓ Cash on Delivery", "✓ Free Returns"],
+        "keywords": ["buy online", "fast delivery", "warranty", "best price", "deals"],
+        "schema_locale": "en-SA"
+    },
+    "fr": {
+        "suffix": "Meilleur prix | Livraison gratuite | Garantie",
+        "features": ["✓ Garantie 2 ans", "✓ Livraison rapide", "✓ Paiement à la livraison", "✓ Retours gratuits"],
+        "keywords": ["acheter en ligne", "livraison rapide", "garantie", "meilleur prix", "offres"],
+        "schema_locale": "fr-SA"
+    },
+    "de": {
+        "suffix": "Bester Preis | Kostenloser Versand | Garantie",
+        "features": ["✓ 2 Jahre Garantie", "✓ Schnelle Lieferung", "✓ Nachnahme", "✓ Kostenlose Rückgabe"],
+        "keywords": ["online kaufen", "schnelle lieferung", "garantie", "bester preis", "angebote"],
+        "schema_locale": "de-SA"
+    },
+    "tr": {
+        "suffix": "En İyi Fiyat | Ücretsiz Kargo | Garanti",
+        "features": ["✓ 2 Yıl Garanti", "✓ Hızlı Teslimat", "✓ Kapıda Ödeme", "✓ Ücretsiz İade"],
+        "keywords": ["online satın al", "hızlı teslimat", "garanti", "en iyi fiyat", "fırsatlar"],
+        "schema_locale": "tr-SA"
+    },
+    "ur": {
+        "suffix": "بہترین قیمت | مفت شپنگ | گارنٹی",
+        "features": ["✓ دو سال کی گارنٹی", "✓ تیز ترسیل", "✓ کیش آن ڈیلیوری", "✓ مفت واپسی"],
+        "keywords": ["آن لائن خریدیں", "تیز ترسیل", "گارنٹی", "بہترین قیمت", "پیشکش"],
+        "schema_locale": "ur-SA"
+    }
+}
 
 # Token verification
 async def verify_admin_token(authorization: str = Header(None)):
