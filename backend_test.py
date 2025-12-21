@@ -5,7 +5,7 @@ import sys
 import json
 from datetime import datetime
 
-class OceanPhase1APITester:
+class OceanPhase3AITester:
     def __init__(self, base_url="https://aiocean.preview.emergentagent.com"):
         self.base_url = base_url
         self.token = None
