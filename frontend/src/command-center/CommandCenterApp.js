@@ -19,6 +19,10 @@ import Users from './pages/Users';
 import Settings from './pages/Settings';
 import Login from './pages/Login';
 import LiveMap from './pages/LiveMap';
+import Security from './pages/Security';
+import Finance from './pages/Finance';
+import Reports from './pages/Reports';
+import Alerts from './pages/Alerts';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
 
@@ -52,8 +56,12 @@ const Sidebar = ({ services, collapsed, setCollapsed }) => {
     { path: '/command', icon: '🏠', label: 'الرئيسية', labelEn: 'Dashboard' },
     { path: '/command/live-map', icon: '🗺️', label: 'الخريطة الحية', labelEn: 'Live Map' },
     { path: '/command/services', icon: '⚙️', label: 'إدارة الخدمات', labelEn: 'Services' },
+    { path: '/command/security', icon: '🛡️', label: 'الأمان', labelEn: 'Security' },
+    { path: '/command/finance', icon: '💰', label: 'المالية', labelEn: 'Finance' },
+    { path: '/command/reports', icon: '📊', label: 'التقارير', labelEn: 'Reports' },
+    { path: '/command/alerts', icon: '🔔', label: 'التنبيهات', labelEn: 'Alerts' },
     { path: '/command/ai', icon: '🤖', label: 'مركز AI', labelEn: 'AI Center' },
-    { path: '/command/analytics', icon: '📊', label: 'التحليلات', labelEn: 'Analytics' },
+    { path: '/command/analytics', icon: '📈', label: 'التحليلات', labelEn: 'Analytics' },
     { path: '/command/users', icon: '👥', label: 'المستخدمين', labelEn: 'Users' },
     { path: '/command/settings', icon: '🔧', label: 'الإعدادات', labelEn: 'Settings' },
   ];
@@ -242,6 +250,10 @@ const CommandCenterApp = () => {
       <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
       <Route path="/live-map" element={<ProtectedRoute><LiveMap /></ProtectedRoute>} />
       <Route path="/services" element={<ProtectedRoute><ServicesManager /></ProtectedRoute>} />
+      <Route path="/security" element={<ProtectedRoute><Security /></ProtectedRoute>} />
+      <Route path="/finance" element={<ProtectedRoute><Finance /></ProtectedRoute>} />
+      <Route path="/reports" element={<ProtectedRoute><Reports /></ProtectedRoute>} />
+      <Route path="/alerts" element={<ProtectedRoute><Alerts /></ProtectedRoute>} />
       <Route path="/shopping/*" element={<ProtectedRoute><ShoppingService /></ProtectedRoute>} />
       <Route path="/delivery/*" element={<ProtectedRoute><DeliveryService /></ProtectedRoute>} />
       <Route path="/food/*" element={<ProtectedRoute><FoodService /></ProtectedRoute>} />
