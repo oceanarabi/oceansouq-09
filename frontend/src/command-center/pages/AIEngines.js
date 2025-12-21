@@ -59,6 +59,88 @@ const AIEngines = () => {
     }
   };
 
+  const fetchCompetitorPrices = async (productId) => {
+    try {
+      const token = localStorage.getItem('token') || localStorage.getItem('commandToken');
+      const res = await axios.get(`${API_URL}/api/ai-engines/pricing/competitors/${productId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setCompetitorPrices(res.data);
+    } catch (err) {
+      // Demo data
+      setCompetitorPrices({
+        product_id: productId,
+        competitors: [
+          { competitor_name: 'أمازون السعودية', icon: '🛒', price: 4799, price_change: -3.2, in_stock: true },
+          { competitor_name: 'نون', icon: '🟡', price: 4899, price_change: 0, in_stock: true },
+          { competitor_name: 'جرير', icon: '📚', price: 4999, price_change: 2.1, in_stock: true },
+          { competitor_name: 'اكسترا', icon: '🔵', price: 5099, price_change: -1.5, in_stock: false },
+        ],
+        analysis: { min_price: 4799, max_price: 5099, avg_price: 4949, cheapest_competitor: 'أمازون السعودية' }
+      });
+    }
+  };
+
+  const fetchPricingAlerts = async () => {
+    try {
+      const token = localStorage.getItem('token') || localStorage.getItem('commandToken');
+      const res = await axios.get(`${API_URL}/api/ai-engines/pricing/alerts`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setPricingAlerts(res.data.alerts || []);
+    } catch (err) {
+      setPricingAlerts([
+        { id: 'ALT-001', type: 'price_drop', severity: 'high', product: 'iPhone 15 Pro', competitor: 'أمازون', old_price: 5199, new_price: 4799, change: -7.7 },
+        { id: 'ALT-002', type: 'out_of_stock', severity: 'medium', product: 'AirPods Pro', competitor: 'نون', message: 'فرصة لزيادة السعر' },
+      ]);
+    }
+  };
+
+  const fetchAutoRules = async () => {
+    try {
+      const token = localStorage.getItem('token') || localStorage.getItem('commandToken');
+      const res = await axios.get(`${API_URL}/api/ai-engines/pricing/auto-rules`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setAutoRules(res.data.rules || []);
+    } catch (err) {
+      setAutoRules([
+        { id: 'APR-001', name: 'مطابقة أقل سعر - إلكترونيات', category: 'electronics', auto_apply: true, status: 'active', products_affected: 156 },
+        { id: 'APR-002', name: 'تسعير ديناميكي - أزياء', category: 'fashion', auto_apply: false, status: 'active', products_affected: 892 },
+      ]);
+    }
+  };
+
+  const fetchSeoLanguages = async () => {
+    try {
+      const token = localStorage.getItem('token') || localStorage.getItem('commandToken');
+      const res = await axios.get(`${API_URL}/api/ai-engines/seo/supported-languages`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setSeoLanguages(res.data.supported_languages || []);
+    } catch (err) {
+      setSeoLanguages([
+        { code: 'ar', name: 'العربية', markets: ['🇸🇦 السعودية', '🇦🇪 الإمارات', '🇪🇬 مصر'] },
+        { code: 'en', name: 'English', markets: ['🇸🇦 السعودية', '🇦🇪 الإمارات', '🌍 عالمي'] },
+        { code: 'fr', name: 'Français', markets: ['🇲🇦 المغرب', '🇩🇿 الجزائر'] },
+        { code: 'ur', name: 'اردو', markets: ['🇸🇦 السعودية', '🇵🇰 باكستان'] },
+        { code: 'tr', name: 'Türkçe', markets: ['🇹🇷 تركيا'] },
+        { code: 'de', name: 'Deutsch', markets: ['🇩🇪 ألمانيا'] },
+      ]);
+    }
+  };
+
+  useEffect(() => {
+    if (activeTab === 'pricing') {
+      fetchCompetitorPrices(selectedProduct);
+      fetchPricingAlerts();
+      fetchAutoRules();
+    }
+    if (activeTab === 'seo') {
+      fetchSeoLanguages();
+    }
+  }, [activeTab, selectedProduct]);
+
   const getStatusColor = (status) => {
     if (status === 'active' || status === 'healthy') return 'bg-green-500';
     if (status === 'warning') return 'bg-yellow-500';
@@ -104,7 +186,7 @@ const AIEngines = () => {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-2 border-b border-gray-200 dark:border-gray-700">
+      <div className="flex gap-2 border-b border-gray-200 dark:border-gray-700 overflow-x-auto">
         {[
           { id: 'dashboard', label: 'نظرة عامة', icon: '📊' },
           { id: 'engines', label: 'المحركات', icon: '⚙️' },
@@ -115,7 +197,7 @@ const AIEngines = () => {
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className={`px-6 py-3 font-medium transition-all border-b-2 ${activeTab === tab.id ? 'border-purple-500 text-purple-600' : 'border-transparent text-gray-500 hover:text-gray-700'}`}
+            className={`px-6 py-3 font-medium transition-all border-b-2 whitespace-nowrap ${activeTab === tab.id ? 'border-purple-500 text-purple-600' : 'border-transparent text-gray-500 hover:text-gray-700'}`}
           >
             <span className="ml-2">{tab.icon}</span>
             {tab.label}
