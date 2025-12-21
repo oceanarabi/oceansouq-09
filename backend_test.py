@@ -187,119 +187,40 @@ class OceanPhase3AITester:
         # Test individual customer segment
         self.run_test("Customer Segment Analysis", "GET", "api/ai-advanced/segmentation/customer/CUST-001", 200)
 
-    def test_finance_module(self):
-        """Test Finance Module APIs"""
-        print("\n💰 Testing Finance Module...")
-        
-        # Test finance dashboard
-        self.run_test("Finance Dashboard", "GET", "api/finance/dashboard", 200)
-        
-        # Test revenue endpoints
-        self.run_test("Revenue - Month", "GET", "api/finance/revenue?period=month", 200)
-        self.run_test("Revenue - Week", "GET", "api/finance/revenue?period=week", 200)
-        self.run_test("Revenue - Day", "GET", "api/finance/revenue?period=day", 200)
-        
-        # Test revenue chart
-        self.run_test("Revenue Chart", "GET", "api/finance/revenue/chart?period=month", 200)
-        
-        # Test payment gateways
-        self.run_test("Payment Gateways", "GET", "api/finance/gateways", 200)
-        
-        # Test settlements
-        self.run_test("Settlements", "GET", "api/finance/settlements", 200)
-        self.run_test("Settlements - Pending", "GET", "api/finance/settlements?status=pending", 200)
-        
-        # Test refunds
-        self.run_test("Refunds", "GET", "api/finance/refunds", 200)
-        self.run_test("Refunds - Pending", "GET", "api/finance/refunds?status=pending", 200)
-        
-        # Test tax reports
-        self.run_test("Tax Report", "GET", "api/finance/tax", 200)
-        self.run_test("Tax Invoices", "GET", "api/finance/tax/invoices", 200)
-
-    def test_reports_module(self):
-        """Test Reports Module APIs"""
-        print("\n📊 Testing Reports Module...")
-        
-        # Test reports dashboard
-        self.run_test("Reports Dashboard", "GET", "api/reports/dashboard", 200)
-        
-        # Test report templates
-        self.run_test("Report Templates", "GET", "api/reports/templates", 200)
-        
-        # Test scheduled reports
-        self.run_test("Scheduled Reports", "GET", "api/reports/scheduled", 200)
-        
-        # Test historical analysis
-        self.run_test("Historical Analysis", "GET", "api/reports/historical", 200)
-        self.run_test("Historical Analysis - Revenue", "GET", "api/reports/historical?metric=revenue&period=12months", 200)
-        
-        # Test forecast
-        self.run_test("Forecast", "GET", "api/reports/forecast", 200)
-        self.run_test("Forecast - 6 months", "GET", "api/reports/forecast?metric=revenue&months=6", 200)
-        
-        # Test report generation
-        self.run_test("Generate Sales Report", "POST", "api/reports/generate", 200, {
-            "report_type": "sales_summary",
-            "date_from": "2024-01-01",
-            "date_to": "2024-01-15",
-            "format": "json"
-        })
-        
-        # Test report generation - different types
-        self.run_test("Generate Seller Performance Report", "POST", "api/reports/generate", 200, {
-            "report_type": "seller_performance",
-            "date_from": "2024-01-01",
-            "date_to": "2024-01-15",
-            "format": "json"
-        })
-
-    def test_alerts_module(self):
-        """Test Alerts Module APIs"""
-        print("\n🔔 Testing Alerts Module...")
-        
-        # Test alerts dashboard
-        self.run_test("Alerts Dashboard", "GET", "api/alerts/dashboard", 200)
-        
-        # Test active alerts
-        self.run_test("Active Alerts", "GET", "api/alerts/active", 200)
-        self.run_test("Active Alerts - Critical", "GET", "api/alerts/active?severity=critical", 200)
-        self.run_test("Active Alerts - High", "GET", "api/alerts/active?severity=high", 200)
-        
-        # Test alert rules
-        self.run_test("Alert Rules", "GET", "api/alerts/rules", 200)
-        
-        # Test incidents
-        self.run_test("Incidents", "GET", "api/alerts/incidents", 200)
-        self.run_test("Incidents - Open", "GET", "api/alerts/incidents?status=open", 200)
-        
-        # Test notification channels
-        self.run_test("Notification Channels", "GET", "api/alerts/channels", 200)
-
     def test_integration_endpoints(self):
-        """Test some integration scenarios"""
-        print("\n🔗 Testing Integration Scenarios...")
+        """Test AI integration scenarios"""
+        print("\n🔗 Testing AI Integration Scenarios...")
         
-        # Test cross-module data consistency
-        # Get security dashboard and check if it has valid data structure
-        success, security_data = self.run_test("Security Dashboard Data Structure", "GET", "api/security/dashboard", 200)
-        if success and security_data:
-            if 'overview' in security_data and 'stats_24h' in security_data:
-                self.log_result("Security Dashboard Structure", True)
+        # Test recommendations data structure
+        success, rec_data = self.run_test("Recommendations Data Structure", "POST", "api/ai-advanced/recommendations/personalized", 200, {
+            "user_id": "USR-001",
+            "current_page": "homepage"
+        })
+        if success and rec_data:
+            if 'recommendations' in rec_data and 'user_profile' in rec_data:
+                self.log_result("Recommendations Structure", True)
             else:
-                self.log_result("Security Dashboard Structure", False, None, "Missing required fields")
+                self.log_result("Recommendations Structure", False, None, "Missing required fields")
         
-        # Test finance dashboard data structure
-        success, finance_data = self.run_test("Finance Dashboard Data Structure", "GET", "api/finance/dashboard", 200)
-        if success and finance_data:
-            if 'overview' in finance_data:
-                self.log_result("Finance Dashboard Structure", True)
+        # Test fraud dashboard data structure
+        success, fraud_data = self.run_test("Fraud Dashboard Data Structure", "GET", "api/ai-advanced/fraud/dashboard", 200)
+        if success and fraud_data:
+            if 'overview' in fraud_data and 'fraud_types' in fraud_data:
+                self.log_result("Fraud Dashboard Structure", True)
             else:
-                self.log_result("Finance Dashboard Structure", False, None, "Missing overview field")
+                self.log_result("Fraud Dashboard Structure", False, None, "Missing required fields")
+        
+        # Test sentiment analysis data structure
+        success, sentiment_data = self.run_test("Sentiment Analysis Data Structure", "GET", "api/ai-advanced/sentiment/reviews-analysis", 200)
+        if success and sentiment_data:
+            if 'sentiment_distribution' in sentiment_data and 'top_positive_aspects' in sentiment_data:
+                self.log_result("Sentiment Analysis Structure", True)
+            else:
+                self.log_result("Sentiment Analysis Structure", False, None, "Missing required fields")
 
     def run_all_tests(self):
-        """Run all Phase 1 API tests"""
-        print("🌊 Ocean Super App - Phase 1 Core Features API Testing")
+        """Run all Phase 3 AI API tests"""
+        print("🌊 Ocean Super App - Phase 3 AI Features API Testing")
         print("=" * 60)
         
         # Authenticate first
@@ -307,11 +228,12 @@ class OceanPhase3AITester:
             print("❌ Cannot proceed without authentication")
             return False
         
-        # Test all modules
-        self.test_security_module()
-        self.test_finance_module()
-        self.test_reports_module()
-        self.test_alerts_module()
+        # Test all AI modules
+        self.test_ai_recommendations()
+        self.test_ai_fraud_detection()
+        self.test_ai_sentiment_analysis()
+        self.test_ai_demand_forecasting()
+        self.test_ai_customer_segmentation()
         self.test_integration_endpoints()
         
         # Print summary
@@ -330,7 +252,7 @@ class OceanPhase3AITester:
         return len(self.failed_tests) == 0
 
 def main():
-    tester = OceanPhase1APITester()
+    tester = OceanPhase3AITester()
     success = tester.run_all_tests()
     return 0 if success else 1
 
