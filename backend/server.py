@@ -39,6 +39,7 @@ from routes.alerts import router as alerts_router, set_db as set_alerts_db
 from routes.payment_gateways import router as payment_gateways_router, set_db as set_payment_gateways_db
 from routes.ai_engines import router as ai_engines_router, set_db as set_ai_engines_db
 from routes.advanced_analytics import router as advanced_analytics_router, set_db as set_advanced_analytics_db
+from routes.ai_advanced import router as ai_advanced_router, set_db as set_ai_advanced_db
 
 # CORS Configuration
 app.add_middleware(
@@ -139,6 +140,9 @@ set_ai_engines_db(db)
 # Set database for advanced analytics routes
 set_advanced_analytics_db(db)
 
+# Set database for AI advanced routes
+set_ai_advanced_db(db)
+
 # Include admin router
 app.include_router(admin_router)
 
@@ -204,6 +208,9 @@ app.include_router(ai_engines_router)
 
 # Include advanced analytics routes
 app.include_router(advanced_analytics_router)
+
+# Include AI advanced routes
+app.include_router(ai_advanced_router)
 
 # JWT Configuration
 JWT_SECRET = os.environ.get('JWT_SECRET', 'oceansouq-secret-key-change-in-production')
