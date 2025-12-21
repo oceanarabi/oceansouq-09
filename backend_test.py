@@ -29,18 +29,20 @@ class OceanPhase3AITester:
                 "response": response_data
             })
 
-    def run_test(self, name, method, endpoint, expected_status, data=None, headers=None):
+    def run_test(self, name, method, endpoint, expected_status, data=None, params=None):
         """Run a single API test"""
         url = f"{self.base_url}/{endpoint}"
         test_headers = self.session.headers.copy()
-        if headers:
-            test_headers.update(headers)
         
         try:
             if method == 'GET':
-                response = self.session.get(url, headers=test_headers)
+                response = self.session.get(url, headers=test_headers, params=params)
             elif method == 'POST':
-                response = self.session.post(url, json=data, headers=test_headers)
+                if params:
+                    # Handle query parameters for POST requests
+                    response = self.session.post(url, json=data, headers=test_headers, params=params)
+                else:
+                    response = self.session.post(url, json=data, headers=test_headers)
             elif method == 'PUT':
                 response = self.session.put(url, json=data, headers=test_headers)
             elif method == 'DELETE':
