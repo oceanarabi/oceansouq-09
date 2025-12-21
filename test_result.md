@@ -1,57 +1,23 @@
-# Ocean Super App - Testing Protocol
+# Ocean Super App - Phase 1 Testing
 
-## Last Updated: 2024-01-19
+## Test Scope
+Testing the newly integrated Command Center modules:
+1. Security Module (/api/security/*)
+2. Finance Module (/api/finance/*)
+3. Reports Module (/api/reports/*)
+4. Alerts Module (/api/alerts/*)
 
-## Current Testing Focus
-- Captain (Rides) Dashboard - NEW
-- Hotel Dashboard - NEW
+## Testing Instructions
+- Login credentials: admin@ocean.com / admin123
+- Test all 4 new modules in Command Center
+- Verify API endpoints return correct data
+- Check frontend pages load correctly
 
-## Features to Test
+## Expected Results
+- All API endpoints should return 200 status
+- Frontend pages should display data correctly
+- Navigation should work between modules
 
-### Captain Dashboard (/captain)
-1. Login: captain@ocean.com / captain123
-2. Dashboard with stats (rides, earnings, rating)
-3. Online/Offline toggle
-4. Rides page
-5. Earnings page with charts
-6. History page
-7. Ratings page with reviews
-8. Settings page
-
-### Hotel Dashboard (/hotel)
-1. Login: hotel@ocean.com / hotel123
-2. Dashboard with stats (bookings, revenue, occupancy)
-3. Available/Not available toggle
-4. Room availability chart
-5. Pending bookings list
-6. Bookings management page
-7. Rooms management page
-8. Analytics page with charts
-9. Reviews page
-10. Settings page
-
-## API Endpoints to Test
-- POST /api/captain/auth/login
-- GET /api/captain/dashboard
-- POST /api/captain/status
-- GET /api/captain/rides
-- GET /api/captain/earnings
-- GET /api/captain/ratings
-- GET /api/captain/history
-
-- POST /api/hotel/auth/login
-- GET /api/hotel/dashboard
-- POST /api/hotel/status
-- GET /api/hotel/bookings
-- GET /api/hotel/rooms
-- GET /api/hotel/analytics
-- GET /api/hotel/reviews
-
-## Test Credentials
-- Captain: captain@ocean.com / captain123
-- Hotel: hotel@ocean.com / hotel123
-
-## Incorporate User Feedback
-- Test RTL (Arabic) layout support
-- Test responsive design
-
+## Test Files
+- Backend routes: /app/backend/routes/{security,finance,reports,alerts}.py
+- Frontend pages: /app/frontend/src/command-center/pages/{Security,Finance,Reports,Alerts}.js
