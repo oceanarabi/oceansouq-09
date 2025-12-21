@@ -26,6 +26,7 @@ import Alerts from './pages/Alerts';
 import PaymentGateways from './pages/PaymentGateways';
 import AIEngines from './pages/AIEngines';
 import AdvancedAnalytics from './pages/AdvancedAnalytics';
+import AIAdvanced from './pages/AIAdvanced';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
 
@@ -65,6 +66,7 @@ const Sidebar = ({ services, collapsed, setCollapsed }) => {
     { path: '/command/reports', icon: '📊', label: 'التقارير', labelEn: 'Reports' },
     { path: '/command/alerts', icon: '🔔', label: 'التنبيهات', labelEn: 'Alerts' },
     { path: '/command/ai-engines', icon: '🧠', label: 'محركات AI', labelEn: 'AI Engines' },
+    { path: '/command/ai-advanced', icon: '🚀', label: 'AI متقدم', labelEn: 'AI Advanced' },
     { path: '/command/ai', icon: '🤖', label: 'مساعد AI', labelEn: 'AI Assistant' },
     { path: '/command/advanced-analytics', icon: '📈', label: 'تحليلات متقدمة', labelEn: 'Advanced Analytics' },
     { path: '/command/users', icon: '👥', label: 'المستخدمين', labelEn: 'Users' },
@@ -261,6 +263,7 @@ const CommandCenterApp = () => {
       <Route path="/alerts" element={<ProtectedRoute><Alerts /></ProtectedRoute>} />
       <Route path="/payment-gateways" element={<ProtectedRoute><PaymentGateways /></ProtectedRoute>} />
       <Route path="/ai-engines" element={<ProtectedRoute><AIEngines /></ProtectedRoute>} />
+      <Route path="/ai-advanced" element={<ProtectedRoute><AIAdvanced /></ProtectedRoute>} />
       <Route path="/advanced-analytics" element={<ProtectedRoute><AdvancedAnalytics /></ProtectedRoute>} />
       <Route path="/shopping/*" element={<ProtectedRoute><ShoppingService /></ProtectedRoute>} />
       <Route path="/delivery/*" element={<ProtectedRoute><DeliveryService /></ProtectedRoute>} />
