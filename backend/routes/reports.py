@@ -310,14 +310,18 @@ async def get_forecast(user = Depends(verify_admin_token), metric: str = "revenu
     predictions = []
     base = 3200000
     
+    month_names = ["فبراير", "مارس", "أبريل", "مايو", "يونيو", "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر", "يناير"]
+    
+    # Limit months to available month names
+    months = min(months, len(month_names))
+    
     for i in range(months):
-        month_names = ["فبراير", "مارس", "أبريل", "مايو", "يونيو"]
         growth = 1.08 + (i * 0.02)
         predicted = base * growth
         predictions.append({
             "month": month_names[i],
             "predicted_value": round(predicted),
-            "confidence": 95 - (i * 5),
+            "confidence": max(60, 95 - (i * 5)),
             "range": {
                 "low": round(predicted * 0.9),
                 "high": round(predicted * 1.1)
