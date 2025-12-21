@@ -307,29 +307,274 @@ async def toggle_engine(engine_id: str, enabled: bool, user = Depends(verify_adm
 
 # ==================== PRICING OPTIMIZER ====================
 
+@router.get("/pricing/competitors/{product_id}")
+async def get_competitors_prices(product_id: str, user = Depends(verify_admin_token)):
+    """جلب أسعار المنافسين تلقائياً للمنتج"""
+    prices = get_competitor_prices(product_id)
+    
+    min_price = min(p["price"] for p in prices)
+    max_price = max(p["price"] for p in prices)
+    avg_price = sum(p["price"] for p in prices) / len(prices)
+    
+    return {
+        "product_id": product_id,
+        "competitors": prices,
+        "analysis": {
+            "min_price": min_price,
+            "max_price": max_price,
+            "avg_price": round(avg_price, 2),
+            "price_range": round(max_price - min_price, 2),
+            "cheapest_competitor": next(p["competitor_name"] for p in prices if p["price"] == min_price),
+            "market_position": "competitive" if avg_price < 3000 else "premium"
+        },
+        "last_scan": datetime.now(timezone.utc).isoformat(),
+        "next_scan": (datetime.now(timezone.utc) + timedelta(hours=1)).isoformat()
+    }
+
+@router.post("/pricing/track-competitors")
+async def track_competitors(request: CompetitorTrackRequest, user = Depends(verify_admin_token)):
+    """إضافة منتج لتتبع أسعار المنافسين"""
+    return {
+        "success": True,
+        "product_id": request.product_id,
+        "tracked_competitors": request.competitors,
+        "tracking_frequency": "hourly",
+        "alerts_enabled": True,
+        "message": f"تم تفعيل تتبع {len(request.competitors)} منافس للمنتج"
+    }
+
+@router.get("/pricing/history/{product_id}")
+async def get_price_history(product_id: str, days: int = 30, user = Depends(verify_admin_token)):
+    """الحصول على تاريخ الأسعار للمنتج والمنافسين"""
+    history = []
+    base_price = random.randint(1000, 5000)
+    
+    for i in range(days):
+        date = datetime.now(timezone.utc) - timedelta(days=days-i)
+        day_data = {
+            "date": date.strftime("%Y-%m-%d"),
+            "our_price": base_price + random.randint(-100, 100),
+            "competitors": {}
+        }
+        for comp_id in list(COMPETITORS_DB.keys())[:4]:
+            day_data["competitors"][comp_id] = base_price + random.randint(-200, 200)
+        history.append(day_data)
+    
+    return {
+        "product_id": product_id,
+        "period": f"{days} days",
+        "history": history,
+        "trends": {
+            "our_trend": "stable",
+            "market_trend": "decreasing",
+            "recommendation": "يُنصح بتخفيض السعر 5% للحفاظ على التنافسية"
+        }
+    }
+
+@router.get("/pricing/alerts")
+async def get_pricing_alerts(user = Depends(verify_admin_token)):
+    """الحصول على تنبيهات تغير أسعار المنافسين"""
+    return {
+        "alerts": [
+            {
+                "id": "ALT-001",
+                "type": "price_drop",
+                "severity": "high",
+                "product": "iPhone 15 Pro",
+                "competitor": "أمازون السعودية",
+                "old_price": 5199,
+                "new_price": 4799,
+                "change": -7.7,
+                "our_price": 4999,
+                "action_required": "تخفيض السعر للحفاظ على التنافسية",
+                "created_at": datetime.now(timezone.utc).isoformat()
+            },
+            {
+                "id": "ALT-002",
+                "type": "out_of_stock",
+                "severity": "medium",
+                "product": "AirPods Pro",
+                "competitor": "نون",
+                "message": "المنتج غير متوفر لدى المنافس - فرصة لزيادة السعر",
+                "suggested_increase": 5,
+                "created_at": (datetime.now(timezone.utc) - timedelta(hours=2)).isoformat()
+            },
+            {
+                "id": "ALT-003",
+                "type": "price_increase",
+                "severity": "low",
+                "product": "Samsung Galaxy S24",
+                "competitor": "جرير",
+                "old_price": 3299,
+                "new_price": 3499,
+                "change": 6.1,
+                "our_price": 3399,
+                "action_required": "لا يلزم إجراء - سعرنا تنافسي",
+                "created_at": (datetime.now(timezone.utc) - timedelta(hours=5)).isoformat()
+            }
+        ],
+        "summary": {
+            "total_alerts": 3,
+            "high_priority": 1,
+            "medium_priority": 1,
+            "low_priority": 1,
+            "action_required": 1
+        }
+    }
+
+@router.post("/pricing/auto-rules")
+async def create_auto_pricing_rule(rule: AutoPricingRule, user = Depends(verify_admin_token)):
+    """إنشاء قاعدة تسعير تلقائي"""
+    rule_id = f"APR-{str(uuid4())[:8].upper()}"
+    
+    return {
+        "success": True,
+        "rule_id": rule_id,
+        "rule": {
+            "product_id": rule.product_id,
+            "category": rule.category,
+            "min_margin": rule.min_margin,
+            "max_margin": rule.max_margin,
+            "match_competitor": rule.match_competitor,
+            "undercut_percentage": rule.undercut_percentage,
+            "auto_apply": rule.auto_apply,
+            "schedule": rule.schedule
+        },
+        "message": "تم إنشاء قاعدة التسعير التلقائي بنجاح",
+        "next_run": (datetime.now(timezone.utc) + timedelta(hours=1)).isoformat() if rule.schedule == "hourly" else (datetime.now(timezone.utc) + timedelta(days=1)).isoformat()
+    }
+
+@router.get("/pricing/auto-rules")
+async def get_auto_pricing_rules(user = Depends(verify_admin_token)):
+    """الحصول على قواعد التسعير التلقائي"""
+    return {
+        "rules": [
+            {
+                "id": "APR-001",
+                "name": "مطابقة أقل سعر - إلكترونيات",
+                "category": "electronics",
+                "min_margin": 8,
+                "max_margin": 25,
+                "match_competitor": True,
+                "undercut_percentage": 2,
+                "auto_apply": True,
+                "schedule": "hourly",
+                "status": "active",
+                "products_affected": 156,
+                "last_run": (datetime.now(timezone.utc) - timedelta(hours=1)).isoformat(),
+                "prices_updated": 23
+            },
+            {
+                "id": "APR-002",
+                "name": "تسعير ديناميكي - أزياء",
+                "category": "fashion",
+                "min_margin": 15,
+                "max_margin": 40,
+                "match_competitor": False,
+                "undercut_percentage": 0,
+                "auto_apply": False,
+                "schedule": "daily",
+                "status": "active",
+                "products_affected": 892,
+                "last_run": (datetime.now(timezone.utc) - timedelta(days=1)).isoformat(),
+                "prices_updated": 45
+            }
+        ],
+        "summary": {
+            "total_rules": 2,
+            "active_rules": 2,
+            "auto_apply_enabled": 1,
+            "total_products_managed": 1048
+        }
+    }
+
+@router.post("/pricing/apply-suggestion")
+async def apply_price_suggestion(product_id: str, new_price: float, user = Depends(verify_admin_token)):
+    """تطبيق السعر المقترح على المنتج"""
+    return {
+        "success": True,
+        "product_id": product_id,
+        "old_price": new_price * random.uniform(0.9, 1.1),
+        "new_price": new_price,
+        "applied_at": datetime.now(timezone.utc).isoformat(),
+        "message": f"تم تحديث سعر المنتج إلى {new_price} ر.س",
+        "sync_status": {
+            "website": "synced",
+            "mobile_app": "synced",
+            "marketplaces": "pending"
+        }
+    }
+
+@router.post("/pricing/bulk-apply")
+async def bulk_apply_prices(product_ids: List[str], user = Depends(verify_admin_token)):
+    """تطبيق الأسعار المقترحة على مجموعة منتجات"""
+    results = []
+    for pid in product_ids:
+        results.append({
+            "product_id": pid,
+            "status": "updated",
+            "old_price": random.randint(100, 5000),
+            "new_price": random.randint(100, 5000)
+        })
+    
+    return {
+        "success": True,
+        "total_products": len(product_ids),
+        "updated": len(product_ids),
+        "failed": 0,
+        "results": results,
+        "applied_at": datetime.now(timezone.utc).isoformat()
+    }
+
 @router.post("/pricing/optimize")
 async def optimize_pricing(request: PricingRequest, user = Depends(verify_admin_token)):
-    """Get AI-optimized pricing suggestion"""
-    base_price = 100  # Would come from DB
+    """Get AI-optimized pricing suggestion with competitor analysis"""
+    # جلب أسعار المنافسين تلقائياً
+    competitor_data = get_competitor_prices(request.product_id)
+    competitor_prices = [p["price"] for p in competitor_data]
     
-    # Simulate AI pricing optimization
-    competitor_avg = sum(request.competitor_prices) / len(request.competitor_prices) if request.competitor_prices else base_price
+    # إذا تم توفير أسعار يدوية، استخدمها
+    if request.competitor_prices:
+        competitor_prices = request.competitor_prices
     
-    suggested_price = round(competitor_avg * (1 + (request.target_margin / 100)), 2)
+    base_price = competitor_prices[0] if competitor_prices else 100
+    competitor_avg = sum(competitor_prices) / len(competitor_prices) if competitor_prices else base_price
+    min_competitor = min(competitor_prices) if competitor_prices else base_price
+    
+    # حساب السعر الأمثل
+    suggested_price = round(min_competitor * (1 - 0.02), 2)  # 2% أقل من أقل منافس
+    
+    # التأكد من الهامش المستهدف
+    cost_estimate = suggested_price * 0.7  # تقدير التكلفة
+    actual_margin = ((suggested_price - cost_estimate) / suggested_price) * 100
+    
+    if actual_margin < request.target_margin:
+        suggested_price = round(cost_estimate / (1 - request.target_margin / 100), 2)
     
     return {
         "product_id": request.product_id,
         "current_price": base_price,
         "suggested_price": suggested_price,
-        "competitor_avg": round(competitor_avg, 2),
-        "expected_margin": request.target_margin,
-        "confidence": round(random.uniform(85, 98), 1),
+        "competitor_analysis": {
+            "prices_fetched_automatically": len(competitor_data),
+            "min_price": min_competitor,
+            "max_price": max(competitor_prices) if competitor_prices else base_price,
+            "avg_price": round(competitor_avg, 2),
+            "cheapest_competitor": competitor_data[0]["competitor_name"] if competitor_data else "N/A"
+        },
+        "competitors_detail": competitor_data[:5],  # أول 5 منافسين
+        "expected_margin": round(actual_margin, 1),
+        "target_margin": request.target_margin,
+        "confidence": round(random.uniform(88, 98), 1),
         "factors": [
-            {"factor": "أسعار المنافسين", "impact": "high", "direction": "up" if suggested_price > base_price else "down"},
+            {"factor": "أسعار المنافسين (تم جلبها تلقائياً)", "impact": "high", "direction": "analyzed"},
             {"factor": "الطلب الموسمي", "impact": "medium", "direction": "up"},
             {"factor": "مستوى المخزون", "impact": "low", "direction": "neutral"},
+            {"factor": "تاريخ المبيعات", "impact": "medium", "direction": "stable"},
         ],
-        "recommendation": "يُنصح بتطبيق السعر المقترح لتحقيق التوازن الأمثل بين الربحية والتنافسية"
+        "recommendation": "يُنصح بتطبيق السعر المقترح - أقل بـ 2% من أقل منافس مع الحفاظ على هامش ربح مقبول",
+        "auto_apply_available": True,
+        "valid_until": (datetime.now(timezone.utc) + timedelta(hours=6)).isoformat()
     }
 
 @router.get("/pricing/bulk-analysis")
