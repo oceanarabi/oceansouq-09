@@ -1,31 +1,31 @@
-# Ocean Super App - Phase 2 Testing
+# Ocean Super App - Phase 3 Testing
 
 ## Test Scope
-Testing Phase 2 Advanced Features:
-1. Multi-Gateway Payment System (/api/payment-gateways/*)
-2. AI Engines Control Center (/api/ai-engines/*)
-3. Advanced Analytics with Export (/api/advanced-analytics/*)
+Testing Phase 3 Advanced AI Features:
+1. Smart Recommendations Engine (/api/ai-advanced/recommendations/*)
+2. Fraud Detection System (/api/ai-advanced/fraud/*)
+3. Sentiment Analysis Engine (/api/ai-advanced/sentiment/*)
+4. Demand Forecasting Engine (/api/ai-advanced/demand/*)
+5. Customer Segmentation (/api/ai-advanced/segmentation/*)
 
 ## Testing Instructions
 - Login credentials: admin@ocean.com / admin123
-- Test all 3 new modules in Command Center
-- Test API endpoints for each module
-- Test export functionality
+- Navigate to Command Center -> AI متقدم
+- Test all 5 tabs on the AI Advanced page
+- Test API endpoints for each AI engine
 
 ## Expected Results
 - All API endpoints should return 200 status
-- Frontend pages should display data correctly
-- Export should download files
+- Frontend page should display data correctly for all 5 tabs
+- Each tab should show relevant AI insights
 
 ## Test Files
-- Backend routes: /app/backend/routes/{payment_gateways,ai_engines,advanced_analytics}.py
-- Frontend pages: /app/frontend/src/command-center/pages/{PaymentGateways,AIEngines,AdvancedAnalytics}.js
+- Backend routes: /app/backend/routes/ai_advanced.py
+- Frontend page: /app/frontend/src/command-center/pages/AIAdvanced.js
 
-## Payment Gateways Supported (25+ gateways)
-Saudi: Mada, STC Pay, Apple Pay SA, Tamara, Tabby, Moyasar
-Gulf: HyperPay, PayFort, Tap Payments, Telr
-Egypt: Fawry, Paymob
-International: Stripe, PayPal, Adyen, Checkout.com, Square
-Asia: Razorpay, Paytm, Alipay, WeChat Pay, GrabPay
-Crypto: Coinbase Commerce, BitPay
-BNPL: Klarna, Afterpay, Affirm
+## AI Engines to Test:
+1. التوصيات الذكية (Recommendations) - Personalized product recommendations
+2. كشف الاحتيال (Fraud Detection) - Transaction fraud analysis
+3. تحليل المشاعر (Sentiment Analysis) - Review sentiment analysis
+4. التنبؤ بالطلب (Demand Forecasting) - Demand prediction and inventory
+5. شرائح العملاء (Customer Segments) - Customer segmentation analysis
