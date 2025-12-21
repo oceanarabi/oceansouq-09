@@ -396,84 +396,112 @@ const AIEngines = () => {
           </div>
         </div>
       )}
-              <p className="text-3xl font-bold text-gray-800 dark:text-white">45</p>
-            </div>
-            <div className="bg-red-50 dark:bg-red-900/20 rounded-xl p-4">
-              <p className="text-red-600 text-sm">منتجات يُنصح بتخفيض سعرها</p>
-              <p className="text-3xl font-bold text-gray-800 dark:text-white">23</p>
-            </div>
-            <div className="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-4">
-              <p className="text-blue-600 text-sm">الزيادة المحتملة في الإيرادات</p>
-              <p className="text-3xl font-bold text-gray-800 dark:text-white">+12%</p>
-            </div>
-          </div>
-          <div className="space-y-3">
-            {[
-              { name: 'iPhone 15 Pro', current: 4999, suggested: 4799, action: 'reduce', potential: 12 },
-              { name: 'Samsung Galaxy S24', current: 3499, suggested: 3699, action: 'increase', potential: 8 },
-              { name: 'AirPods Pro', current: 999, suggested: 949, action: 'reduce', potential: 15 },
-            ].map((product, idx) => (
-              <div key={idx} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
-                <div>
-                  <p className="font-bold text-gray-800 dark:text-white">{product.name}</p>
-                  <p className="text-sm text-gray-500">الحالي: {product.current} ر.س</p>
-                </div>
-                <div className="flex items-center gap-4">
-                  <div className="text-left">
-                    <p className="text-sm text-gray-500">المقترح</p>
-                    <p className={`font-bold ${product.action === 'increase' ? 'text-green-600' : 'text-red-600'}`}>
-                      {product.suggested} ر.س
-                    </p>
-                  </div>
-                  <span className={`px-3 py-1 rounded-full text-sm ${product.action === 'increase' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                    {product.action === 'increase' ? '↑ زيادة' : '↓ تخفيض'}
-                  </span>
-                  <button className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700">تطبيق</button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
 
       {activeTab === 'seo' && (
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6">
-          <h2 className="text-xl font-bold text-gray-800 dark:text-white mb-6">🔍 تحسين SEO بالذكاء الاصطناعي</h2>
-          <div className="grid md:grid-cols-4 gap-4 mb-6">
-            <div className="bg-indigo-50 dark:bg-indigo-900/20 rounded-xl p-4 text-center">
-              <p className="text-5xl font-bold text-indigo-600">72</p>
-              <p className="text-sm text-gray-600">درجة SEO الحالية</p>
-            </div>
-            <div className="bg-red-50 dark:bg-red-900/20 rounded-xl p-4 text-center">
-              <p className="text-3xl font-bold text-red-600">3</p>
-              <p className="text-sm text-gray-600">مشاكل حرجة</p>
-            </div>
-            <div className="bg-yellow-50 dark:bg-yellow-900/20 rounded-xl p-4 text-center">
-              <p className="text-3xl font-bold text-yellow-600">12</p>
-              <p className="text-sm text-gray-600">تحذيرات</p>
-            </div>
-            <div className="bg-green-50 dark:bg-green-900/20 rounded-xl p-4 text-center">
-              <p className="text-3xl font-bold text-green-600">25</p>
-              <p className="text-sm text-gray-600">ملاحظات</p>
-            </div>
-          </div>
-          <div className="space-y-3">
-            <div className="p-4 bg-red-50 dark:bg-red-900/20 rounded-xl border-r-4 border-red-500">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-bold text-gray-800 dark:text-white">45 صفحة بدون meta description</p>
-                  <p className="text-sm text-gray-500">تأثير عالي على الترتيب</p>
-                </div>
-                <button className="px-4 py-2 bg-purple-600 text-white rounded-lg">إصلاح تلقائي</button>
+        <div className="space-y-6">
+          {/* SEO Overview */}
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6">
+            <h2 className="text-xl font-bold text-gray-800 dark:text-white mb-6">🔍 تحسين SEO متعدد اللغات</h2>
+            <div className="grid md:grid-cols-4 gap-4 mb-6">
+              <div className="bg-indigo-50 dark:bg-indigo-900/20 rounded-xl p-4 text-center">
+                <p className="text-5xl font-bold text-indigo-600">72</p>
+                <p className="text-sm text-gray-600">درجة SEO الإجمالية</p>
+              </div>
+              <div className="bg-purple-50 dark:bg-purple-900/20 rounded-xl p-4 text-center">
+                <p className="text-3xl font-bold text-purple-600">45</p>
+                <p className="text-sm text-gray-600">درجة تعدد اللغات</p>
+              </div>
+              <div className="bg-red-50 dark:bg-red-900/20 rounded-xl p-4 text-center">
+                <p className="text-3xl font-bold text-red-600">3</p>
+                <p className="text-sm text-gray-600">مشاكل حرجة</p>
+              </div>
+              <div className="bg-green-50 dark:bg-green-900/20 rounded-xl p-4 text-center">
+                <p className="text-3xl font-bold text-green-600">6</p>
+                <p className="text-sm text-gray-600">لغات مدعومة</p>
               </div>
             </div>
-            <div className="p-4 bg-red-50 dark:bg-red-900/20 rounded-xl border-r-4 border-red-500">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-bold text-gray-800 dark:text-white">128 صورة بدون alt text</p>
-                  <p className="text-sm text-gray-500">يؤثر على الوصولية وSEO</p>
+          </div>
+
+          {/* Supported Languages */}
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6">
+            <h3 className="font-bold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
+              <span>🌍</span> اللغات المدعومة لتحسين SEO
+            </h3>
+            <div className="grid md:grid-cols-3 gap-4">
+              {seoLanguages.map((lang) => (
+                <div key={lang.code} className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl hover:shadow-md transition">
+                  <div className="flex justify-between items-center mb-3">
+                    <h4 className="font-bold text-lg text-gray-800 dark:text-white">{lang.name}</h4>
+                    <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">{lang.code.toUpperCase()}</span>
+                  </div>
+                  <div className="flex flex-wrap gap-1 mb-3">
+                    {lang.markets?.map((market, idx) => (
+                      <span key={idx} className="text-sm text-gray-500">{market}</span>
+                    ))}
+                  </div>
+                  <button className="w-full py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 text-sm">تحسين المحتوى</button>
                 </div>
-                <button className="px-4 py-2 bg-purple-600 text-white rounded-lg">إصلاح تلقائي</button>
+              ))}
+            </div>
+          </div>
+
+          {/* Language Coverage */}
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6">
+            <h3 className="font-bold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
+              <span>📊</span> تغطية اللغات
+            </h3>
+            <div className="space-y-4">
+              {[
+                { lang: 'العربية', pages: 1250, optimized: 980, percentage: 78, color: 'green' },
+                { lang: 'English', pages: 850, optimized: 420, percentage: 49, color: 'yellow' },
+                { lang: 'اردو', pages: 0, optimized: 0, percentage: 0, color: 'gray' },
+                { lang: 'Français', pages: 0, optimized: 0, percentage: 0, color: 'gray' },
+              ].map((item, idx) => (
+                <div key={idx} className="flex items-center justify-between">
+                  <span className="font-medium text-gray-800 dark:text-white w-24">{item.lang}</span>
+                  <div className="flex-1 mx-4">
+                    <div className="h-4 bg-gray-200 rounded-full overflow-hidden">
+                      <div className={`h-full rounded-full ${item.color === 'green' ? 'bg-green-500' : item.color === 'yellow' ? 'bg-yellow-500' : 'bg-gray-400'}`} style={{ width: `${item.percentage}%` }}></div>
+                    </div>
+                  </div>
+                  <span className="text-sm text-gray-600 w-32 text-left">{item.optimized}/{item.pages} صفحة ({item.percentage}%)</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* SEO Issues */}
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6">
+            <h3 className="font-bold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
+              <span>⚠️</span> مشاكل SEO المتعلقة بتعدد اللغات
+            </h3>
+            <div className="space-y-3">
+              <div className="p-4 bg-red-50 dark:bg-red-900/20 rounded-xl border-r-4 border-red-500">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-bold text-gray-800 dark:text-white">850 صفحة بدون hreflang tags</p>
+                    <p className="text-sm text-gray-500">يؤثر على ترتيب البحث في المناطق المختلفة</p>
+                  </div>
+                  <button className="px-4 py-2 bg-purple-600 text-white rounded-lg">إصلاح تلقائي</button>
+                </div>
+              </div>
+              <div className="p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-xl border-r-4 border-yellow-500">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-bold text-gray-800 dark:text-white">430 صفحة إنجليزية غير محسّنة</p>
+                    <p className="text-sm text-gray-500">49% فقط من المحتوى الإنجليزي محسّن</p>
+                  </div>
+                  <button className="px-4 py-2 bg-purple-600 text-white rounded-lg">تحسين الآن</button>
+                </div>
+              </div>
+              <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl border-r-4 border-blue-500">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-bold text-gray-800 dark:text-white">لا يوجد محتوى أردو</p>
+                    <p className="text-sm text-gray-500">سوق مهم - الجالية الباكستانية في السعودية</p>
+                  </div>
+                  <button className="px-4 py-2 bg-purple-600 text-white rounded-lg">إنشاء محتوى</button>
+                </div>
               </div>
             </div>
           </div>
