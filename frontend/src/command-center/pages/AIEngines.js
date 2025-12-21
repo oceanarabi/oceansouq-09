@@ -9,6 +9,11 @@ const AIEngines = () => {
   const [dashboard, setDashboard] = useState({});
   const [loading, setLoading] = useState(true);
   const [selectedEngine, setSelectedEngine] = useState(null);
+  const [competitorPrices, setCompetitorPrices] = useState(null);
+  const [pricingAlerts, setPricingAlerts] = useState([]);
+  const [autoRules, setAutoRules] = useState([]);
+  const [seoLanguages, setSeoLanguages] = useState([]);
+  const [selectedProduct, setSelectedProduct] = useState('iphone-15-pro');
 
   useEffect(() => {
     fetchData();
