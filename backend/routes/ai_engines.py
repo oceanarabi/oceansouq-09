@@ -602,51 +602,273 @@ async def bulk_pricing_analysis(user = Depends(verify_admin_token), category: st
 
 @router.post("/seo/optimize")
 async def optimize_seo(request: SEORequest, user = Depends(verify_admin_token)):
-    """Get AI-optimized SEO suggestions"""
+    """Get AI-optimized SEO suggestions for single language"""
+    lang = request.language if request.language in SEO_TEMPLATES else "ar"
+    template = SEO_TEMPLATES[lang]
+    
     return {
         "product_id": request.product_id,
+        "language": lang,
         "original": {
             "title": request.title,
             "description": request.description
         },
         "optimized": {
-            "title": f"{request.title} | أفضل سعر في السعودية | شحن مجاني",
-            "description": f"{request.description} ✓ ضمان سنتين ✓ شحن سريع ✓ الدفع عند الاستلام",
-            "meta_keywords": [request.category, "شراء أونلاين", "توصيل سريع", "ضمان", "أفضل سعر"],
-            "url_slug": request.title.lower().replace(" ", "-")
+            "title": f"{request.title} | {template['suffix']}",
+            "description": f"{request.description} {' '.join(template['features'])}",
+            "meta_keywords": template["keywords"] + [request.category],
+            "url_slug": request.title.lower().replace(" ", "-"),
+            "schema_locale": template["schema_locale"]
         },
         "seo_score": {
             "before": random.randint(45, 65),
             "after": random.randint(80, 95)
         },
+        "recommendations": get_seo_recommendations(lang)
+    }
+
+@router.post("/seo/optimize-multilang")
+async def optimize_seo_multilang(request: MultiLangSEORequest, user = Depends(verify_admin_token)):
+    """تحسين SEO لعدة لغات في وقت واحد"""
+    results = {}
+    
+    for lang in request.languages:
+        if lang not in SEO_TEMPLATES:
+            continue
+        
+        template = SEO_TEMPLATES[lang]
+        results[lang] = {
+            "language_name": get_language_name(lang),
+            "optimized": {
+                "title": f"{request.title} | {template['suffix']}",
+                "description": f"{request.description} {' '.join(template['features'])}",
+                "meta_keywords": template["keywords"] + [request.category],
+                "url_slug": f"{lang}/{request.title.lower().replace(' ', '-')}",
+                "schema_locale": template["schema_locale"],
+                "hreflang": lang
+            },
+            "seo_score": random.randint(80, 95),
+            "market_relevance": get_market_relevance(lang)
+        }
+    
+    return {
+        "product_id": request.product_id,
+        "languages_optimized": len(results),
+        "results": results,
+        "schema_markup": generate_multilang_schema(request, results),
         "recommendations": [
-            "إضافة كلمات مفتاحية مستهدفة",
+            "تأكد من إضافة hreflang tags لجميع اللغات",
+            "استخدم URL منفصل لكل لغة",
+            "أضف sitemap منفصل لكل لغة"
+        ]
+    }
+
+@router.get("/seo/supported-languages")
+async def get_supported_languages(user = Depends(verify_admin_token)):
+    """الحصول على اللغات المدعومة لتحسين SEO"""
+    languages = []
+    for lang_code, template in SEO_TEMPLATES.items():
+        languages.append({
+            "code": lang_code,
+            "name": get_language_name(lang_code),
+            "locale": template["schema_locale"],
+            "markets": get_markets_for_language(lang_code),
+            "sample_keywords": template["keywords"][:3]
+        })
+    
+    return {
+        "supported_languages": languages,
+        "total": len(languages),
+        "recommended_for_saudi": ["ar", "en", "ur"],
+        "recommended_for_gulf": ["ar", "en"],
+        "recommended_for_international": ["ar", "en", "fr", "de", "tr"]
+    }
+
+@router.get("/seo/keywords/{language}")
+async def get_keywords_by_language(language: str, category: str = None, user = Depends(verify_admin_token)):
+    """الحصول على الكلمات المفتاحية المقترحة حسب اللغة والفئة"""
+    if language not in SEO_TEMPLATES:
+        raise HTTPException(status_code=400, detail="اللغة غير مدعومة")
+    
+    base_keywords = SEO_TEMPLATES[language]["keywords"]
+    
+    category_keywords = {
+        "electronics": {
+            "ar": ["إلكترونيات", "أجهزة", "تقنية", "جوال", "لابتوب"],
+            "en": ["electronics", "gadgets", "tech", "mobile", "laptop"],
+        },
+        "fashion": {
+            "ar": ["ملابس", "أزياء", "موضة", "ماركات", "تخفيضات"],
+            "en": ["clothes", "fashion", "style", "brands", "sale"],
+        },
+        "home": {
+            "ar": ["منزل", "أثاث", "ديكور", "مطبخ", "حديقة"],
+            "en": ["home", "furniture", "decor", "kitchen", "garden"],
+        }
+    }
+    
+    cat_kw = category_keywords.get(category, {}).get(language, []) if category else []
+    
+    return {
+        "language": language,
+        "category": category,
+        "keywords": {
+            "general": base_keywords,
+            "category_specific": cat_kw,
+            "trending": get_trending_keywords(language),
+            "long_tail": get_long_tail_keywords(language, category)
+        },
+        "search_volume_estimate": {
+            "high": base_keywords[:2],
+            "medium": base_keywords[2:4],
+            "low": base_keywords[4:]
+        }
+    }
+
+@router.post("/seo/generate-schema")
+async def generate_schema_markup(product_id: str, languages: List[str], user = Depends(verify_admin_token)):
+    """توليد Schema markup متعدد اللغات للمنتج"""
+    schemas = {}
+    
+    for lang in languages:
+        if lang not in SEO_TEMPLATES:
+            continue
+        
+        template = SEO_TEMPLATES[lang]
+        schemas[lang] = {
+            "@context": "https://schema.org",
+            "@type": "Product",
+            "name": f"Product Name ({get_language_name(lang)})",
+            "description": f"Product description in {get_language_name(lang)}",
+            "inLanguage": template["schema_locale"],
+            "offers": {
+                "@type": "Offer",
+                "priceCurrency": "SAR",
+                "price": "999",
+                "availability": "https://schema.org/InStock"
+            }
+        }
+    
+    return {
+        "product_id": product_id,
+        "schemas": schemas,
+        "implementation_guide": [
+            "أضف كل schema في صفحة اللغة المناسبة",
+            "استخدم JSON-LD format",
+            "تأكد من صحة البيانات في Google Search Console"
+        ]
+    }
+
+def get_language_name(code):
+    names = {
+        "ar": "العربية",
+        "en": "English",
+        "fr": "Français",
+        "de": "Deutsch",
+        "tr": "Türkçe",
+        "ur": "اردو"
+    }
+    return names.get(code, code)
+
+def get_market_relevance(lang):
+    relevance = {
+        "ar": {"score": 95, "primary_markets": ["السعودية", "الإمارات", "مصر", "الكويت"]},
+        "en": {"score": 85, "primary_markets": ["السعودية", "الإمارات", "عالمي"]},
+        "fr": {"score": 45, "primary_markets": ["المغرب", "الجزائر", "تونس"]},
+        "de": {"score": 25, "primary_markets": ["ألمانيا", "النمسا", "سويسرا"]},
+        "tr": {"score": 35, "primary_markets": ["تركيا"]},
+        "ur": {"score": 55, "primary_markets": ["السعودية", "الإمارات", "باكستان"]}
+    }
+    return relevance.get(lang, {"score": 20, "primary_markets": []})
+
+def get_markets_for_language(lang):
+    markets = {
+        "ar": ["🇸🇦 السعودية", "🇦🇪 الإمارات", "🇪🇬 مصر", "🇰🇼 الكويت", "🇧🇭 البحرين", "🇶🇦 قطر", "🇴🇲 عمان"],
+        "en": ["🇸🇦 السعودية", "🇦🇪 الإمارات", "🌍 عالمي"],
+        "fr": ["🇲🇦 المغرب", "🇩🇿 الجزائر", "🇹🇳 تونس"],
+        "de": ["🇩🇪 ألمانيا", "🇦🇹 النمسا", "🇨🇭 سويسرا"],
+        "tr": ["🇹🇷 تركيا"],
+        "ur": ["🇸🇦 السعودية", "🇦🇪 الإمارات", "🇵🇰 باكستان"]
+    }
+    return markets.get(lang, [])
+
+def get_seo_recommendations(lang):
+    recommendations = {
+        "ar": [
+            "إضافة كلمات مفتاحية عربية مستهدفة",
             "تحسين طول العنوان (50-60 حرف)",
             "إضافة Schema markup للمنتج",
-            "تحسين سرعة تحميل الصفحة"
+            "استخدام الكلمات المفتاحية في URL"
+        ],
+        "en": [
+            "Add targeted English keywords",
+            "Optimize title length (50-60 characters)",
+            "Add product Schema markup",
+            "Use keywords in URL structure"
         ]
+    }
+    return recommendations.get(lang, recommendations["ar"])
+
+def get_trending_keywords(lang):
+    trending = {
+        "ar": ["عروض رمضان", "تخفيضات اليوم الوطني", "شحن مجاني", "الدفع بالتقسيط"],
+        "en": ["ramadan deals", "national day sale", "free shipping", "buy now pay later"]
+    }
+    return trending.get(lang, trending["ar"])
+
+def get_long_tail_keywords(lang, category):
+    long_tail = {
+        "ar": [f"شراء {category or 'منتج'} أونلاين في السعودية", f"أفضل {category or 'منتج'} بأقل سعر", f"{category or 'منتج'} مع ضمان"],
+        "en": [f"buy {category or 'product'} online saudi arabia", f"best {category or 'product'} lowest price", f"{category or 'product'} with warranty"]
+    }
+    return long_tail.get(lang, long_tail["ar"])
+
+def generate_multilang_schema(request, results):
+    return {
+        "@context": "https://schema.org",
+        "@type": "Product",
+        "name": request.title,
+        "description": request.description,
+        "category": request.category,
+        "availableLanguage": list(results.keys())
     }
 
 @router.get("/seo/audit")
 async def seo_audit(user = Depends(verify_admin_token)):
-    """Get overall SEO audit"""
+    """Get overall SEO audit with multilingual support"""
     return {
         "overall_score": 72,
+        "multilingual_score": 45,
         "issues": {
             "critical": 3,
             "warnings": 12,
             "notices": 25
         },
+        "language_coverage": {
+            "ar": {"pages": 1250, "optimized": 980, "percentage": 78},
+            "en": {"pages": 850, "optimized": 420, "percentage": 49},
+            "ur": {"pages": 0, "optimized": 0, "percentage": 0},
+            "fr": {"pages": 0, "optimized": 0, "percentage": 0}
+        },
         "top_issues": [
             {"type": "critical", "issue": "45 صفحة بدون meta description", "affected": 45},
             {"type": "critical", "issue": "صور بدون alt text", "affected": 128},
+            {"type": "critical", "issue": "صفحات بدون hreflang tags", "affected": 850},
             {"type": "warning", "issue": "عناوين مكررة", "affected": 23},
+            {"type": "warning", "issue": "محتوى إنجليزي غير محسّن", "affected": 430},
         ],
         "improvements": [
             {"action": "إضافة meta descriptions", "impact": "high", "effort": "medium"},
+            {"action": "إضافة hreflang tags لجميع الصفحات", "impact": "high", "effort": "medium"},
+            {"action": "تحسين المحتوى الإنجليزي", "impact": "high", "effort": "high"},
+            {"action": "إضافة دعم اللغة الأردية للجالية الباكستانية", "impact": "medium", "effort": "high"},
             {"action": "تحسين سرعة الموقع", "impact": "high", "effort": "high"},
-            {"action": "إصلاح الروابط المكسورة", "impact": "medium", "effort": "low"},
-        ]
+        ],
+        "recommendations": {
+            "priority_1": "إضافة hreflang tags - يؤثر على 850 صفحة",
+            "priority_2": "تحسين SEO الإنجليزي - 49% فقط محسّن",
+            "priority_3": "إضافة دعم الأردية - سوق مهم في السعودية"
+        }
     }
 
 # ==================== RECOMMENDATION ENGINE ====================
