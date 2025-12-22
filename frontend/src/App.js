@@ -413,35 +413,36 @@ const TopBar = () => {
   const currentLang = languages.find(l => l.code === language) || languages[0];
 
   return (
-    <div className="bg-white dark:bg-gray-900 border-b border-ocean-200 dark:border-gray-700 text-sm py-2 md:py-3" style={{ paddingTop: 'calc(8px + env(safe-area-inset-top, 0px))' }}>
-      <div className="container mx-auto px-3 md:px-4 flex justify-between items-center">
-        {/* Left Side - Help & Track */}
-        <div className="flex items-center space-x-3 md:space-x-6 rtl:space-x-reverse">
-          <Link to="/help" className="text-ocean-600 hover:text-ocean-700 font-medium text-xs md:text-sm flex items-center gap-1" data-testid="help-link">
-            <span>📞</span>
-            <span className="hidden sm:inline">{t('help')}</span>
-          </Link>
-          <Link to="/track-order" className="text-ocean-600 hover:text-ocean-700 font-medium text-xs md:text-sm flex items-center gap-1" data-testid="track-order-link">
-            <span>📦</span>
-            <span className="hidden sm:inline">{t('trackOrder')}</span>
+    <div className="bg-gray-900 text-white text-xs py-1.5">
+      <div className="container mx-auto px-4 flex justify-between items-center">
+        {/* Promo Text */}
+        <div className="flex items-center gap-4">
+          <span className="text-gray-300">شحن مجاني للطلبات فوق 200 ر.س</span>
+          <span className="hidden sm:inline text-cyan-400">|</span>
+          <Link to="/track-order" className="hidden sm:inline text-gray-300 hover:text-white">
+            تتبع الطلب
           </Link>
         </div>
-        {/* Right Side - Language Selector */}
-        <div className="flex items-center gap-2 md:gap-4">
+        
+        {/* Right Side - Language & Dark Mode */}
+        <div className="flex items-center gap-3">
+          {/* Language Selector */}
           <div className="relative">
             <button
               onClick={() => setShowLangMenu(!showLangMenu)}
-              className="flex items-center gap-2 px-3 py-1.5 border-2 border-ocean-200 dark:border-gray-600 rounded-full hover:bg-ocean-50 dark:hover:bg-gray-800 transition"
+              className="flex items-center gap-1 text-gray-300 hover:text-white"
               data-testid="lang-selector"
             >
               <span>{currentLang.flag}</span>
-              <span className="text-xs md:text-sm font-semibold text-ocean-600 dark:text-ocean-400">{currentLang.code.toUpperCase()}</span>
-              <span className="text-ocean-600 dark:text-ocean-400">▼</span>
+              <span>{currentLang.code.toUpperCase()}</span>
+              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
             </button>
             
             {/* Language Dropdown */}
             {showLangMenu && (
-              <div className="absolute top-full right-0 mt-2 bg-white dark:bg-gray-800 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 py-2 z-50 min-w-[160px]">
+              <div className="absolute top-full left-0 mt-2 bg-white rounded shadow-xl z-50 min-w-[140px]">
                 {languages.map((lang) => (
                   <button
                     key={lang.code}
@@ -449,16 +450,13 @@ const TopBar = () => {
                       switchLanguage(lang.code);
                       setShowLangMenu(false);
                     }}
-                    className={`w-full px-4 py-2.5 flex items-center gap-3 hover:bg-ocean-50 dark:hover:bg-gray-700 transition ${
-                      language === lang.code ? 'bg-ocean-100 dark:bg-ocean-900/30' : ''
+                    className={`w-full px-3 py-2 flex items-center gap-2 hover:bg-gray-100 text-gray-700 ${
+                      language === lang.code ? 'bg-gray-50 font-medium' : ''
                     }`}
                     data-testid={`lang-${lang.code}`}
                   >
-                    <span className="text-xl">{lang.flag}</span>
-                    <span className={`text-sm ${language === lang.code ? 'font-bold text-ocean-600' : 'text-gray-700 dark:text-gray-300'}`}>
-                      {lang.name}
-                    </span>
-                    {language === lang.code && <span className="ml-auto text-ocean-600">✓</span>}
+                    <span>{lang.flag}</span>
+                    <span className="text-sm">{lang.name}</span>
                   </button>
                 ))}
               </div>
@@ -468,7 +466,7 @@ const TopBar = () => {
           {/* Dark Mode Toggle */}
           <button
             onClick={toggleDarkMode}
-            className="p-2 rounded-full hover:bg-ocean-50 dark:hover:bg-gray-800 transition"
+            className="text-gray-300 hover:text-white"
             title={darkMode ? t('lightMode') : t('darkMode')}
           >
             {darkMode ? '☀️' : '🌙'}
