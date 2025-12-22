@@ -93,6 +93,7 @@ const Sidebar = ({ services, collapsed, setCollapsed }) => {
     { path: '/command/ai', icon: '💬', label: 'مساعد AI', labelEn: 'AI Assistant' },
     { path: '/command/advanced-analytics', icon: '📉', label: 'تحليلات متقدمة', labelEn: 'Advanced Analytics' },
     { path: '/command/users', icon: '👥', label: 'المستخدمين', labelEn: 'Users' },
+    { path: '/command/languages', icon: '🌐', label: 'إعدادات اللغات', labelEn: 'Languages' },
     { path: '/command/settings', icon: '🔧', label: 'الإعدادات', labelEn: 'Settings' },
   ];
 
