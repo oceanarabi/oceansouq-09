@@ -39,6 +39,9 @@ import SecurityAdvanced from './pages/SecurityAdvanced';
 import CarRental from './pages/CarRental';
 import AnalyticsAI from './pages/AnalyticsAI';
 
+// Platform Settings
+import LanguageSettings from './pages/LanguageSettings';
+
 const API_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
 
 // Auth Context
