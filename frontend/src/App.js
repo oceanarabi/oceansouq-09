@@ -703,7 +703,7 @@ const Header = () => {
               </button>
               
               {showCategoriesMenu && (
-                <div className="absolute top-full right-0 mt-0 w-64 bg-white rounded-b shadow-xl z-50 max-h-96 overflow-y-auto border border-gray-100">
+                <div className="absolute top-full right-0 mt-0 w-64 bg-white rounded-b-lg shadow-xl z-50 max-h-96 overflow-y-auto border border-blue-100">
                   {[
                     { name: t('womensFashion'), category: 'WomensFashion' },
                     { name: t('mensFashion'), category: 'MensFashion' },
@@ -717,7 +717,7 @@ const Header = () => {
                     <Link
                       key={idx}
                       to={`/products?category=${cat.category}`}
-                      className="block px-4 py-3 text-sm hover:bg-gray-50 border-b border-gray-50 last:border-b-0"
+                      className="block px-4 py-3 text-sm hover:bg-blue-50 border-b border-blue-50 last:border-b-0"
                     >
                       {cat.name}
                     </Link>
@@ -728,52 +728,52 @@ const Header = () => {
 
             {/* Main Nav Links */}
             <div className="flex items-center gap-6 flex-shrink-0">
-              <Link to="/products?category=WomensFashion" className="text-sm font-medium hover:text-cyan-600 whitespace-nowrap">نساء</Link>
-              <Link to="/products?category=MensFashion" className="text-sm font-medium hover:text-cyan-600 whitespace-nowrap">رجال</Link>
-              <Link to="/products?category=KidsBaby" className="text-sm font-medium hover:text-cyan-600 whitespace-nowrap">أطفال</Link>
-              <Link to="/products?category=HomeKitchen" className="text-sm font-medium hover:text-cyan-600 whitespace-nowrap">المنزل</Link>
-              <Link to="/products?category=Beauty" className="text-sm font-medium hover:text-cyan-600 whitespace-nowrap">الجمال</Link>
+              <Link to="/products?category=WomensFashion" className="text-sm font-medium hover:text-blue-600 whitespace-nowrap">نساء</Link>
+              <Link to="/products?category=MensFashion" className="text-sm font-medium hover:text-blue-600 whitespace-nowrap">رجال</Link>
+              <Link to="/products?category=KidsBaby" className="text-sm font-medium hover:text-blue-600 whitespace-nowrap">أطفال</Link>
+              <Link to="/products?category=HomeKitchen" className="text-sm font-medium hover:text-blue-600 whitespace-nowrap">المنزل</Link>
+              <Link to="/products?category=Beauty" className="text-sm font-medium hover:text-blue-600 whitespace-nowrap">الجمال</Link>
               <Link to="/products?new=true" className="text-sm font-medium text-green-600 hover:text-green-700 whitespace-nowrap">جديد</Link>
               <Link to="/products?sale=true" className="text-sm font-medium text-red-600 hover:text-red-700 whitespace-nowrap">تخفيضات</Link>
             </div>
 
             {/* Services Menu */}
             <div className="relative flex-shrink-0 group">
-              <button className="flex items-center gap-1 px-3 py-2 text-sm font-medium text-cyan-600 hover:text-cyan-700">
+              <button className="flex items-center gap-1 px-3 py-2 text-sm font-medium text-blue-600 hover:text-blue-700">
                 <span>الخدمات</span>
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
               </button>
               
-              <div className="absolute top-full left-0 mt-0 w-56 bg-white rounded-b shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all border border-gray-100">
-                <Link to="/food" className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 border-b border-gray-50">
+              <div className="absolute top-full left-0 mt-0 w-56 bg-white rounded-b-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all border border-blue-100">
+                <Link to="/food" className="flex items-center gap-3 px-4 py-3 hover:bg-blue-50 border-b border-blue-50">
                   <span className="text-lg">🍔</span>
                   <span className="text-sm">طلب الطعام</span>
                 </Link>
-                <Link to="/rides" className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 border-b border-gray-50">
+                <Link to="/rides" className="flex items-center gap-3 px-4 py-3 hover:bg-blue-50 border-b border-blue-50">
                   <span className="text-lg">🚗</span>
                   <span className="text-sm">المشاوير</span>
                 </Link>
-                <Link to="/hotels" className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 border-b border-gray-50">
+                <Link to="/hotels" className="flex items-center gap-3 px-4 py-3 hover:bg-blue-50 border-b border-blue-50">
                   <span className="text-lg">🏨</span>
                   <span className="text-sm">الفنادق</span>
                 </Link>
-                <Link to="/experiences" className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 border-b border-gray-50">
+                <Link to="/experiences" className="flex items-center gap-3 px-4 py-3 hover:bg-blue-50 border-b border-blue-50">
                   <span className="text-lg">🎭</span>
                   <span className="text-sm">التجارب</span>
                 </Link>
-                <Link to="/services" className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 border-b border-gray-50">
+                <Link to="/services" className="flex items-center gap-3 px-4 py-3 hover:bg-blue-50 border-b border-blue-50">
                   <span className="text-lg">🔧</span>
                   <span className="text-sm">خدمات منزلية</span>
                 </Link>
-                <Link to="/subscriptions" className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 border-b border-gray-50">
+                <Link to="/subscriptions" className="flex items-center gap-3 px-4 py-3 hover:bg-blue-50 border-b border-blue-50">
                   <span className="text-lg">⭐</span>
                   <span className="text-sm">الاشتراكات</span>
                 </Link>
-                <Link to="/join" className="flex items-center gap-3 px-4 py-3 bg-cyan-50 hover:bg-cyan-100">
+                <Link to="/join" className="flex items-center gap-3 px-4 py-3 bg-blue-50 hover:bg-blue-100 rounded-b-lg">
                   <span className="text-lg">🤝</span>
-                  <span className="text-sm text-cyan-600 font-medium">انضم إلينا</span>
+                  <span className="text-sm text-blue-600 font-medium">انضم إلينا</span>
                 </Link>
               </div>
             </div>
@@ -784,7 +784,7 @@ const Header = () => {
               onMouseEnter={() => setShowBrandsMenu(true)}
               onMouseLeave={() => setShowBrandsMenu(false)}
             >
-              <button className="flex items-center gap-1 px-3 py-2 text-sm font-medium hover:text-cyan-600">
+              <button className="flex items-center gap-1 px-3 py-2 text-sm font-medium hover:text-blue-600">
                 <span>الماركات</span>
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -792,12 +792,12 @@ const Header = () => {
               </button>
               
               {showBrandsMenu && (
-                <div className="absolute top-full left-0 mt-0 w-40 bg-white rounded-b shadow-xl z-50 border border-gray-100">
+                <div className="absolute top-full left-0 mt-0 w-40 bg-white rounded-b-lg shadow-xl z-50 border border-blue-100">
                   {['Nike', 'Adidas', 'Apple', 'Samsung', 'Sony', 'LG'].map((brand, idx) => (
                     <Link
                       key={idx}
                       to={`/products?brand=${brand}`}
-                      className="block px-4 py-2.5 text-sm hover:bg-gray-50 border-b border-gray-50 last:border-b-0"
+                      className="block px-4 py-2.5 text-sm hover:bg-blue-50 border-b border-blue-50 last:border-b-0"
                     >
                       {brand}
                     </Link>
