@@ -7,7 +7,7 @@ from datetime import datetime
 import uuid
 
 class ProviderRegistrationTester:
-    def __init__(self, base_url="https://aiocean.preview.emergentagent.com"):
+    def __init__(self, base_url="https://ocean-superapp.preview.emergentagent.com"):
         self.base_url = base_url
         self.admin_token = None
         self.tests_run = 0
