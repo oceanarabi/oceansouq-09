@@ -410,13 +410,13 @@ const TopBar = () => {
   const currentLang = languages.find(l => l.code === language) || languages[0];
 
   return (
-    <div className="bg-gray-900 text-white text-xs py-1.5">
+    <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white text-xs py-1.5">
       <div className="container mx-auto px-4 flex justify-between items-center">
         {/* Promo Text */}
         <div className="flex items-center gap-4">
-          <span className="text-gray-300">شحن مجاني للطلبات فوق 200 ر.س</span>
-          <span className="hidden sm:inline text-cyan-400">|</span>
-          <Link to="/track-order" className="hidden sm:inline text-gray-300 hover:text-white">
+          <span className="text-blue-100">شحن مجاني للطلبات فوق 200 ر.س</span>
+          <span className="hidden sm:inline text-blue-300">|</span>
+          <Link to="/track-order" className="hidden sm:inline text-blue-100 hover:text-white">
             تتبع الطلب
           </Link>
         </div>
@@ -427,7 +427,7 @@ const TopBar = () => {
           <div className="relative">
             <button
               onClick={() => setShowLangMenu(!showLangMenu)}
-              className="flex items-center gap-1 text-gray-300 hover:text-white"
+              className="flex items-center gap-1 text-blue-100 hover:text-white"
               data-testid="lang-selector"
             >
               <span>{currentLang.flag}</span>
@@ -439,7 +439,7 @@ const TopBar = () => {
             
             {/* Language Dropdown */}
             {showLangMenu && (
-              <div className="absolute top-full left-0 mt-2 bg-white rounded shadow-xl z-50 min-w-[140px]">
+              <div className="absolute top-full left-0 mt-2 bg-white rounded-lg shadow-xl z-50 min-w-[140px] border border-blue-100">
                 {languages.map((lang) => (
                   <button
                     key={lang.code}
@@ -447,8 +447,8 @@ const TopBar = () => {
                       switchLanguage(lang.code);
                       setShowLangMenu(false);
                     }}
-                    className={`w-full px-3 py-2 flex items-center gap-2 hover:bg-gray-100 text-gray-700 ${
-                      language === lang.code ? 'bg-gray-50 font-medium' : ''
+                    className={`w-full px-3 py-2 flex items-center gap-2 hover:bg-blue-50 text-gray-700 ${
+                      language === lang.code ? 'bg-blue-50 text-blue-600 font-medium' : ''
                     }`}
                     data-testid={`lang-${lang.code}`}
                   >
@@ -463,7 +463,7 @@ const TopBar = () => {
           {/* Dark Mode Toggle */}
           <button
             onClick={toggleDarkMode}
-            className="text-gray-300 hover:text-white"
+            className="text-blue-100 hover:text-white"
             title={darkMode ? t('lightMode') : t('darkMode')}
           >
             {darkMode ? '☀️' : '🌙'}
