@@ -28,6 +28,17 @@ import AIEngines from './pages/AIEngines';
 import AdvancedAnalytics from './pages/AdvancedAnalytics';
 import AIAdvanced from './pages/AIAdvanced';
 
+// Phase 4 Pages
+import DigitalTwin from './pages/DigitalTwin';
+import AutonomousMode from './pages/AutonomousMode';
+import VoiceCommands from './pages/VoiceCommands';
+import SupportCenter from './pages/SupportCenter';
+import Loyalty from './pages/Loyalty';
+import Logistics from './pages/Logistics';
+import SecurityAdvanced from './pages/SecurityAdvanced';
+import CarRental from './pages/CarRental';
+import AnalyticsAI from './pages/AnalyticsAI';
+
 const API_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
 
 // Auth Context
