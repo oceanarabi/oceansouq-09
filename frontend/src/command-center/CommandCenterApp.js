@@ -277,6 +277,17 @@ const CommandCenterApp = () => {
       <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
       <Route path="/live-map" element={<ProtectedRoute><LiveMap /></ProtectedRoute>} />
       <Route path="/services" element={<ProtectedRoute><ServicesManager /></ProtectedRoute>} />
+      {/* Phase 4 Routes */}
+      <Route path="/digital-twin" element={<ProtectedRoute><DigitalTwin /></ProtectedRoute>} />
+      <Route path="/autonomous" element={<ProtectedRoute><AutonomousMode /></ProtectedRoute>} />
+      <Route path="/voice" element={<ProtectedRoute><VoiceCommands /></ProtectedRoute>} />
+      <Route path="/support-center" element={<ProtectedRoute><SupportCenter /></ProtectedRoute>} />
+      <Route path="/loyalty" element={<ProtectedRoute><Loyalty /></ProtectedRoute>} />
+      <Route path="/logistics" element={<ProtectedRoute><Logistics /></ProtectedRoute>} />
+      <Route path="/security-advanced" element={<ProtectedRoute><SecurityAdvanced /></ProtectedRoute>} />
+      <Route path="/car-rental" element={<ProtectedRoute><CarRental /></ProtectedRoute>} />
+      <Route path="/analytics-ai" element={<ProtectedRoute><AnalyticsAI /></ProtectedRoute>} />
+      {/* Existing Routes */}
       <Route path="/security" element={<ProtectedRoute><Security /></ProtectedRoute>} />
       <Route path="/finance" element={<ProtectedRoute><Finance /></ProtectedRoute>} />
       <Route path="/reports" element={<ProtectedRoute><Reports /></ProtectedRoute>} />
