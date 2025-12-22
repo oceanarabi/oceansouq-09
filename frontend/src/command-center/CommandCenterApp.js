@@ -311,6 +311,7 @@ const CommandCenterApp = () => {
       <Route path="/ai/*" element={<ProtectedRoute><AICenter /></ProtectedRoute>} />
       <Route path="/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />
       <Route path="/users" element={<ProtectedRoute><Users /></ProtectedRoute>} />
+      <Route path="/languages" element={<ProtectedRoute><LanguageSettings /></ProtectedRoute>} />
       <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
     </Routes>
   );
