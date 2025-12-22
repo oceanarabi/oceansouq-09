@@ -155,6 +155,18 @@ set_advanced_analytics_db(db)
 # Set database for AI advanced routes
 set_ai_advanced_db(db)
 
+# Set database for Phase 4 routes
+set_digital_twin_db(db)
+set_autonomous_db(db)
+set_voice_db(db)
+set_analytics_ai_db(db)
+set_support_center_db(db)
+set_loyalty_db(db)
+set_logistics_db(db)
+set_security_advanced_db(db)
+set_car_rental_db(db)
+set_user_settings_db(db)
+
 # Include admin router
 app.include_router(admin_router)
 
