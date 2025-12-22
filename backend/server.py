@@ -53,6 +53,9 @@ from routes.security_advanced import router as security_advanced_router, set_db 
 from routes.car_rental import router as car_rental_router, set_db as set_car_rental_db
 from routes.user_settings import router as user_settings_router, set_db as set_user_settings_db
 
+# Platform Settings Routes
+from routes.platform_settings import router as platform_settings_router, set_db as set_platform_settings_db
+
 # CORS Configuration
 app.add_middleware(
     CORSMiddleware,
