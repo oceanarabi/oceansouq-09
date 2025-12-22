@@ -512,16 +512,17 @@ const Header = () => {
 
   return (
     <header className="sticky top-0 z-40">
-      {/* Top Bar - SHEIN Style */}
-      <div className="bg-black text-white">
+      {/* Top Bar - Ocean Style */}
+      <div className="bg-gradient-to-r from-blue-700 to-blue-800 text-white">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-14">
             {/* Logo - Right Side for RTL */}
             <Link to="/" className="flex items-center gap-2">
               <div className="text-2xl font-black tracking-tight">
                 <span className="text-white">O</span>
-                <span className="text-cyan-400">CEAN</span>
+                <span className="text-blue-200">CEAN</span>
               </div>
+              <span className="text-xs text-blue-200 hidden sm:block">Shopping & Services</span>
             </Link>
 
             {/* Search Bar - Center */}
@@ -534,22 +535,22 @@ const Header = () => {
                   onFocus={() => searchSuggestions.length > 0 && setShowSuggestions(true)}
                   onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
                   placeholder={t('searchPlaceholder')}
-                  className="w-full px-4 py-2 text-sm text-gray-900 bg-white rounded-sm focus:outline-none"
+                  className="w-full px-4 py-2.5 text-sm text-gray-900 bg-white rounded-full focus:outline-none focus:ring-2 focus:ring-blue-300"
                   data-testid="search-input"
                 />
                 <button
                   type="submit"
-                  className="absolute left-0 top-0 h-full px-4 bg-white text-gray-500 hover:text-black"
+                  className="absolute left-1 top-1/2 -translate-y-1/2 h-8 px-4 bg-blue-600 text-white rounded-full hover:bg-blue-700"
                   data-testid="search-button"
                 >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                   </svg>
                 </button>
               </div>
               {/* Search Suggestions */}
               {showSuggestions && searchSuggestions.length > 0 && (
-                <div className="absolute top-full left-0 right-0 mt-1 bg-white rounded shadow-2xl z-50 max-h-96 overflow-y-auto">
+                <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-lg shadow-2xl z-50 max-h-96 overflow-y-auto border border-blue-100">
                   {searchSuggestions.map((suggestion, idx) => (
                     <div
                       key={idx}
@@ -558,14 +559,14 @@ const Header = () => {
                         setShowSuggestions(false);
                         setSearchQuery('');
                       }}
-                      className="p-3 hover:bg-gray-100 cursor-pointer flex items-center gap-3 border-b last:border-b-0"
+                      className="p-3 hover:bg-blue-50 cursor-pointer flex items-center gap-3 border-b last:border-b-0"
                     >
-                      <img src={suggestion.image_url} alt={suggestion.title} className="w-12 h-12 object-cover" />
+                      <img src={suggestion.image_url} alt={suggestion.title} className="w-12 h-12 object-cover rounded" />
                       <div className="flex-1">
                         <p className="font-medium text-sm text-gray-900">{suggestion.title}</p>
                         <p className="text-xs text-gray-500">{suggestion.category}</p>
                       </div>
-                      <span className="font-bold text-black">${suggestion.price}</span>
+                      <span className="font-bold text-blue-600">${suggestion.price}</span>
                     </div>
                   ))}
                 </div>
@@ -578,25 +579,25 @@ const Header = () => {
                 <>
                   {/* User Menu */}
                   <div className="relative group">
-                    <button className="flex flex-col items-center text-white hover:text-cyan-400 transition">
+                    <button className="flex flex-col items-center text-white hover:text-blue-200 transition">
                       <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                       </svg>
                       <span className="text-xs mt-0.5 hidden sm:block">{user.name?.split(' ')[0]}</span>
                     </button>
                     {/* User Dropdown */}
-                    <div className="absolute top-full left-0 mt-2 w-48 bg-white rounded shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all">
+                    <div className="absolute top-full left-0 mt-2 w-48 bg-white rounded-lg shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all border border-blue-100">
                       <div className="py-2">
-                        <div className="px-4 py-2 border-b">
+                        <div className="px-4 py-2 border-b border-blue-50">
                           <p className="font-medium text-gray-900">{user.name}</p>
                           <p className="text-xs text-gray-500">{user.email}</p>
                         </div>
-                        <Link to="/orders" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">طلباتي</Link>
-                        <Link to="/wishlist" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">المفضلة</Link>
+                        <Link to="/orders" className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50">طلباتي</Link>
+                        <Link to="/wishlist" className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50">المفضلة</Link>
                         {user.role !== 'seller' && (
-                          <Link to="/become-seller" className="block px-4 py-2 text-sm text-green-600 hover:bg-gray-100">كن بائعاً</Link>
+                          <Link to="/become-seller" className="block px-4 py-2 text-sm text-blue-600 hover:bg-blue-50">كن بائعاً</Link>
                         )}
-                        <button onClick={logout} className="w-full text-right px-4 py-2 text-sm text-red-600 hover:bg-gray-100">{t('logout')}</button>
+                        <button onClick={logout} className="w-full text-right px-4 py-2 text-sm text-red-600 hover:bg-red-50">{t('logout')}</button>
                       </div>
                     </div>
                   </div>
