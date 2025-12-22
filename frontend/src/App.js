@@ -603,7 +603,7 @@ const Header = () => {
                   </div>
 
                   {/* Wishlist */}
-                  <Link to="/wishlist" className="flex flex-col items-center text-white hover:text-cyan-400 transition relative" data-testid="wishlist-link">
+                  <Link to="/wishlist" className="flex flex-col items-center text-white hover:text-blue-200 transition relative" data-testid="wishlist-link">
                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                     </svg>
@@ -621,13 +621,13 @@ const Header = () => {
                     onMouseEnter={() => setShowCartPreview(true)}
                     onMouseLeave={() => setShowCartPreview(false)}
                   >
-                    <Link to="/cart" className="flex flex-col items-center text-white hover:text-cyan-400 transition relative" data-testid="cart-link">
+                    <Link to="/cart" className="flex flex-col items-center text-white hover:text-blue-200 transition relative" data-testid="cart-link">
                       <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                       </svg>
                       <span className="text-xs mt-0.5 hidden sm:block">السلة</span>
                       {cart.items.length > 0 && (
-                        <span className="absolute -top-1 -right-1 bg-cyan-400 text-black text-xs font-bold rounded-full w-4 h-4 flex items-center justify-center">
+                        <span className="absolute -top-1 -right-1 bg-blue-300 text-blue-800 text-xs font-bold rounded-full w-4 h-4 flex items-center justify-center">
                           {cart.items.length}
                         </span>
                       )}
@@ -635,12 +635,12 @@ const Header = () => {
                     
                     {/* Cart Preview */}
                     {showCartPreview && cart.items.length > 0 && (
-                      <div className="absolute top-full left-0 mt-2 w-80 bg-white rounded shadow-2xl z-50 p-4">
+                      <div className="absolute top-full left-0 mt-2 w-80 bg-white rounded-lg shadow-2xl z-50 p-4 border border-blue-100">
                         <h3 className="font-bold text-lg mb-3 text-gray-900">{t('shoppingCart')}</h3>
                         <div className="max-h-64 overflow-y-auto space-y-2">
                           {cart.items.slice(0, 3).map(item => (
-                            <div key={item.product_id} className="flex items-center gap-2 p-2 bg-gray-50 rounded">
-                              <img src={item.product?.image_url} alt={item.product?.title} className="w-12 h-12 object-cover" />
+                            <div key={item.product_id} className="flex items-center gap-2 p-2 bg-blue-50 rounded-lg">
+                              <img src={item.product?.image_url} alt={item.product?.title} className="w-12 h-12 object-cover rounded" />
                               <div className="flex-1">
                                 <p className="text-sm font-medium line-clamp-1 text-gray-900">{item.product?.title}</p>
                                 <p className="text-xs text-gray-500">{item.quantity} x ${item.product?.price}</p>
@@ -648,14 +648,14 @@ const Header = () => {
                             </div>
                           ))}
                         </div>
-                        <div className="mt-3 pt-3 border-t">
+                        <div className="mt-3 pt-3 border-t border-blue-100">
                           <div className="flex justify-between mb-3">
                             <span className="font-bold text-gray-900">{t('total')}:</span>
-                            <span className="font-bold text-black">${cart.total}</span>
+                            <span className="font-bold text-blue-600">${cart.total}</span>
                           </div>
                           <Link 
                             to="/cart" 
-                            className="block w-full bg-black text-white text-center py-2 hover:bg-gray-800"
+                            className="block w-full bg-blue-600 text-white text-center py-2.5 rounded-lg hover:bg-blue-700"
                           >
                             {t('viewCart')}
                           </Link>
@@ -666,13 +666,13 @@ const Header = () => {
                 </>
               ) : (
                 <>
-                  <Link to="/login" className="flex flex-col items-center text-white hover:text-cyan-400 transition" data-testid="login-btn">
+                  <Link to="/login" className="flex flex-col items-center text-white hover:text-blue-200 transition" data-testid="login-btn">
                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                     </svg>
                     <span className="text-xs mt-0.5">{t('login')}</span>
                   </Link>
-                  <Link to="/cart" className="flex flex-col items-center text-white hover:text-cyan-400 transition relative" data-testid="cart-link">
+                  <Link to="/cart" className="flex flex-col items-center text-white hover:text-blue-200 transition relative" data-testid="cart-link">
                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                     </svg>
@@ -685,8 +685,8 @@ const Header = () => {
         </div>
       </div>
 
-      {/* Navigation Bar - SHEIN Style */}
-      <nav className="bg-white border-b border-gray-200">
+      {/* Navigation Bar - Ocean Style */}
+      <nav className="bg-white border-b border-blue-100 shadow-sm">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-11 overflow-x-auto scrollbar-hide">
             {/* Categories Dropdown */}
@@ -695,7 +695,7 @@ const Header = () => {
               onMouseEnter={() => setShowCategoriesMenu(true)}
               onMouseLeave={() => setShowCategoriesMenu(false)}
             >
-              <button className="flex items-center gap-1 px-3 py-2 text-sm font-medium hover:text-cyan-600">
+              <button className="flex items-center gap-1 px-3 py-2 text-sm font-medium hover:text-blue-600">
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
                 </svg>
