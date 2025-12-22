@@ -5,256 +5,262 @@ import sys
 import json
 from datetime import datetime
 
-class OceanPhase3AITester:
+class Phase4APITester:
     def __init__(self, base_url="https://ocean-superapp.preview.emergentagent.com"):
         self.base_url = base_url
         self.token = None
         self.tests_run = 0
         self.tests_passed = 0
         self.failed_tests = []
-        self.session = requests.Session()
-        self.session.headers.update({'Content-Type': 'application/json'})
 
-    def log_result(self, test_name, success, response_data=None, error=None):
-        """Log test result"""
-        self.tests_run += 1
-        if success:
-            self.tests_passed += 1
-            print(f"✅ {test_name} - PASSED")
-        else:
-            print(f"❌ {test_name} - FAILED: {error}")
-            self.failed_tests.append({
-                "test": test_name,
-                "error": str(error),
-                "response": response_data
-            })
-
-    def run_test(self, name, method, endpoint, expected_status, data=None, params=None):
+    def run_test(self, name, method, endpoint, expected_status, data=None):
         """Run a single API test"""
         url = f"{self.base_url}/{endpoint}"
-        test_headers = self.session.headers.copy()
+        headers = {'Content-Type': 'application/json'}
+        if self.token:
+            headers['Authorization'] = f'Bearer {self.token}'
+
+        self.tests_run += 1
+        print(f"\n🔍 Testing {name}...")
+        print(f"   URL: {url}")
         
         try:
             if method == 'GET':
-                response = self.session.get(url, headers=test_headers, params=params)
+                response = requests.get(url, headers=headers, timeout=10)
             elif method == 'POST':
-                if params:
-                    # Handle query parameters for POST requests
-                    response = self.session.post(url, json=data, headers=test_headers, params=params)
-                else:
-                    response = self.session.post(url, json=data, headers=test_headers)
+                response = requests.post(url, json=data, headers=headers, timeout=10)
             elif method == 'PUT':
-                response = self.session.put(url, json=data, headers=test_headers)
-            elif method == 'DELETE':
-                response = self.session.delete(url, headers=test_headers)
+                response = requests.put(url, json=data, headers=headers, timeout=10)
 
             success = response.status_code == expected_status
-            response_data = None
-            
-            try:
-                response_data = response.json()
-            except:
-                response_data = response.text
-
             if success:
-                self.log_result(name, True, response_data)
-                return True, response_data
+                self.tests_passed += 1
+                print(f"✅ Passed - Status: {response.status_code}")
+                try:
+                    resp_json = response.json()
+                    if isinstance(resp_json, dict) and len(resp_json) > 0:
+                        print(f"   Response keys: {list(resp_json.keys())}")
+                except:
+                    pass
             else:
-                self.log_result(name, False, response_data, f"Expected {expected_status}, got {response.status_code}")
-                return False, response_data
+                print(f"❌ Failed - Expected {expected_status}, got {response.status_code}")
+                print(f"   Response: {response.text[:200]}...")
+                self.failed_tests.append({
+                    "name": name,
+                    "endpoint": endpoint,
+                    "expected": expected_status,
+                    "actual": response.status_code,
+                    "response": response.text[:200]
+                })
+
+            return success, response.json() if success and response.text else {}
 
         except Exception as e:
-            self.log_result(name, False, None, str(e))
-            return False, None
+            print(f"❌ Failed - Error: {str(e)}")
+            self.failed_tests.append({
+                "name": name,
+                "endpoint": endpoint,
+                "error": str(e)
+            })
+            return False, {}
 
-    def authenticate(self):
-        """Authenticate with admin credentials"""
-        print("\n🔐 Authenticating...")
+    def test_login(self):
+        """Test admin login and get token"""
+        print("\n🔐 Testing Admin Login...")
         success, response = self.run_test(
             "Admin Login",
             "POST",
             "api/auth/login",
             200,
-            {"email": "admin@ocean.com", "password": "admin123"}
+            data={"email": "admin@ocean.com", "password": "admin123"}
         )
-        
-        if success and response and 'token' in response:
+        if success and 'token' in response:
             self.token = response['token']
-            self.session.headers.update({'Authorization': f'Bearer {self.token}'})
-            print(f"✅ Authentication successful")
+            print(f"✅ Login successful, token obtained")
             return True
         else:
-            print(f"❌ Authentication failed")
+            print(f"❌ Login failed")
             return False
 
-    def test_ai_recommendations(self):
-        """Test AI Recommendations Engine"""
-        print("\n🎯 Testing AI Recommendations Engine...")
+    def test_digital_twin_apis(self):
+        """Test Digital Twin APIs"""
+        print("\n🔮 Testing Digital Twin APIs...")
         
-        # Test personalized recommendations
-        self.run_test("Personalized Recommendations", "POST", "api/ai-advanced/recommendations/personalized", 200, {
-            "user_id": "USR-001",
-            "current_page": "homepage",
-            "cart_items": [],
-            "browsing_history": []
-        })
+        endpoints = [
+            ("Digital Twin Overview", "api/digital-twin/overview"),
+            ("Digital Twin Warehouses", "api/digital-twin/warehouses"),
+            ("Digital Twin Vehicles", "api/digital-twin/vehicles"),
+            ("Digital Twin Orders Flow", "api/digital-twin/orders-flow"),
+            ("Digital Twin Heatmap", "api/digital-twin/heatmap"),
+            ("Digital Twin Alerts", "api/digital-twin/alerts"),
+            ("Digital Twin Performance", "api/digital-twin/performance")
+        ]
         
-        # Test similar products
-        self.run_test("Similar Products", "GET", "api/ai-advanced/recommendations/similar/iphone-15-pro", 200)
-        
-        # Test frequently bought together
-        self.run_test("Frequently Bought Together", "GET", "api/ai-advanced/recommendations/frequently-bought/iphone-15-pro", 200)
-        
-        # Test trending products
-        self.run_test("Trending Products", "GET", "api/ai-advanced/recommendations/trending", 200)
-        
-        # Test trending with filters
-        self.run_test("Trending Products - Electronics", "GET", "api/ai-advanced/recommendations/trending?category=electronics", 200)
+        for name, endpoint in endpoints:
+            self.run_test(name, "GET", endpoint, 200)
 
-    def test_ai_fraud_detection(self):
-        """Test AI Fraud Detection Engine"""
-        print("\n🛡️ Testing AI Fraud Detection Engine...")
+    def test_autonomous_apis(self):
+        """Test Autonomous Mode APIs"""
+        print("\n🤖 Testing Autonomous Mode APIs...")
         
-        # Test fraud dashboard
-        self.run_test("Fraud Dashboard", "GET", "api/ai-advanced/fraud/dashboard", 200)
+        endpoints = [
+            ("Autonomous Status", "api/autonomous/status"),
+            ("Autonomous Pricing Decisions", "api/autonomous/pricing/decisions"),
+            ("Autonomous Inventory Decisions", "api/autonomous/inventory/decisions"),
+            ("Autonomous Dispatch Optimizations", "api/autonomous/dispatch/optimizations"),
+            ("Autonomous Support Resolved", "api/autonomous/support/resolved"),
+            ("Autonomous Logs", "api/autonomous/logs"),
+            ("Autonomous Recommendations", "api/autonomous/recommendations")
+        ]
         
-        # Test fraud analysis
-        self.run_test("Fraud Analysis", "POST", "api/ai-advanced/fraud/analyze", 200, {
-            "transaction_id": "TXN-12345",
-            "amount": 1500.0,
-            "currency": "SAR",
-            "payment_method": "visa",
-            "customer_id": "CUST-001",
-            "ip_address": "192.168.1.1"
-        })
-        
-        # Test fraud rules
-        self.run_test("Fraud Rules", "GET", "api/ai-advanced/fraud/rules", 200)
-        
-        # Test create fraud rule
-        self.run_test("Create Fraud Rule", "POST", "api/ai-advanced/fraud/rules", 200, None, {
-            "name": "Test Rule",
-            "condition": "amount > 5000",
-            "action": "review"
-        })
+        for name, endpoint in endpoints:
+            self.run_test(name, "GET", endpoint, 200)
 
-    def test_ai_sentiment_analysis(self):
-        """Test AI Sentiment Analysis Engine"""
-        print("\n😊 Testing AI Sentiment Analysis Engine...")
+    def test_voice_commands_apis(self):
+        """Test Voice Commands APIs"""
+        print("\n🎙️ Testing Voice Commands APIs...")
         
-        # Test reviews sentiment analysis
-        self.run_test("Reviews Sentiment Analysis", "GET", "api/ai-advanced/sentiment/reviews-analysis", 200)
+        endpoints = [
+            ("Voice Supported Commands", "api/voice/supported-commands"),
+            ("Voice Command History", "api/voice/history")
+        ]
         
-        # Test reviews sentiment with filters
-        self.run_test("Reviews Sentiment - 30 days", "GET", "api/ai-advanced/sentiment/reviews-analysis?period=30d", 200)
+        for name, endpoint in endpoints:
+            self.run_test(name, "GET", endpoint, 200)
         
-        # Test single text analysis
-        self.run_test("Single Text Analysis", "POST", "api/ai-advanced/sentiment/analyze", 200, {
-            "text": "هذا المنتج ممتاز وجودته عالية",
-            "language": "ar",
-            "context": "review"
-        })
-        
-        # Test batch sentiment analysis
-        self.run_test("Batch Sentiment Analysis", "POST", "api/ai-advanced/sentiment/batch", 200, [
-            "منتج رائع وسريع التوصيل",
-            "الخدمة سيئة والمنتج معطل",
-            "جودة متوسطة والسعر مناسب"
-        ])
+        # Test voice command processing
+        self.run_test(
+            "Voice Process Command",
+            "POST",
+            "api/voice/process",
+            200,
+            data={"text": "أرني المبيعات", "language": "ar"}
+        )
 
-    def test_ai_demand_forecasting(self):
-        """Test AI Demand Forecasting Engine"""
-        print("\n📈 Testing AI Demand Forecasting Engine...")
+    def test_analytics_ai_apis(self):
+        """Test Analytics AI APIs"""
+        print("\n🧠 Testing Analytics AI APIs...")
         
-        # Test demand insights
-        self.run_test("Demand Insights", "GET", "api/ai-advanced/demand/insights", 200)
+        endpoints = [
+            ("Sales Prediction", "api/analytics-advanced/sales-prediction?period=7d"),
+            ("Competitor Analysis", "api/analytics-advanced/competitor-analysis"),
+            ("Marketing Campaigns", "api/analytics-advanced/marketing/campaigns"),
+            ("A/B Tests", "api/analytics-advanced/ab-tests")
+        ]
         
-        # Test demand forecast
-        self.run_test("Demand Forecast", "POST", "api/ai-advanced/demand/forecast", 200, {
-            "product_id": "iphone-15-pro",
-            "forecast_days": 30,
-            "include_seasonality": True,
-            "include_trends": True
-        })
+        for name, endpoint in endpoints:
+            self.run_test(name, "GET", endpoint, 200)
 
-    def test_ai_customer_segmentation(self):
-        """Test AI Customer Segmentation Engine"""
-        print("\n👥 Testing AI Customer Segmentation Engine...")
+    def test_support_center_apis(self):
+        """Test Support Center APIs"""
+        print("\n🏢 Testing Support Center APIs...")
         
-        # Test segmentation overview
-        self.run_test("Segmentation Overview", "GET", "api/ai-advanced/segmentation/overview", 200)
+        endpoints = [
+            ("Support Dashboard", "api/support-center/dashboard"),
+            ("Support Tickets", "api/support-center/tickets"),
+            ("Support Active Chats", "api/support-center/chat/active"),
+            ("Support Call Queue", "api/support-center/calls/queue"),
+            ("Support Call Stats", "api/support-center/calls/stats"),
+            ("Support Notification Templates", "api/support-center/notifications/templates")
+        ]
         
-        # Test individual customer segment
-        self.run_test("Customer Segment Analysis", "GET", "api/ai-advanced/segmentation/customer/CUST-001", 200)
+        for name, endpoint in endpoints:
+            self.run_test(name, "GET", endpoint, 200)
 
-    def test_integration_endpoints(self):
-        """Test AI integration scenarios"""
-        print("\n🔗 Testing AI Integration Scenarios...")
+    def test_loyalty_apis(self):
+        """Test Loyalty APIs"""
+        print("\n🏆 Testing Loyalty APIs...")
         
-        # Test recommendations data structure
-        success, rec_data = self.run_test("Recommendations Data Structure", "POST", "api/ai-advanced/recommendations/personalized", 200, {
-            "user_id": "USR-001",
-            "current_page": "homepage"
-        })
-        if success and rec_data:
-            if 'recommendations' in rec_data and 'user_profile' in rec_data:
-                self.log_result("Recommendations Structure", True)
-            else:
-                self.log_result("Recommendations Structure", False, None, "Missing required fields")
+        endpoints = [
+            ("Loyalty Program Overview", "api/loyalty/program/overview"),
+            ("Loyalty Members", "api/loyalty/members"),
+            ("Loyalty Installments Plans", "api/loyalty/installments/plans"),
+            ("Loyalty Active Installments", "api/loyalty/installments/active")
+        ]
         
-        # Test fraud dashboard data structure
-        success, fraud_data = self.run_test("Fraud Dashboard Data Structure", "GET", "api/ai-advanced/fraud/dashboard", 200)
-        if success and fraud_data:
-            if 'overview' in fraud_data and 'fraud_types' in fraud_data:
-                self.log_result("Fraud Dashboard Structure", True)
-            else:
-                self.log_result("Fraud Dashboard Structure", False, None, "Missing required fields")
-        
-        # Test sentiment analysis data structure
-        success, sentiment_data = self.run_test("Sentiment Analysis Data Structure", "GET", "api/ai-advanced/sentiment/reviews-analysis", 200)
-        if success and sentiment_data:
-            if 'sentiment_distribution' in sentiment_data and 'top_positive_aspects' in sentiment_data:
-                self.log_result("Sentiment Analysis Structure", True)
-            else:
-                self.log_result("Sentiment Analysis Structure", False, None, "Missing required fields")
+        for name, endpoint in endpoints:
+            self.run_test(name, "GET", endpoint, 200)
 
-    def run_all_tests(self):
-        """Run all Phase 3 AI API tests"""
-        print("🌊 Ocean Super App - Phase 3 AI Features API Testing")
-        print("=" * 60)
+    def test_logistics_apis(self):
+        """Test Logistics APIs"""
+        print("\n🚚 Testing Logistics APIs...")
         
-        # Authenticate first
-        if not self.authenticate():
-            print("❌ Cannot proceed without authentication")
-            return False
+        endpoints = [
+            ("Logistics Route Optimization", "api/logistics/routes/optimize"),
+            ("Logistics Traffic Conditions", "api/logistics/routes/traffic"),
+            ("Logistics Fleet Tracking", "api/logistics/tracking/fleet"),
+            ("Logistics Inventory Status", "api/logistics/inventory/status"),
+            ("Logistics Delivery Slots", "api/logistics/scheduling/slots")
+        ]
         
-        # Test all AI modules
-        self.test_ai_recommendations()
-        self.test_ai_fraud_detection()
-        self.test_ai_sentiment_analysis()
-        self.test_ai_demand_forecasting()
-        self.test_ai_customer_segmentation()
-        self.test_integration_endpoints()
+        for name, endpoint in endpoints:
+            self.run_test(name, "GET", endpoint, 200)
+
+    def test_security_advanced_apis(self):
+        """Test Security Advanced APIs"""
+        print("\n🔐 Testing Security Advanced APIs...")
         
-        # Print summary
-        print("\n" + "=" * 60)
-        print(f"📊 TEST SUMMARY")
-        print(f"Total Tests: {self.tests_run}")
-        print(f"Passed: {self.tests_passed}")
-        print(f"Failed: {len(self.failed_tests)}")
-        print(f"Success Rate: {(self.tests_passed/self.tests_run*100):.1f}%")
+        endpoints = [
+            ("Security 2FA Status", "api/security-advanced/2fa/status"),
+            ("Security Audit Log", "api/security-advanced/audit-log"),
+            ("Security DDoS Status", "api/security-advanced/ddos/status"),
+            ("Security Compliance Status", "api/security-advanced/compliance/status"),
+            ("Security Data Requests", "api/security-advanced/compliance/data-requests"),
+            ("Security Active Sessions", "api/security-advanced/sessions/active")
+        ]
         
-        if self.failed_tests:
-            print(f"\n❌ FAILED TESTS:")
-            for test in self.failed_tests:
-                print(f"  - {test['test']}: {test['error']}")
+        for name, endpoint in endpoints:
+            self.run_test(name, "GET", endpoint, 200)
+
+    def test_car_rental_apis(self):
+        """Test Car Rental APIs"""
+        print("\n🚗 Testing Car Rental APIs...")
         
-        return len(self.failed_tests) == 0
+        endpoints = [
+            ("Car Rental Cars", "api/car-rental/cars"),
+            ("Car Rental Bookings", "api/car-rental/bookings"),
+            ("Car Rental Locations", "api/car-rental/locations")
+        ]
+        
+        for name, endpoint in endpoints:
+            self.run_test(name, "GET", endpoint, 200)
 
 def main():
-    tester = OceanPhase3AITester()
-    success = tester.run_all_tests()
-    return 0 if success else 1
+    print("🌊 Ocean Super App - Phase 4 API Testing")
+    print("=" * 50)
+    
+    tester = Phase4APITester()
+    
+    # Test login first
+    if not tester.test_login():
+        print("\n❌ Login failed, cannot proceed with authenticated tests")
+        return 1
+    
+    # Test all Phase 4 APIs
+    tester.test_digital_twin_apis()
+    tester.test_autonomous_apis()
+    tester.test_voice_commands_apis()
+    tester.test_analytics_ai_apis()
+    tester.test_support_center_apis()
+    tester.test_loyalty_apis()
+    tester.test_logistics_apis()
+    tester.test_security_advanced_apis()
+    tester.test_car_rental_apis()
+    
+    # Print final results
+    print("\n" + "=" * 50)
+    print(f"📊 Final Results:")
+    print(f"   Tests Run: {tester.tests_run}")
+    print(f"   Tests Passed: {tester.tests_passed}")
+    print(f"   Tests Failed: {len(tester.failed_tests)}")
+    print(f"   Success Rate: {(tester.tests_passed/tester.tests_run*100):.1f}%")
+    
+    if tester.failed_tests:
+        print(f"\n❌ Failed Tests:")
+        for test in tester.failed_tests:
+            print(f"   - {test['name']}: {test.get('error', f'Status {test.get(\"actual\", \"unknown\")}')}")
+    
+    return 0 if tester.tests_passed == tester.tests_run else 1
 
 if __name__ == "__main__":
     sys.exit(main())
