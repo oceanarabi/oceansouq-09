@@ -236,6 +236,18 @@ app.include_router(advanced_analytics_router)
 # Include AI advanced routes
 app.include_router(ai_advanced_router)
 
+# Include Phase 4 routes
+app.include_router(digital_twin_router)
+app.include_router(autonomous_router)
+app.include_router(voice_router)
+app.include_router(analytics_ai_router)
+app.include_router(support_center_router)
+app.include_router(loyalty_router)
+app.include_router(logistics_router)
+app.include_router(security_advanced_router)
+app.include_router(car_rental_router)
+app.include_router(user_settings_router)
+
 # JWT Configuration
 JWT_SECRET = os.environ.get('JWT_SECRET', 'oceansouq-secret-key-change-in-production')
 JWT_ALGORITHM = 'HS256'
