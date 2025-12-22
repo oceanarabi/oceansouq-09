@@ -401,13 +401,10 @@ const TopBar = () => {
   const { darkMode, toggleDarkMode } = useDarkMode();
   const [showLangMenu, setShowLangMenu] = useState(false);
 
+  // Only AR and EN languages
   const languages = [
-    { code: 'en', name: 'English', flag: '🇺🇸' },
     { code: 'ar', name: 'العربية', flag: '🇸🇦' },
-    { code: 'tr', name: 'Türkçe', flag: '🇹🇷' },
-    { code: 'de', name: 'Deutsch', flag: '🇩🇪' },
-    { code: 'zh', name: '中文', flag: '🇨🇳' },
-    { code: 'fr', name: 'Français', flag: '🇫🇷' }
+    { code: 'en', name: 'English', flag: '🇺🇸' },
   ];
 
   const currentLang = languages.find(l => l.code === language) || languages[0];
