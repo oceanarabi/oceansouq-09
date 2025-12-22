@@ -250,6 +250,7 @@ app.include_router(logistics_router)
 app.include_router(security_advanced_router)
 app.include_router(car_rental_router)
 app.include_router(user_settings_router)
+app.include_router(platform_settings_router, prefix="/api/platform", tags=["Platform Settings"])
 
 # JWT Configuration
 JWT_SECRET = os.environ.get('JWT_SECRET', 'oceansouq-secret-key-change-in-production')
