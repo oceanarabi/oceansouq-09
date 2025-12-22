@@ -169,6 +169,7 @@ set_logistics_db(db)
 set_security_advanced_db(db)
 set_car_rental_db(db)
 set_user_settings_db(db)
+set_platform_settings_db(db)
 
 # Include admin router
 app.include_router(admin_router)
