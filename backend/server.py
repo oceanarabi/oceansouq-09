@@ -41,6 +41,18 @@ from routes.ai_engines import router as ai_engines_router, set_db as set_ai_engi
 from routes.advanced_analytics import router as advanced_analytics_router, set_db as set_advanced_analytics_db
 from routes.ai_advanced import router as ai_advanced_router, set_db as set_ai_advanced_db
 
+# Phase 4 Routes
+from routes.digital_twin import router as digital_twin_router, set_db as set_digital_twin_db
+from routes.autonomous import router as autonomous_router, set_db as set_autonomous_db
+from routes.voice_commands import router as voice_router, set_db as set_voice_db
+from routes.analytics_ai import router as analytics_ai_router, set_db as set_analytics_ai_db
+from routes.support_center import router as support_center_router, set_db as set_support_center_db
+from routes.loyalty import router as loyalty_router, set_db as set_loyalty_db
+from routes.logistics import router as logistics_router, set_db as set_logistics_db
+from routes.security_advanced import router as security_advanced_router, set_db as set_security_advanced_db
+from routes.car_rental import router as car_rental_router, set_db as set_car_rental_db
+from routes.user_settings import router as user_settings_router, set_db as set_user_settings_db
+
 # CORS Configuration
 app.add_middleware(
     CORSMiddleware,
