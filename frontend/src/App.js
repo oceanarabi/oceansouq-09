@@ -516,322 +516,321 @@ const Header = () => {
   }, [searchQuery]);
 
   return (
-    <header className="bg-white dark:bg-gray-900 border-b-2 border-ocean-100 dark:border-gray-700 sticky top-0 z-40 shadow-sm">
-      <div className="container mx-auto px-3 md:px-4 py-3 md:py-5">
-        <div className="flex items-center justify-between gap-3 md:gap-6">
-          {/* Animated Logo */}
-          <div className="flex-shrink-0">
-            <AnimatedLogo />
-          </div>
-
-          {/* Search Bar - Mobile Optimized */}
-          <form onSubmit={handleSearch} className="flex-1 max-w-3xl relative">
-            <div className="relative flex items-center">
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                onFocus={() => searchSuggestions.length > 0 && setShowSuggestions(true)}
-                onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
-                placeholder={t('searchPlaceholder')}
-                className="w-full px-4 md:px-6 py-2.5 md:py-3 text-sm md:text-base border-2 border-ocean-300 dark:border-gray-600 rounded-xl md:rounded-full bg-gray-50 dark:bg-gray-800 dark:text-white focus:border-ocean-500 focus:outline-none focus:ring-2 focus:ring-ocean-200 dark:focus:ring-ocean-500/30 focus:bg-white dark:focus:bg-gray-700 transition-all"
-                data-testid="search-input"
-              />
-              <button
-                type="button"
-                onClick={() => alert('Barcode scanner feature - Coming soon!')}
-                className="absolute right-14 md:right-20 top-1/2 -translate-y-1/2 text-ocean-600 hover:text-ocean-700 text-lg md:text-xl p-1"
-                title="Scan Barcode"
-              >
-                📷
-              </button>
-              <button
-                type="submit"
-                className="absolute right-1.5 top-1/2 -translate-y-1/2 bg-ocean-500 text-white px-3 md:px-6 py-1.5 md:py-2 rounded-lg md:rounded-full hover:bg-ocean-600 transition text-sm md:text-base"
-                data-testid="search-button"
-              >
-                🔍
-              </button>
-            </div>
-            {/* Search Suggestions */}
-            {showSuggestions && searchSuggestions.length > 0 && (
-              <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-2xl z-50 max-h-96 overflow-y-auto">
-                {searchSuggestions.map((suggestion, idx) => (
-                  <div
-                    key={idx}
-                    onClick={() => {
-                      navigate(`/products/${suggestion.id}`);
-                      setShowSuggestions(false);
-                      setSearchQuery('');
-                    }}
-                    className="p-3 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer flex items-center gap-3 border-b last:border-b-0"
-                  >
-                    <img src={suggestion.image_url} alt={suggestion.title} className="w-12 h-12 object-cover rounded" />
-                    <div className="flex-1">
-                      <p className="font-semibold text-sm dark:text-white">{suggestion.title}</p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">{suggestion.category}</p>
-                    </div>
-                    <span className="font-bold text-ocean-600">${suggestion.price}</span>
-                  </div>
-                ))}
+    <header className="sticky top-0 z-40">
+      {/* Top Bar - SHEIN Style */}
+      <div className="bg-black text-white">
+        <div className="container mx-auto px-4">
+          <div className="flex items-center justify-between h-14">
+            {/* Logo - Right Side for RTL */}
+            <Link to="/" className="flex items-center gap-2">
+              <div className="text-2xl font-black tracking-tight">
+                <span className="text-white">O</span>
+                <span className="text-cyan-400">CEAN</span>
               </div>
-            )}
-          </form>
+            </Link>
 
-          {/* Actions */}
-          <div className="flex items-center space-x-4">
-            {user ? (
-              <>
-                {/* Compare Link */}
-                <Link to="/compare" className="relative hover:text-ocean-600" title={t('compareProducts')} data-testid="compare-link">
-                  <span className="text-xl md:text-2xl">📊</span>
-                </Link>
-                {/* Shopping Lists Link */}
-                <Link to="/shopping-lists" className="relative hover:text-ocean-600" title={t('sharedLists')} data-testid="lists-link">
-                  <span className="text-xl md:text-2xl">📋</span>
-                </Link>
-                <Link to="/wishlist" className="relative hover:text-ocean-600" data-testid="wishlist-link">
-                  <span className="text-2xl">❤️</span>
-                  {wishlist.items.length > 0 && (
-                    <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                      {wishlist.items.length}
-                    </span>
-                  )}
-                </Link>
-                <div 
-                  className="relative"
-                  onMouseEnter={() => setShowCartPreview(true)}
-                  onMouseLeave={() => setShowCartPreview(false)}
+            {/* Search Bar - Center */}
+            <form onSubmit={handleSearch} className="flex-1 max-w-2xl mx-8 hidden md:block relative">
+              <div className="relative flex items-center">
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onFocus={() => searchSuggestions.length > 0 && setShowSuggestions(true)}
+                  onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+                  placeholder={t('searchPlaceholder')}
+                  className="w-full px-4 py-2 text-sm text-gray-900 bg-white rounded-sm focus:outline-none"
+                  data-testid="search-input"
+                />
+                <button
+                  type="submit"
+                  className="absolute left-0 top-0 h-full px-4 bg-white text-gray-500 hover:text-black"
+                  data-testid="search-button"
                 >
-                  <Link to="/cart" className="relative hover:text-ocean-600" data-testid="cart-link">
-                    <span className="text-2xl">🛒</span>
-                    {cart.items.length > 0 && (
-                      <span className="absolute -top-2 -right-2 bg-ocean-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                        {cart.items.length}
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                </button>
+              </div>
+              {/* Search Suggestions */}
+              {showSuggestions && searchSuggestions.length > 0 && (
+                <div className="absolute top-full left-0 right-0 mt-1 bg-white rounded shadow-2xl z-50 max-h-96 overflow-y-auto">
+                  {searchSuggestions.map((suggestion, idx) => (
+                    <div
+                      key={idx}
+                      onClick={() => {
+                        navigate(`/products/${suggestion.id}`);
+                        setShowSuggestions(false);
+                        setSearchQuery('');
+                      }}
+                      className="p-3 hover:bg-gray-100 cursor-pointer flex items-center gap-3 border-b last:border-b-0"
+                    >
+                      <img src={suggestion.image_url} alt={suggestion.title} className="w-12 h-12 object-cover" />
+                      <div className="flex-1">
+                        <p className="font-medium text-sm text-gray-900">{suggestion.title}</p>
+                        <p className="text-xs text-gray-500">{suggestion.category}</p>
+                      </div>
+                      <span className="font-bold text-black">${suggestion.price}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </form>
+
+            {/* Icons - Left Side */}
+            <div className="flex items-center gap-4">
+              {user ? (
+                <>
+                  {/* User Menu */}
+                  <div className="relative group">
+                    <button className="flex flex-col items-center text-white hover:text-cyan-400 transition">
+                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                      </svg>
+                      <span className="text-xs mt-0.5 hidden sm:block">{user.name?.split(' ')[0]}</span>
+                    </button>
+                    {/* User Dropdown */}
+                    <div className="absolute top-full left-0 mt-2 w-48 bg-white rounded shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all">
+                      <div className="py-2">
+                        <div className="px-4 py-2 border-b">
+                          <p className="font-medium text-gray-900">{user.name}</p>
+                          <p className="text-xs text-gray-500">{user.email}</p>
+                        </div>
+                        <Link to="/orders" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">طلباتي</Link>
+                        <Link to="/wishlist" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">المفضلة</Link>
+                        {user.role !== 'seller' && (
+                          <Link to="/become-seller" className="block px-4 py-2 text-sm text-green-600 hover:bg-gray-100">كن بائعاً</Link>
+                        )}
+                        <button onClick={logout} className="w-full text-right px-4 py-2 text-sm text-red-600 hover:bg-gray-100">{t('logout')}</button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Wishlist */}
+                  <Link to="/wishlist" className="flex flex-col items-center text-white hover:text-cyan-400 transition relative" data-testid="wishlist-link">
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                    </svg>
+                    <span className="text-xs mt-0.5 hidden sm:block">المفضلة</span>
+                    {wishlist.items.length > 0 && (
+                      <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
+                        {wishlist.items.length}
                       </span>
                     )}
                   </Link>
-                  
-                  {/* Cart Preview */}
-                  {showCartPreview && cart.items.length > 0 && (
-                    <div className="absolute top-full right-0 mt-2 w-80 bg-white dark:bg-gray-800 rounded-lg shadow-2xl z-50 p-4">
-                      <h3 className="font-bold text-lg mb-3 dark:text-white">{t('shoppingCart')}</h3>
-                      <div className="max-h-64 overflow-y-auto space-y-2">
-                        {cart.items.slice(0, 3).map(item => (
-                          <div key={item.product_id} className="flex items-center gap-2 p-2 bg-gray-50 dark:bg-gray-700 rounded">
-                            <img src={item.product?.image_url} alt={item.product?.title} className="w-12 h-12 object-cover rounded" />
-                            <div className="flex-1">
-                              <p className="text-sm font-semibold line-clamp-1 dark:text-white">{item.product?.title}</p>
-                              <p className="text-xs text-gray-600 dark:text-gray-400">{item.quantity} x ${item.product?.price}</p>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                      <div className="mt-3 pt-3 border-t">
-                        <div className="flex justify-between mb-3">
-                          <span className="font-bold dark:text-white">{t('total')}:</span>
-                          <span className="font-bold text-ocean-600">${cart.total}</span>
-                        </div>
-                        <Link 
-                          to="/cart" 
-                          className="block w-full bg-ocean-600 text-white text-center py-2 rounded-lg hover:bg-ocean-700"
-                        >
-                          {t('viewCart')}
-                        </Link>
-                      </div>
-                    </div>
-                  )}
-                </div>
-                <div className="flex items-center space-x-3">
-                  <LoyaltyBadge />
-                  <span className="text-sm hidden lg:block dark:text-white" data-testid="user-name">{t('welcome')}, {user.name}</span>
-                  {user.role !== 'seller' && (
-                    <Link 
-                      to="/become-seller"
-                      className="hidden md:block bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-semibold"
-                    >
-                      💼 Become a Seller
-                    </Link>
-                  )}
-                  <button
-                    onClick={logout}
-                    className="bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-white px-3 sm:px-4 py-2 rounded-lg text-sm"
-                    data-testid="logout-btn"
+
+                  {/* Cart */}
+                  <div 
+                    className="relative"
+                    onMouseEnter={() => setShowCartPreview(true)}
+                    onMouseLeave={() => setShowCartPreview(false)}
                   >
-                    {t('logout')}
-                  </button>
-                </div>
-              </>
-            ) : (
-              <>
-                <Link
-                  to="/login"
-                  className="bg-ocean-600 hover:bg-ocean-700 text-white px-6 py-2 rounded-lg"
-                  data-testid="login-btn"
-                >
-                  {t('login')}
-                </Link>
-                <Link
-                  to="/register"
-                  className="border-2 border-ocean-600 text-ocean-600 hover:bg-ocean-50 px-6 py-2 rounded-lg"
-                  data-testid="register-btn"
-                >
-                  {t('register')}
-                </Link>
-              </>
-            )}
+                    <Link to="/cart" className="flex flex-col items-center text-white hover:text-cyan-400 transition relative" data-testid="cart-link">
+                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                      </svg>
+                      <span className="text-xs mt-0.5 hidden sm:block">السلة</span>
+                      {cart.items.length > 0 && (
+                        <span className="absolute -top-1 -right-1 bg-cyan-400 text-black text-xs font-bold rounded-full w-4 h-4 flex items-center justify-center">
+                          {cart.items.length}
+                        </span>
+                      )}
+                    </Link>
+                    
+                    {/* Cart Preview */}
+                    {showCartPreview && cart.items.length > 0 && (
+                      <div className="absolute top-full left-0 mt-2 w-80 bg-white rounded shadow-2xl z-50 p-4">
+                        <h3 className="font-bold text-lg mb-3 text-gray-900">{t('shoppingCart')}</h3>
+                        <div className="max-h-64 overflow-y-auto space-y-2">
+                          {cart.items.slice(0, 3).map(item => (
+                            <div key={item.product_id} className="flex items-center gap-2 p-2 bg-gray-50 rounded">
+                              <img src={item.product?.image_url} alt={item.product?.title} className="w-12 h-12 object-cover" />
+                              <div className="flex-1">
+                                <p className="text-sm font-medium line-clamp-1 text-gray-900">{item.product?.title}</p>
+                                <p className="text-xs text-gray-500">{item.quantity} x ${item.product?.price}</p>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                        <div className="mt-3 pt-3 border-t">
+                          <div className="flex justify-between mb-3">
+                            <span className="font-bold text-gray-900">{t('total')}:</span>
+                            <span className="font-bold text-black">${cart.total}</span>
+                          </div>
+                          <Link 
+                            to="/cart" 
+                            className="block w-full bg-black text-white text-center py-2 hover:bg-gray-800"
+                          >
+                            {t('viewCart')}
+                          </Link>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </>
+              ) : (
+                <>
+                  <Link to="/login" className="flex flex-col items-center text-white hover:text-cyan-400 transition" data-testid="login-btn">
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                    <span className="text-xs mt-0.5">{t('login')}</span>
+                  </Link>
+                  <Link to="/cart" className="flex flex-col items-center text-white hover:text-cyan-400 transition relative" data-testid="cart-link">
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                    </svg>
+                    <span className="text-xs mt-0.5">السلة</span>
+                  </Link>
+                </>
+              )}
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Main Navigation Bar */}
-      <nav className="bg-white dark:bg-gray-800 border-t dark:border-gray-700 shadow-sm">
+      {/* Navigation Bar - SHEIN Style */}
+      <nav className="bg-white border-b border-gray-200">
         <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between py-3">
+          <div className="flex items-center justify-between h-11 overflow-x-auto scrollbar-hide">
             {/* Categories Dropdown */}
             <div 
-              className="relative"
+              className="relative flex-shrink-0"
               onMouseEnter={() => setShowCategoriesMenu(true)}
               onMouseLeave={() => setShowCategoriesMenu(false)}
             >
-              <button className="flex items-center gap-2 px-4 py-2 bg-ocean-600 text-white rounded-lg hover:bg-ocean-700 font-semibold">
-                <span>☰</span>
-                <span>CATEGORIES</span>
-                <span>▼</span>
+              <button className="flex items-center gap-1 px-3 py-2 text-sm font-medium hover:text-cyan-600">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+                <span>الأقسام</span>
               </button>
               
               {showCategoriesMenu && (
-                <div className="absolute top-full left-0 mt-1 w-64 bg-white dark:bg-gray-800 rounded-lg shadow-2xl z-50 max-h-96 overflow-y-auto">
-                  <div className="p-2">
-                    {[
-                      { name: t('womensFashion'), icon: '👗', category: 'WomensFashion' },
-                      { name: t('mensFashion'), icon: '👔', category: 'MensFashion' },
-                      { name: t('kidsBaby'), icon: '👶', category: 'KidsBaby' },
-                      { name: t('homeKitchen'), icon: '🏠', category: 'HomeKitchen' },
-                      { name: t('beautyPersonalCare'), icon: '💄', category: 'Beauty' },
-                      { name: t('sportsFitness'), icon: '⚽', category: 'SportsFitness' },
-                      { name: t('electronics'), icon: '📱', category: 'Electronics' },
-                      { name: t('shoes'), icon: '👟', category: 'Shoes' },
-                    ].map((cat, idx) => (
-                      <Link
-                        key={idx}
-                        to={`/products?category=${cat.category}`}
-                        className="flex items-center gap-3 p-3 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
-                      >
-                        <span className="text-2xl">{cat.icon}</span>
-                        <span className="dark:text-white">{cat.name}</span>
-                      </Link>
-                    ))}
-                  </div>
+                <div className="absolute top-full right-0 mt-0 w-64 bg-white rounded-b shadow-xl z-50 max-h-96 overflow-y-auto border border-gray-100">
+                  {[
+                    { name: t('womensFashion'), category: 'WomensFashion' },
+                    { name: t('mensFashion'), category: 'MensFashion' },
+                    { name: t('kidsBaby'), category: 'KidsBaby' },
+                    { name: t('homeKitchen'), category: 'HomeKitchen' },
+                    { name: t('beautyPersonalCare'), category: 'Beauty' },
+                    { name: t('sportsFitness'), category: 'SportsFitness' },
+                    { name: t('electronics'), category: 'Electronics' },
+                    { name: t('shoes'), category: 'Shoes' },
+                  ].map((cat, idx) => (
+                    <Link
+                      key={idx}
+                      to={`/products?category=${cat.category}`}
+                      className="block px-4 py-3 text-sm hover:bg-gray-50 border-b border-gray-50 last:border-b-0"
+                    >
+                      {cat.name}
+                    </Link>
+                  ))}
                 </div>
               )}
             </div>
 
             {/* Main Nav Links */}
-            <div className="hidden md:flex items-center gap-8">
-              <Link to="/products?category=WomensFashion" className="hover:text-ocean-600 font-medium dark:text-white">WOMEN</Link>
-              <Link to="/products?category=MensFashion" className="hover:text-ocean-600 font-medium dark:text-white">MEN</Link>
-              <Link to="/products?category=KidsBaby" className="hover:text-ocean-600 font-medium dark:text-white">KIDS</Link>
-              <Link to="/products?category=HomeKitchen" className="hover:text-ocean-600 font-medium dark:text-white">HOME</Link>
-              <Link to="/products?category=Beauty" className="hover:text-ocean-600 font-medium dark:text-white">BEAUTY</Link>
-              <Link to="/products?category=SportsFitness" className="hover:text-ocean-600 font-medium dark:text-white">SPORTS</Link>
-              <Link to="/products?new=true" className="hover:text-ocean-600 font-medium text-green-600 dark:text-green-400">NEW IN</Link>
-              <Link to="/products?sale=true" className="hover:text-ocean-600 font-medium text-red-600 dark:text-red-400">SALE %</Link>
-            </div>
-
-            {/* Brands Dropdown */}
-            <div 
-              className="relative hidden lg:block"
-              onMouseEnter={() => setShowBrandsMenu(true)}
-              onMouseLeave={() => setShowBrandsMenu(false)}
-            >
-              <button className="flex items-center gap-2 px-4 py-2 hover:text-ocean-600 font-medium dark:text-white">
-                <span>BRANDS</span>
-                <span>▼</span>
-              </button>
-              
-              {showBrandsMenu && (
-                <div className="absolute top-full right-0 mt-1 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-2xl z-50">
-                  <div className="p-2">
-                    {['Nike', 'Adidas', 'Apple', 'Samsung', 'Sony', 'LG'].map((brand, idx) => (
-                      <Link
-                        key={idx}
-                        to={`/products?brand=${brand}`}
-                        className="block p-3 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg dark:text-white"
-                      >
-                        {brand}
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-              )}
+            <div className="flex items-center gap-6 flex-shrink-0">
+              <Link to="/products?category=WomensFashion" className="text-sm font-medium hover:text-cyan-600 whitespace-nowrap">نساء</Link>
+              <Link to="/products?category=MensFashion" className="text-sm font-medium hover:text-cyan-600 whitespace-nowrap">رجال</Link>
+              <Link to="/products?category=KidsBaby" className="text-sm font-medium hover:text-cyan-600 whitespace-nowrap">أطفال</Link>
+              <Link to="/products?category=HomeKitchen" className="text-sm font-medium hover:text-cyan-600 whitespace-nowrap">المنزل</Link>
+              <Link to="/products?category=Beauty" className="text-sm font-medium hover:text-cyan-600 whitespace-nowrap">الجمال</Link>
+              <Link to="/products?new=true" className="text-sm font-medium text-green-600 hover:text-green-700 whitespace-nowrap">جديد</Link>
+              <Link to="/products?sale=true" className="text-sm font-medium text-red-600 hover:text-red-700 whitespace-nowrap">تخفيضات</Link>
             </div>
 
             {/* Services Menu */}
-            <div className="relative hidden lg:block group">
-              <button className="flex items-center gap-2 px-4 py-2 hover:text-ocean-600 font-medium text-ocean-600 dark:text-ocean-400">
-                <span>🚀 SERVICES</span>
-                <span>▼</span>
+            <div className="relative flex-shrink-0 group">
+              <button className="flex items-center gap-1 px-3 py-2 text-sm font-medium text-cyan-600 hover:text-cyan-700">
+                <span>الخدمات</span>
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
               </button>
               
-              <div className="absolute top-full right-0 mt-1 w-64 bg-white dark:bg-gray-800 rounded-xl shadow-2xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all">
-                <div className="p-3 grid grid-cols-1 gap-1">
-                  <Link to="/food" className="flex items-center gap-3 p-3 hover:bg-orange-50 dark:hover:bg-orange-900/20 rounded-lg transition">
-                    <span className="text-2xl">🍔</span>
-                    <div>
-                      <span className="font-medium text-gray-900 dark:text-white block">طلب الطعام</span>
-                      <span className="text-xs text-gray-500">مطاعم ومقاهي</span>
-                    </div>
-                  </Link>
-                  <Link to="/rides" className="flex items-center gap-3 p-3 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition">
-                    <span className="text-2xl">🚗</span>
-                    <div>
-                      <span className="font-medium text-gray-900 dark:text-white block">المشاوير</span>
-                      <span className="text-xs text-gray-500">توصيل وتنقل</span>
-                    </div>
-                  </Link>
-                  <Link to="/hotels" className="flex items-center gap-3 p-3 hover:bg-purple-50 dark:hover:bg-purple-900/20 rounded-lg transition">
-                    <span className="text-2xl">🏨</span>
-                    <div>
-                      <span className="font-medium text-gray-900 dark:text-white block">الفنادق</span>
-                      <span className="text-xs text-gray-500">حجز إقامات</span>
-                    </div>
-                  </Link>
-                  <Link to="/experiences" className="flex items-center gap-3 p-3 hover:bg-pink-50 dark:hover:bg-pink-900/20 rounded-lg transition">
-                    <span className="text-2xl">🎭</span>
-                    <div>
-                      <span className="font-medium text-gray-900 dark:text-white block">التجارب</span>
-                      <span className="text-xs text-gray-500">أنشطة ومغامرات</span>
-                    </div>
-                  </Link>
-                  <Link to="/services" className="flex items-center gap-3 p-3 hover:bg-amber-50 dark:hover:bg-amber-900/20 rounded-lg transition">
-                    <span className="text-2xl">🔧</span>
-                    <div>
-                      <span className="font-medium text-gray-900 dark:text-white block">خدمات منزلية</span>
-                      <span className="text-xs text-gray-500">صيانة وتنظيف</span>
-                    </div>
-                  </Link>
-                  <div className="border-t dark:border-gray-700 my-2"></div>
-                  <Link to="/subscriptions" className="flex items-center gap-3 p-3 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-lg transition">
-                    <span className="text-2xl">⭐</span>
-                    <div>
-                      <span className="font-medium text-gray-900 dark:text-white block">الاشتراكات</span>
-                      <span className="text-xs text-gray-500">وفر مع Ocean Plus</span>
-                    </div>
-                  </Link>
-                  <Link to="/join" className="flex items-center gap-3 p-3 bg-ocean-50 dark:bg-ocean-900/20 hover:bg-ocean-100 rounded-lg transition">
-                    <span className="text-2xl">🤝</span>
-                    <div>
-                      <span className="font-medium text-ocean-600 block">انضم إلينا</span>
-                      <span className="text-xs text-gray-500">كبائع أو سائق</span>
-                    </div>
-                  </Link>
-                </div>
+              <div className="absolute top-full left-0 mt-0 w-56 bg-white rounded-b shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all border border-gray-100">
+                <Link to="/food" className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 border-b border-gray-50">
+                  <span className="text-lg">🍔</span>
+                  <span className="text-sm">طلب الطعام</span>
+                </Link>
+                <Link to="/rides" className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 border-b border-gray-50">
+                  <span className="text-lg">🚗</span>
+                  <span className="text-sm">المشاوير</span>
+                </Link>
+                <Link to="/hotels" className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 border-b border-gray-50">
+                  <span className="text-lg">🏨</span>
+                  <span className="text-sm">الفنادق</span>
+                </Link>
+                <Link to="/experiences" className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 border-b border-gray-50">
+                  <span className="text-lg">🎭</span>
+                  <span className="text-sm">التجارب</span>
+                </Link>
+                <Link to="/services" className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 border-b border-gray-50">
+                  <span className="text-lg">🔧</span>
+                  <span className="text-sm">خدمات منزلية</span>
+                </Link>
+                <Link to="/subscriptions" className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 border-b border-gray-50">
+                  <span className="text-lg">⭐</span>
+                  <span className="text-sm">الاشتراكات</span>
+                </Link>
+                <Link to="/join" className="flex items-center gap-3 px-4 py-3 bg-cyan-50 hover:bg-cyan-100">
+                  <span className="text-lg">🤝</span>
+                  <span className="text-sm text-cyan-600 font-medium">انضم إلينا</span>
+                </Link>
               </div>
+            </div>
+
+            {/* Brands */}
+            <div 
+              className="relative flex-shrink-0"
+              onMouseEnter={() => setShowBrandsMenu(true)}
+              onMouseLeave={() => setShowBrandsMenu(false)}
+            >
+              <button className="flex items-center gap-1 px-3 py-2 text-sm font-medium hover:text-cyan-600">
+                <span>الماركات</span>
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+              
+              {showBrandsMenu && (
+                <div className="absolute top-full left-0 mt-0 w-40 bg-white rounded-b shadow-xl z-50 border border-gray-100">
+                  {['Nike', 'Adidas', 'Apple', 'Samsung', 'Sony', 'LG'].map((brand, idx) => (
+                    <Link
+                      key={idx}
+                      to={`/products?brand=${brand}`}
+                      className="block px-4 py-2.5 text-sm hover:bg-gray-50 border-b border-gray-50 last:border-b-0"
+                    >
+                      {brand}
+                    </Link>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </div>
       </nav>
+
+      {/* Mobile Search Bar */}
+      <div className="md:hidden bg-white px-4 py-2 border-b">
+        <form onSubmit={handleSearch} className="relative">
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder={t('searchPlaceholder')}
+            className="w-full px-4 py-2 text-sm bg-gray-100 rounded focus:outline-none focus:ring-1 focus:ring-cyan-400"
+            data-testid="mobile-search-input"
+          />
+          <button type="submit" className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-500">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </button>
+        </form>
+      </div>
     </header>
   );
 };
